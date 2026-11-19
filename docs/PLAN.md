@@ -152,8 +152,8 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | Fase | Estado |
 |---|---|
 | F0 | ✅ |
-| F1 | ✅ (pendiente de commit y de tu prueba con `.env`) |
-| F2 | ⬜ |
+| F1 | ✅ |
+| F2 | ✅ (pendiente de prueba y commit) |
 | F3 | ⬜ |
 | F4 | ⬜ |
 | F5 | ⬜ |
