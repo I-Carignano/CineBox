@@ -4,6 +4,8 @@
 
 Aplicación full stack (backend + frontend) con autenticación Better Auth, desplegada en Render. Trabajo práctico 2 de Programación Web Full Stack (UAI).
 
+Repositorio: <https://github.com/I-Carignano/TP2-Peliculas>
+
 ## 1. Descripción de la app y de la entidad
 
 _Pendiente (F11): descripción de la app y campos/tipos de `Movie`._
