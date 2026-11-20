@@ -1,11 +1,56 @@
 // Capa de servicio: la lógica de negocio y el acceso a datos de películas, en UN solo lugar.
 // No sabe nada de HTTP (req/res). Los ids llegan ya validados (isValidObjectId) por el controller.
 // replace/update/delete reciben el documento ya buscado: así el controller puede chequear 404 y dueño antes.
-import { QueryFilter } from "mongoose";
-import Movie, { IMovieDocument } from "../models/Movie.js";
+import mongoose, { QueryFilter, Types } from "mongoose";
+import Movie, { IMovie, IMovieDocument } from "../models/Movie.js";
 import { escapeRegex } from "../lib/escape-regex.js";
 import { CreateMovieInput, ListMoviesInput, UpdateMovieInput } from "../schemas/movie.schema.js";
 import { Paginated } from "../types/pagination.types.js";
+
+// Quién cargó la película: solo datos públicos (nunca el email). username es null si el usuario no tiene
+// (entró con GitHub/Google); name es null si el usuario ya no existe. El front muestra username, si no name.
+export interface MovieAuthor {
+  id: string;
+  username: string | null;
+  name: string | null;
+}
+
+// La película tal como sale en GET lista, GET por id y QUERY.
+export interface MovieWithAuthor extends IMovie {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  author: MovieAuthor;
+}
+
+// Los usuarios de Better Auth viven en la colección "user" (no hay modelo Mongoose: no es populate).
+interface AuthorDoc {
+  _id: Types.ObjectId | string;
+  username?: string | null;
+  name?: string | null;
+}
+
+// Agrega `author` a cada película con UNA sola consulta a la colección de usuarios (proyectando solo
+// username y name), sin importar cuántas películas haya en la página.
+async function withAuthors(movies: IMovieDocument[]): Promise<MovieWithAuthor[]> {
+  const ids = [...new Set(movies.map((movie) => movie.createdBy))];
+  // Better Auth puede guardar el _id como ObjectId o como string: se buscan las dos formas.
+  const lookupIds = ids.flatMap((id) => (Types.ObjectId.isValid(id) ? [id, new Types.ObjectId(id)] : [id]));
+
+  const authors = await mongoose.connection
+    .collection<AuthorDoc>("user")
+    .find({ _id: { $in: lookupIds } }, { projection: { username: 1, name: 1 } })
+    .toArray();
+  const byId = new Map(authors.map((author) => [String(author._id), author]));
+
+  return movies.map((movie) => {
+    const author = byId.get(movie.createdBy);
+    return {
+      ...(movie.toJSON() as Omit<MovieWithAuthor, "author">),
+      author: { id: movie.createdBy, username: author?.username ?? null, name: author?.name ?? null },
+    };
+  });
+}
 
 // El filtro se arma campo por campo desde input ya validado por Zod: nunca se pasa el input crudo
 // a Mongo (eso permitiría inyectar operadores como { "$gt": "" }).
@@ -28,7 +73,7 @@ function buildFilter(
   return filter;
 }
 
-export async function listMovies(input: ListMoviesInput, userId?: string): Promise<Paginated<IMovieDocument>> {
+export async function listMovies(input: ListMoviesInput, userId?: string): Promise<Paginated<MovieWithAuthor>> {
   const { page, limit, sortBy, sortOrder } = input;
   const filter = buildFilter(input, userId);
 
@@ -41,11 +86,17 @@ export async function listMovies(input: ListMoviesInput, userId?: string): Promi
     Movie.countDocuments(filter),
   ]);
 
-  return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+  return { data: await withAuthors(data), meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
 }
 
 export function findMovieById(id: string): Promise<IMovieDocument | null> {
   return Movie.findById(id);
+}
+
+// Para GET /:id: la película con su autor.
+export async function getMovieWithAuthor(movie: IMovieDocument): Promise<MovieWithAuthor> {
+  const [withAuthor] = await withAuthors([movie]);
+  return withAuthor;
 }
 
 export function createMovie(input: CreateMovieInput, createdBy: string): Promise<IMovieDocument> {

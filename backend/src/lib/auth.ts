@@ -1,9 +1,12 @@
 // Better Auth: guarda usuarios, sesiones y cuentas (GitHub/Google) en nuestro Mongo (colecciones user, session, account).
-// Roles con el plugin admin(): todo usuario nuevo es "user"; "admin" se asigna a mano o desde /admin/usuarios.
+// Roles con el plugin admin(): todo usuario nuevo es "user"; "admin" y "superadmin" los asigna el seed o un superadmin desde /admin/usuarios.
+// Nombre de usuario único con el plugin username() (el login sigue siendo por email); nombre y apellido son campos extra.
 import { betterAuth } from "better-auth";
-import { admin } from "better-auth/plugins";
+import { admin, username } from "better-auth/plugins";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { MongoClient } from "mongodb";
+import { ac, roles } from "./permissions.js";
+import { userManagementGuard } from "./user-management-guard.js";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -32,15 +35,55 @@ export const auth = betterAuth({
     github: {
       clientId: requireEnv("GITHUB_CLIENT_ID"),
       clientSecret: requireEnv("GITHUB_CLIENT_SECRET"),
+      // GitHub solo da un "name" completo: primera palabra = nombre, el resto = apellido. No se inventa username.
+      mapProfileToUser: (profile) => {
+        const [firstName, ...rest] = (profile.name ?? "").trim().split(/\s+/).filter(Boolean);
+        return { firstName, lastName: rest.join(" ") || undefined };
+      },
     },
     ...(googleEnabled
-      ? { google: { clientId: googleClientId!, clientSecret: googleClientSecret! } }
+      ? {
+          google: {
+            clientId: googleClientId!,
+            clientSecret: googleClientSecret!,
+            // Google ya separa nombre y apellido.
+            mapProfileToUser: (profile) => ({
+              firstName: profile.given_name,
+              lastName: profile.family_name,
+            }),
+          },
+        }
       : {}),
   },
-  // Si alguien ya registrado con email+password entra con GitHub/Google (mismo email), une las cuentas
-  // en vez de tirar account_not_linked.
-  account: {
-    accountLinking: { trustedProviders: ["github", "google"] },
+  user: {
+    // Campos extra del registro por email. Los usuarios de GitHub/Google no los tienen (se muestra su name).
+    additionalFields: {
+      // required:false para no romper el alta por GitHub/Google; el registro por email los exige en el Zod del front.
+      firstName: { type: "string", required: false, input: true },
+      lastName: { type: "string", required: false, input: true },
+    },
   },
-  plugins: [admin({ defaultRole: "user", adminRoles: ["admin"] })],
+  account: {
+    accountLinking: {
+      enabled: true,
+      // Si alguien ya registrado con email+password entra con GitHub/Google (mismo email), une las cuentas
+      // en vez de tirar account_not_linked.
+      trustedProviders: ["github", "google"],
+      // Vincular a mano desde /perfil (linkSocial, con sesión iniciada) una cuenta que tiene OTRO email.
+      allowDifferentEmails: true,
+    },
+  },
+  // Reglas sobre el usuario objetivo en la gestión de usuarios (el admin solo toca "user", nadie cambia su rol).
+  hooks: { before: userManagementGuard },
+  plugins: [
+    // Los permisos de cada rol sobre los usuarios viven en lib/permissions.ts.
+    admin({ ac, roles, defaultRole: "user", adminRoles: ["admin", "superadmin"] }),
+    username({
+      minUsernameLength: 3,
+      maxUsernameLength: 30,
+      // Letras, números, guion bajo y punto. Se normaliza a minúsculas: es único sin distinguir mayúsculas.
+      usernameValidator: (value) => /^[a-zA-Z0-9_.]+$/.test(value),
+      displayUsername: false, // un solo campo de usuario alcanza
+    }),
+  ],
 });

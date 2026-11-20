@@ -1,5 +1,5 @@
 // Mapeo entre (método HTTP + ruta) y controller. Sin lógica de negocio acá.
-// Lectura pública; escritura para user y admin (authMiddleware primero, después el rol, después la validación).
+// Lectura pública; escritura para user, admin y superadmin (authMiddleware primero, después el rol, después la validación).
 import { Router } from "express";
 import {
   listMovies,
@@ -21,7 +21,7 @@ import {
 
 const router = Router();
 // Cualquier usuario logueado puede escribir; el controller limita al user a sus propias películas (lib/ownership.ts).
-const canWrite = [authMiddleware, requireRole("user", "admin")];
+const canWrite = [authMiddleware, requireRole("user", "admin", "superadmin")];
 
 router.get("/", optionalAuth, validateQuery(listMoviesQuerySchema), listMovies);
 // Extra (como el repo del profe): los mismos filtros en el body. QUERY es un método HTTP nuevo.

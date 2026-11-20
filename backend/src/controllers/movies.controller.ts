@@ -65,7 +65,7 @@ async function findOwnedOrReply(
 
 export async function getMovieById(req: Request<{ id: string }>, res: Response): Promise<void> {
   const movie = await findOrReply(req.params.id, res);
-  if (movie) res.status(200).json(movie);
+  if (movie) res.status(200).json(await moviesService.getMovieWithAuthor(movie));
 }
 
 export async function createMovie(req: Request<{}, {}, CreateMovieInput>, res: Response): Promise<void> {
