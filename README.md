@@ -1,6 +1,6 @@
-# TP2 — App de Películas
+# Cinema 24 — TP2 App de Películas
 
-Aplicación full stack (backend + frontend) con autenticación Better Auth, desplegada en Render. Trabajo práctico 2 de Programación Web Full Stack (UAI).
+**Cinema 24** es una aplicación full stack (backend + frontend) con autenticación Better Auth, desplegada en Render. Trabajo práctico 2 de Programación Web Full Stack (UAI).
 
 - Repositorio: <https://github.com/I-Carignano/TP2-Peliculas>
 - **Frontend:** <https://tp2-peliculas.onrender.com>
@@ -63,14 +63,14 @@ Todo usuario nuevo es `user`. `admin` y `superadmin` los asigna el seed o un sup
 | Editar / borrar películas | **Solo las suyas** | Todas | Todas |
 | Ver la lista de usuarios (`/admin/usuarios`) | No | Sí, **sin** los superadmin | Sí, todos |
 | Dar de baja, reactivar y eliminar usuarios | No | Solo usuarios con rol `user` | Todos, menos él mismo |
-| Cambiar roles | No | No | Todos, menos él mismo |
+| Cambiar roles | No | **Solo ascender un `user` a `admin`**; después no puede tocarlo | Todos, menos él mismo |
 
 ### Desvíos respecto de la consigna
 
 - **Rol `user` con escritura sobre lo suyo (aprobado por el docente).** La consigna dice que `user` solo puede leer y que las rutas de escritura van con `requireRole("admin")`. Se consultó al docente y aprobó que el `user` pueda **crear, editar y borrar sus propias películas** (el opcional "cada usuario edita solo lo suyo"); el `admin` sigue pudiendo con todas. Las rutas de escritura usan `authMiddleware` + `requireRole("user", "admin", "superadmin")` y el permiso fino (dueño o admin) se resuelve en el controller (`backend/src/lib/ownership.ts`).
-- **Rol `superadmin` y reglas del admin sobre usuarios (agregado propio, no pedido por la consigna).** Se agregó un tercer rol y la regla de que un admin solo gestiona usuarios comunes. **Se aplica en el backend**, no solo ocultando botones: 
-  - el **control de acceso del plugin `admin`** de Better Auth (`backend/src/lib/permissions.ts`) define qué acciones puede cada rol: el admin solo puede listar, dar de baja y eliminar (nunca cambiar roles; devuelve 403 aunque se llame con `curl`);
-  - un **hook** (`backend/src/lib/user-management-guard.ts`) controla sobre *quién*: impide que un admin gestione a otros admin o superadmin (403) y que cualquiera se cambie su propio rol (400).
+- **Rol `superadmin` y reglas del admin sobre usuarios (agregado propio, no pedido por la consigna).** Se agregó un tercer rol y la regla de que un admin solo gestiona usuarios comunes (y solo puede ascender a un usuario a admin). **Se aplica en el backend**, no solo ocultando botones: 
+  - el **control de acceso del plugin `admin`** de Better Auth (`backend/src/lib/permissions.ts`) define qué acciones puede cada rol: el admin puede listar, cambiar rol, dar de baja y eliminar; el `user` ninguna (403 aunque se llame con `curl`);
+  - un **hook** (`backend/src/lib/user-management-guard.ts`) controla sobre *quién*: impide que un admin gestione a otros admin o superadmin (403), restringe el cambio de rol del admin a `user` → `admin` (cualquier otro rol nuevo, como `superadmin`, da 403) y evita que cualquiera se cambie su propio rol (400).
 
 ## 5. Endpoints de la API
 
@@ -116,6 +116,9 @@ Opcionales de la consigna:
 - **Página de admin para cambiar roles** (`/admin/usuarios`, `admin.setRole` de Better Auth).
 
 Agregados propios:
+
+- **Marca Cinema 24:** logo, favicon, paleta propia (rojo `#C5162E`, tinta `#211B1C`, fondo rosa `#FBECEE`) con contraste revisado, encabezado del catálogo y footer.
+- **Botones de Google y GitHub** con sus íconos oficiales (SVG inline) en login, registro y perfil.
 
 - **Nombre de usuario** único (`@usuario`) y **completar perfil** obligatorio para quien entra con GitHub/Google.
 - **Perfil editable** (usuario, nombre y apellido) con lápiz y modal.

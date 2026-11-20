@@ -189,6 +189,20 @@ Commits:
 - `feat(frontend): require completing the profile before using the app`
 - `chore(backend): add movie posters to the seed`
 
+## F12 — Marca Cinema 24, íconos sociales, footer y rol del admin ✅
+
+- [x] Marca: nombre "Cinema 24" (title, header con logo, privacidad, README), favicon y apple-touch-icon (se borró el favicon de Vite), paleta en `@theme` con contraste revisado, encabezado del catálogo con "Crear cuenta" sin sesión, logo arriba de login y registro.
+- [x] Botones de Google y GitHub con íconos oficiales (`SocialButton`, `SocialLogin`) en login, registro (antes no tenía) y perfil (cuentas vinculadas con ícono).
+- [x] Footer "© 2026 Cinema 24 · Privacidad" en `Footer`, pegado al fondo en Layout y `AuthCard`; se sacó el link de privacidad de dentro de la tarjeta de login/registro.
+- [x] Rol del admin: `permissions.ts` suma `user:set-role`; el hook solo deja al admin ascender `user` → `admin` (otro rol → 403); `/admin/usuarios` muestra el select (Usuario / Administrador) al admin solo en filas `user`.
+- Probado con curl contra el dev server: admin asciende user → admin (200) y después no puede tocarlo (403); set-role a superadmin (403); sobre sí mismo (400); user (403).
+
+Commits:
+- `feat(backend): let admins promote users to admin`
+- `feat(frontend): add cinema 24 branding, palette and favicon`
+- `feat(frontend): add social login buttons with brand icons and footer`
+- `docs: update readme, spec and plan for cinema 24`
+
 ## F9 — OAuth ✅
 
 - [x] GitHub OAuth App local, probar el login, vinculación de cuentas y `email_not_found`.
@@ -247,4 +261,5 @@ Commits:
 | F9 | ✅ |
 | F10 prep (privacidad, ajustes de producción, DEPLOY.md) | ✅ |
 | F10 (deploy en Render) | ✅ |
-| F11 | ✅ (pendiente de commit) |
+| F11 | ✅ |
+| F12 (marca, íconos sociales, footer, rol del admin) | ✅ (pendiente de prueba visual y commit) |
