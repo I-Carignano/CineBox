@@ -31,7 +31,7 @@ export const MoviesList = () => {
           <h1 className="text-3xl font-bold tracking-tight text-ink">Cinema 24</h1>
           <p className="mt-1 text-slate-700">
             El catálogo de películas que arma la comunidad. Explorá sin cuenta, y registrate para
-            sumar tus películas, puntuarlas y gestionarlas.
+            sumar tus películas y gestionarlas.
           </p>
         </div>
         {!isPending && !session && (
