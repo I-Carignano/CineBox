@@ -97,7 +97,7 @@ Commits:
 
 ## F6 — Auth en el front
 
-- [ ] `schemas/auth.schema.ts` (login, register: name 2–80, email, password mín. 8 + confirmación).
+- [ ] `schemas/auth.schema.ts` (login, register: email, password mín. 8 + confirmación; usuario/nombre/apellido se sumaron en F8b).
 - [ ] `Login` (email, GitHub, Google si está habilitado, manejo de `?error=`), `Register`, logout.
 - [ ] `ProtectedRoute` con `isPending` y `roles`.
 - [ ] `Profile`.
@@ -118,16 +118,76 @@ Commits:
 
 ## F8 — ABM de películas y usuarios
 
-- [ ] `schemas/movie.schema.ts` (espejo del back), mutations en `moviesApi` (crear, editar con PATCH, eliminar) y `MovieForm` (alta y edición con `values`, select de género, date input, checkbox).
-- [ ] `/mis-peliculas` (`MyMovies`, cualquier usuario logueado): ABM de **sus** películas (`mine=true`) reutilizando `MovieForm`. Link "Mis películas" en el header si hay sesión.
-- [ ] `/admin` (`AdminMovies`, solo admin): ABM de **todas**, con filtro "Mis películas"; eliminar con confirmación; errores de `unwrap()`.
-- [ ] `/admin/usuarios` (`AdminUsers`, solo admin): `authClient.admin.listUsers` + `setRole` (no dejar que un admin se quite el rol a sí mismo).
-- [ ] Rutas protegidas en el router (`ProtectedRoute` con y sin `roles`); user común en `/admin` va a `/perfil` con aviso.
+- [x] `schemas/movie.schema.ts` (espejo del back), mutations en `moviesApi` (crear, editar con PUT, eliminar) y `MovieForm` (alta y edición con `values`, select de género, date input, checkbox).
+- [x] `/mis-peliculas` (`MyMovies`, cualquier usuario logueado): ABM de **sus** películas (`mine=true`) reutilizando `MovieForm`. Link "Mis películas" en el header si hay sesión.
+- [x] `/admin` (`AdminMovies`, solo admin): ABM de **todas**, con filtro "Mis películas"; eliminar con confirmación; errores de `unwrap()`.
+- [x] `/admin/usuarios` (`AdminUsers`, solo admin): `authClient.admin.listUsers` + `setRole` (no dejar que un admin se quite el rol a sí mismo).
+- [x] Rutas protegidas en el router (`ProtectedRoute` con y sin `roles`); user común en `/admin` va a `/perfil` con aviso.
 
 Commits:
 - `feat(frontend): add movie form and my movies page`
 - `feat(frontend): add admin movies crud`
 - `feat(frontend): add admin page to change user roles`
+
+## F8b — Nombre de usuario y autor visible
+
+- [x] Backend: plugin `username()` + `user.additionalFields` (`firstName`, `lastName`, opcionales en el back y obligatorios en el Zod del registro); login sigue por email. Usuarios de GitHub/Google sin username (se muestra su `name`).
+- [x] Backend: `author: { id, username, name }` en GET lista, GET por id y QUERY, con **una** consulta a `user` (sin populate ni email).
+- [x] Seed: `admin` (Admin Peliculas) y `usuario` (Usuario Prueba); si existen, se actualizan.
+- [x] Frontend: registro con usuario, nombre, apellido, email y contraseña; `usernameClient()`; errores de username en español en su campo.
+- [x] Frontend: columna Autor ("Vos" / `@username` / "—"), "Cargada por" en el detalle, usuario/nombre/apellido en el perfil y columna Usuario en `/admin/usuarios`.
+
+Commits:
+- `feat(auth): add username, first name and last name to users`
+- `feat(backend): include movie author in responses`
+- `feat(frontend): add username to register and show movie author`
+
+## F8c — Superadmin, gestión de usuarios e ID visible
+
+- [x] Backend: control de acceso del plugin admin (`lib/permissions.ts`): `superadmin` con permisos completos de usuarios, `admin` solo `list`, `user` nada. Lo aplica Better Auth (403 si un admin llama `set-role`/`ban-user`/`remove-user` a mano).
+- [x] Backend: `requireRole` de escritura y el bypass de ownership incluyen `superadmin`. `GET /api/config` no cambia (el front saca el rol de la sesión).
+- [x] Seed: superadmin (`SEED_SUPERADMIN_*`, username `superadmin`), re-ejecutable; `.env.example` actualizado.
+- [x] Usuario eliminado: sus películas quedan; el autor sale con `username` y `name` en `null` ("—").
+- [x] Frontend: superadmin entra a `/admin` como admin (`lib/roles.ts`).
+- [x] Frontend: `/admin/usuarios` con acciones solo para el superadmin (rol, dar de baja / reactivar, eliminar con confirmación), columna Estado y la propia fila bloqueada; el admin ve la tabla sin acciones.
+- [x] Frontend: login con cuenta dada de baja muestra el mensaje en español.
+- [x] Frontend: "ID: <id>" con botón Copiar en el detalle de película.
+
+Commits:
+- `feat(auth): add superadmin role with access control for user management`
+- `feat(frontend): add user management actions for superadmin`
+- `feat(frontend): show movie id with copy button in detail page`
+
+## F8d — Permisos por rol objetivo, perfil editable, vincular cuentas y modales
+
+- [x] Backend: `admin` pasa a tener `user: ["list", "ban", "delete"]` (sin `set-role`); superadmin sigue completo.
+- [x] Backend: hook `hooks.before` + `createAuthMiddleware` (`lib/user-management-guard.ts`) en `set-role`, `ban-user`, `unban-user` y `remove-user`: el admin solo gestiona usuarios con rol `user` (403 en español); nadie cambia su propio rol (400).
+- [x] Backend: `account.accountLinking` con `enabled`, `trustedProviders` y `allowDifferentEmails: true`; `mapProfileToUser` de GitHub (nombre y apellido) y de Google, sin generar username.
+- [x] Frontend `/admin/usuarios`: el admin no ve superadmin y solo actúa sobre `user`; el superadmin ve y gestiona a todos menos a sí mismo. Estado visible para ambos.
+- [x] Frontend `/perfil`: formulario (RHF + Zod) de usuario / nombre / apellido con `updateUser`, aviso si falta el username, email y rol solo lectura, vincular GitHub / Google con `linkSocial` (Google solo si está habilitado).
+- [x] Frontend: ID arriba de la tarjeta del detalle ("ID: #<id>" + Copiar).
+- [x] Frontend: `Modal` y `ConfirmDialog` reutilizables (sin librerías); todas las confirmaciones en modal; crear y editar película dentro de un modal.
+
+Commits:
+- `feat(auth): restrict admins to managing regular users and let users link accounts`
+- `feat(frontend): add reusable modal and confirm dialog`
+- `feat(frontend): move movie form and confirmations into modals`
+- `feat(frontend): add editable profile and account linking`
+- `feat(frontend): apply role rules in users admin page`
+
+## F8e — Perfil con lápiz, contraseña para cuentas sociales, completar perfil y pósters
+
+- [x] `/perfil` en modo lectura con lápiz en "Usuario" y "Nombre" (modal con Zod, `updateUser`, error de username en su campo); email y rol solo lectura. Se quitó el aviso "Completá tu nombre de usuario" (lo reemplaza `/completar-perfil`).
+- [x] Backend: `POST /api/perfil/contrasena` (`authMiddleware`, Zod, `auth.api.setPassword`; 400 si ya tiene cuenta `credential`).
+- [x] Frontend: en Cuentas vinculadas, "Email y contraseña — Agregar" (modal con contraseña + confirmación).
+- [x] `/completar-perfil` obligatorio (`ProfileGate` + `CompleteProfile`): sin username, todas las rutas redirigen ahí; con username, redirige al catálogo. Nombre y apellido precargados.
+- [x] Seed: `posterUrl` en las películas (TMDB / Wikimedia, verificadas) y actualización por título de las ya existentes. Las 15 con póster.
+
+Commits:
+- `feat(backend): add endpoint to set a password on social accounts`
+- `feat(frontend): make profile read-only with edit modals and add password to social accounts`
+- `feat(frontend): require completing the profile before using the app`
+- `chore(backend): add movie posters to the seed`
 
 ## F9 — OAuth
 
@@ -167,11 +227,15 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F2 | ✅ |
 | F3 | ✅ |
 | F4a (seed) | ✅ |
-| F4b (dueño) | ✅ (pendiente de prueba y commit) |
+| F4b (dueño) | ✅ |
 | F5 | ✅ |
 | F6 | ✅ |
 | F7 | ✅ |
-| F8 | ⬜ |
+| F8 | ✅ (pendiente de prueba y commit) |
+| F8b (usuario y autor) | ✅ (pendiente de prueba y commit) |
+| F8c (superadmin) | ✅ (pendiente de prueba y commit) |
+| F8d (permisos por rol, perfil, vincular, modales) | ✅ (pendiente de prueba y commit) |
+| F8e (perfil con lápiz, contraseña social, completar perfil, pósters) | ✅ (pendiente de prueba y commit) |
 | F9 | ⬜ |
 | F10 | ⬜ |
 | F11 | ⬜ |

@@ -8,7 +8,10 @@ Catálogo de películas full stack.
 
 - **Cualquiera (sin sesión):** ve el listado con búsqueda, filtros y paginación, y el detalle de cada película.
 - **`user` (rol por defecto al registrarse):** lo mismo, más su perfil. **Crea películas (quedan a su nombre) y edita/borra solo las suyas** desde `/mis-peliculas` (opcional "cada usuario edita solo sus registros").
-- **`admin`:** crea, edita y borra **todas** las películas desde `/admin` (con filtro "Mis películas") y gestiona usuarios y roles en `/admin/usuarios`.
+- **`admin`:** crea, edita y borra **todas** las películas desde `/admin` (con filtro "Mis películas"). En `/admin/usuarios` (F8d) **no ve a los superadmin**, ve a los admin sin acciones, y sobre los usuarios con rol `user` puede dar de baja, reactivar y eliminar. No cambia roles.
+- **`superadmin` (F8c):** todo lo del admin, más **gestionar usuarios** en `/admin/usuarios`: ve a todos y, sobre cualquiera menos sí mismo (admins incluidos), cambia el rol (`user` / `admin` / `superadmin`), da de baja (ban), reactiva (unban) y elimina. Un usuario eliminado deja sus películas en el catálogo (su autor se muestra como "—"). Nadie puede cambiarse su propio rol. Se crea con el seed (`SEED_SUPERADMIN_*`) o lo asigna otro superadmin.
+- **Perfil (F8d, F8e):** cualquier usuario logueado edita su nombre de usuario, nombre y apellido en `/perfil` (con el lápiz, en un modal) y puede vincular cuentas de GitHub/Google. Quien entró con GitHub/Google puede **agregar email y contraseña** para entrar también así. El email no se edita.
+- **Perfil completo obligatorio (F8e):** con sesión y sin nombre de usuario (cuentas sociales), todas las rutas redirigen a `/completar-perfil`.
 
 > **Desvío aprobado de la consigna.** La consigna dice "user: solo puede leer" y "escritura con `requireRole("admin")`". El profe aprobó (respuesta a P03: "Sí") este esquema, en el que el `user` también escribe sobre lo suyo. Conviene guardar esa respuesta (captura o mail) por si hace falta mostrarla; el README (F11) lo aclara.
 
@@ -44,6 +47,9 @@ El código va en inglés, como en el repo del profe (`Movie`, `movies.service.ts
 | `posterUrl` | String | `z.url().optional()` | opcional |
 | `createdBy` | String (id de usuario de Better Auth) | **no viene en el body** | lo pone el server con `req.user.id` |
 | `createdAt` / `updatedAt` | Date | — | `timestamps: true` |
+| `author` | — (no se guarda) | — | **Solo en las respuestas** de GET lista, GET por id y QUERY: `{ id, username, name }` (ver abajo) |
+
+**`author` (F8b).** El service junta los `createdBy` distintos de la página, hace **una** consulta a la colección `user` de Better Auth (proyectando solo `username` y `name`, sin populate ni email) y agrega a cada película `author: { id, username, name }`: `username` es el username real o `null` (los usuarios de GitHub/Google no tienen y no se les inventa uno) y `name` es el nombre o `null` (si el usuario ya no existe, ambos `null`). El front muestra `@username` si existe, si no `name`, si no "—". POST/PUT/PATCH devuelven la película sin `author`.
 
 `GENRES = ["accion", "aventura", "animacion", "ciencia_ficcion", "comedia", "documental", "drama", "fantasia", "romance", "suspenso", "terror"] as const`
 
@@ -65,16 +71,17 @@ Base: `/api`. Las rutas de la entidad cuelgan de `/api/peliculas` (como pide la 
 | GET | `/api/peliculas` | Público (con `mine=true` exige sesión) | 200 `{ data, meta }` | 400 query inválida, 401 si `mine=true` sin sesión |
 | QUERY | `/api/peliculas` | Público (con `mine: true` exige sesión) | 200 `{ data, meta }` | Igual que el GET, pero con los filtros en el **body** JSON (lineamiento del repo del profe) |
 | GET | `/api/peliculas/:id` | Público | 200 película | 400 id mal formado, 404 no existe |
-| POST | `/api/peliculas` | user o admin | 201 película creada (`createdBy` = el usuario) | 400 Zod, 401 |
-| PATCH | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 200 película actualizada | 400, 401, 403 (user sobre una ajena), 404 |
-| PUT | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
-| DELETE | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 204 sin body | 400, 401, 403 (user sobre una ajena), 404 |
+| POST | `/api/peliculas` | user, admin o superadmin | 201 película creada (`createdBy` = el usuario) | 400 Zod, 401 |
+| PATCH | `/api/peliculas/:id` | user (solo las suyas), admin y superadmin (todas) | 200 película actualizada | 400, 401, 403 (user sobre una ajena), 404 |
+| PUT | `/api/peliculas/:id` | user (solo las suyas), admin y superadmin (todas) | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
+| DELETE | `/api/peliculas/:id` | user (solo las suyas), admin y superadmin (todas) | 204 sin body | 400, 401, 403 (user sobre una ajena), 404 |
 | GET | `/api/auth/ok` | — | 200 `{ ok: true }` (healthcheck de Better Auth) | — |
+| POST | `/api/perfil/contrasena` | Logueado (cualquier rol) | 204 sin body. Body `{ newPassword }` (8 a 128 caracteres): agrega la cuenta de email y contraseña ("credential") al usuario logueado con `auth.api.setPassword`, para que quien entró con GitHub/Google pueda entrar también con su email | 400 Zod, 400 "Tu cuenta ya tiene email y contraseña" (ya tiene cuenta credential), 401 |
 | GET | `/api/config` | Público | 200 `{ googleEnabled }` (el front lo usa para mostrar u ocultar el botón de Google, porque no tiene `.env`) | — |
 | GET | `/health` | — | 200 `{ status, uptimeSeconds, timestamp }` | — |
-| * | `/api/auth/*` | Better Auth | sign-up/email, sign-in/email, sign-in/social, sign-out, get-session, callback/github, callback/google, admin/* | — |
+| * | `/api/auth/*` | Better Auth | sign-up/email, sign-in/email, sign-in/social, sign-out, get-session, callback/github, callback/google, admin/* (list-users, set-role, ban-user, unban-user, remove-user: **403** si el rol no tiene el permiso, ver §5) | — |
 
-PUT y PATCH: la consigna dice "PUT / PATCH". Implementamos **los dos** con la semántica correcta (PUT reemplazo completo, PATCH parcial). El front usa PATCH.
+PUT y PATCH: la consigna dice "PUT / PATCH". Implementamos **los dos** con la semántica correcta (PUT reemplazo completo, PATCH parcial). **El front edita con PUT**: el formulario siempre manda el objeto completo, y con PUT se puede borrar un póster o una sinopsis ya cargados (con PATCH, un campo omitido significa "no tocar"). PATCH queda disponible en la API.
 
 GET y QUERY: el **GET con query params es el obligatorio** (consigna) y es el que usa el front. `QUERY` es un extra que sigue al repo del profe: mismo service, mismo schema de filtros (en el body, con tipos nativos en vez de strings), y `QUERY` agregado a los métodos aceptados. Las dos rutas llaman al mismo `moviesService.list(filters)`.
 
@@ -128,21 +135,23 @@ Un body que no es JSON válido responde 400 "El JSON enviado no es válido".
 ### 4.4 Middlewares de escritura (orden)
 
 ```ts
-const canWrite = [authMiddleware, requireRole("user", "admin")];
+const canWrite = [authMiddleware, requireRole("user", "admin", "superadmin")];
 router.post("/", canWrite, validateBody(createMovieSchema), createMovie);
 router.put("/:id", canWrite, validateBody(createMovieSchema), replaceMovie);
 router.patch("/:id", canWrite, validateBody(updateMovieSchema), updateMovie);
 router.delete("/:id", canWrite, deleteMovie);
 ```
 
-**Regla del dueño (P03, resuelta: el profe aprobó el esquema).** `requireRole("user", "admin")` solo exige estar logueado con un rol conocido; el permiso fino va en el **controller**: buscar por id → 404 si no existe → 403 si `role !== "admin"` y `createdBy !== req.user.id` → recién ahí modificar. El admin no tiene ese chequeo. La regla vive en `lib/ownership.ts` (`canModifyMovie`).
+**Regla del dueño (P03, resuelta: el profe aprobó el esquema).** `requireRole("user", "admin", "superadmin")` solo exige estar logueado con un rol conocido; el permiso fino va en el **controller**: buscar por id → 404 si no existe → 403 si el rol no es `admin` ni `superadmin` y `createdBy !== req.user.id` → recién ahí modificar. Admin y superadmin no tienen ese chequeo. La regla vive en `lib/ownership.ts` (`canModifyMovie`).
 
-| | `user` | `admin` |
-|---|---|---|
-| Leer catálogo y detalle | ✅ (también sin sesión) | ✅ |
-| Crear (`createdBy` = él) | ✅ | ✅ |
-| Editar / borrar | Solo las suyas | Todas |
-| Usuarios y roles | ❌ | ✅ |
+| | `user` | `admin` | `superadmin` |
+|---|---|---|---|
+| Leer catálogo y detalle | ✅ (también sin sesión) | ✅ | ✅ |
+| Crear (`createdBy` = él) | ✅ | ✅ | ✅ |
+| Editar / borrar películas | Solo las suyas | Todas | Todas |
+| Ver la lista de usuarios | ❌ | ✅ (sin los superadmin) | ✅ (todos) |
+| Dar de baja, reactivar, eliminar usuarios | ❌ | Solo usuarios con rol `user` (si no, 403) | Todos menos él mismo |
+| Cambiar roles | ❌ | ❌ (403) | Todos menos él mismo |
 
 ## 5. Better Auth (backend)
 
@@ -152,8 +161,12 @@ router.delete("/:id", canWrite, deleteMovie);
 - `database: mongodbAdapter(client.db(), { client })`.
 - `emailAndPassword: { enabled: true }` (mínimo 8 caracteres por defecto).
 - `socialProviders.github` (obligatorio) y `socialProviders.google` (opcional, solo si están las variables `GOOGLE_*`; si faltan, no se registra el provider y el botón de Google se oculta).
-- `account.accountLinking.trustedProviders: ["github", "google"]`.
-- `plugins: [admin({ defaultRole: "user", adminRoles: ["admin"] })]`.
+- **Control de acceso (F8c)**, `src/lib/permissions.ts`: `createAccessControl(defaultStatements)` y tres roles sobre los usuarios: `superadmin` = `adminAc.statements` (permisos completos), `admin` = `{ user: ["list", "ban", "delete"] }` (listar, dar de baja / reactivar y eliminar; **sin `set-role`**), `user` = `{ user: [] }`. Lo aplica Better Auth en cada endpoint `/api/auth/admin/*`: un admin que llame `set-role` con curl recibe **403**, aunque salte el front. Banear/eliminarse a uno mismo lo rechaza el propio plugin (400).
+- **Hook sobre el usuario objetivo (F8d)**, `src/lib/user-management-guard.ts`, registrado con `hooks.before` + `createAuthMiddleware`: el permiso dice qué acciones puede hacer cada rol, pero no sobre quién. Antes de `/admin/set-role`, `ban-user`, `unban-user` y `remove-user` el hook busca al usuario objetivo y aplica: (1) nadie puede cambiarse su propio rol (**400** "No podés cambiarte el rol a vos mismo"); (2) si quien llama es `admin` y el objetivo no tiene rol `user` (admin o superadmin), **403** "Un administrador solo puede gestionar usuarios con rol usuario". El superadmin no tiene la regla 2. Sin sesión o sin `userId`, el hook no hace nada y responde el endpoint (401/400). Un usuario dado de baja no puede iniciar sesión (`BANNED_USER`) y se le cierran las sesiones abiertas. Eliminar un usuario no toca sus películas (`createdBy` queda como string): el autor sale con `username` y `name` en `null`.
+- `account.accountLinking: { enabled: true, trustedProviders: ["github", "google"], allowDifferentEmails: true }`. Con `trustedProviders`, entrar con GitHub/Google con el mismo email de una cuenta existente las une sin `account_not_linked`. Con `allowDifferentEmails`, un usuario **ya logueado** puede vincular desde `/perfil` (`linkSocial`) una cuenta de GitHub/Google que tiene otro email (Better Auth advierte que esto puede facilitar toma de cuentas: solo aplica al vínculo manual con sesión iniciada).
+- `mapProfileToUser`: GitHub separa `profile.name` en `firstName` (primera palabra) y `lastName` (el resto); Google usa `given_name` y `family_name`. **No se genera username**: lo completa el usuario en `/perfil`. Solo aplica a cuentas nuevas (no completa las ya creadas).
+- `plugins: [admin({ ac, roles, defaultRole: "user", adminRoles: ["admin", "superadmin"] }), username({ minUsernameLength: 3, maxUsernameLength: 30, usernameValidator: /^[a-zA-Z0-9_.]+$/, displayUsername: false })]`. El plugin guarda `username` normalizado a minúsculas y único (error `USERNAME_IS_ALREADY_TAKEN`). El login sigue siendo **por email** (el plugin expone `/sign-in/username`, pero el front no lo usa).
+- `user.additionalFields`: `firstName` y `lastName` (string, `required: false`, `input: true`, para no romper el alta por GitHub/Google; el registro por email los exige en el Zod del front). El registro manda `name = "firstName lastName"`. Los usuarios de GitHub/Google no tienen `username`, `firstName` ni `lastName`: para mostrarlos se usa su `name`.
 - En `server.ts`: `app.all("/api/auth/*splat", toNodeHandler(auth))` **antes** de `express.json()`.
 
 ## 6. Frontend
@@ -164,24 +177,31 @@ router.delete("/:id", canWrite, deleteMovie);
 |---|---|---|---|
 | `/` | redirect a `/peliculas` | — | — |
 | `/peliculas` | `MoviesList`: grilla, búsqueda, filtros, paginación | Pública | Sí |
-| `/peliculas/:id` | `MovieDetail` | Pública | Sí |
+| `/peliculas/:id` | `MovieDetail` (incluye "Cargada por @usuario") | Pública | Sí |
 | `/login` | `Login`: email + GitHub (+ Google) | Pública (si hay sesión, redirige) | No |
-| `/register` | `Register` | Pública | No |
-| `/perfil` | `Profile`: nombre, email, rol, cuentas vinculadas | Logueado | Sí |
-| `/mis-peliculas` | `MyMovies`: ABM de **sus** películas (`mine=true`), mismo `MovieForm` que el admin | Logueado (user o admin) | Sí |
-| `/admin` | `AdminMovies`: ABM de **todas** las películas, filtro "Mis películas" | admin | Sí |
-| `/admin/usuarios` | `AdminUsers`: listado + `authClient.admin.setRole` (un admin no puede quitarse su propio rol) | admin | Sí |
+| `/register` | `Register`: nombre de usuario, nombre, apellido, email, contraseña + confirmación | Pública | No |
+| `/completar-perfil` | `CompleteProfile`: email (solo lectura), nombre y apellido (precargados desde GitHub/Google, editables, obligatorios) y nombre de usuario (obligatorio). "Guardar y continuar" → `authClient.updateUser` → catálogo (recarga completa). Es la única pantalla que se ve sin username; tiene "Cerrar sesión". Sin sesión → `/login`; con username → `/peliculas` | Logueado sin username | No |
+| `/perfil` | `Profile`: datos en modo lectura. Lápiz junto a "Usuario" y junto a "Nombre" (nombre + apellido): abre un `Modal` con el/los campos (RHF + Zod, "Guardar cambios" / "Cancelar") y guarda con `authClient.updateUser` (`name = "Nombre Apellido"`); error de username en su campo. Email y rol: solo lectura, sin lápiz. Cuentas vinculadas: "Vincular GitHub" / "Vincular Google" (`linkSocial`, Google solo si `googleEnabled`) y, si no tiene cuenta `credential`, "Email y contraseña — Agregar" (modal con contraseña + confirmación → `POST /api/perfil/contrasena`: "Vas a poder entrar con <email> y esta contraseña") | Logueado | Sí |
+| `/mis-peliculas` | `MyMovies`: ABM de **sus** películas (`mine=true`), mismo `MovieForm` que el admin | Logueado (cualquier rol) | Sí |
+| `/admin` | `AdminMovies`: ABM de **todas** las películas, filtro "Mis películas" | admin o superadmin | Sí |
+| `/admin/usuarios` | `AdminUsers`: listado (usuario, nombre, email, rol, estado). **Superadmin:** ve a todos; en cada fila (menos la suya, sin acciones) select de rol (`setRole`), "Dar de baja" / "Reactivar" (`banUser` / `unbanUser`) y "Eliminar" (`removeUser`), también sobre admins. **Admin:** no ve filas de superadmin (`listUsers` con `filterField: "role"`, `filterOperator: "ne"`, `filterValue: "superadmin"`, más un filtro de respaldo en el front); acciones de baja / reactivar / eliminar solo en filas con rol `user`; sin select de rol. Ambos ven la columna Estado. Cambiar rol, dar de baja y eliminar piden confirmación en un modal (reactivar no) | admin o superadmin | Sí |
 | `*` | `NotFound` | — | Sí |
 
-Header: "Mis películas" si hay sesión; "Admin" solo si el rol es admin.
+**`ProfileGate`** (`router/ProfileGate.tsx`) envuelve todas las rutas menos `/completar-perfil`: con sesión y sin `username` redirige a `/completar-perfil` (cualquier ruta, incluido el catálogo). Mientras la sesión carga no bloquea nada, para que el catálogo público no espere.
+Header: "Mis películas" si hay sesión; "Admin" solo si el rol es admin o superadmin (`lib/roles.ts`).
+Login con cuenta dada de baja: "Tu cuenta fue dada de baja. Contactá a un administrador." (`BANNED_USER` en `lib/auth-errors.ts`).
+Detalle de película: primera línea dentro de la tarjeta, antes del póster y el título: "ID: #<id>" con botón "Copiar" (`CopyId`, copia el ID sin el `#`), útil para probar la API.
 Usuario común en `/admin` → `Navigate` a `/perfil` y aviso "No tenés permisos" (con `state`).
+Columna **Autor** del ABM: "Vos" si la película es mía; si no, `@username` si existe, si no su `name` (GitHub/Google), si no "—". Mismo formato en el detalle.
+Errores de username en el registro (ya usado, inválido, corto/largo) se muestran en el campo "Nombre de usuario", traducidos en `lib/auth-errors.ts`.
 
 ### 6.2 Reglas
 
 - `lib/api.ts`: `axios.create({ baseURL: "/api" })`. **Nunca** la URL del backend.
-- `lib/auth-client.ts`: `createAuthClient({ plugins: [adminClient()] })`, sin `baseURL`.
+- `lib/auth-client.ts`: `createAuthClient({ plugins: [adminClient({ ac, roles }), usernameClient(), inferAdditionalFields(...)] })`, sin `baseURL`. `lib/permissions.ts` del front repite los roles del back solo para que el cliente acepte `superadmin`; el permiso real lo aplica el backend.
 - Sesión: **solo** `useSession()`. Nada en `localStorage`.
 - Datos de películas: RTK Query (`store/moviesApi.ts`) con `providesTags` / `invalidatesTags`. El listado recibe los filtros como argumento de la query, así cada combinación queda en su propia entrada de caché.
+- Diálogos (F8d): `components/Modal.tsx` (sobre el `<dialog>` nativo con `showModal()`: fondo oscuro, caja centrada, cierra con Escape, click afuera o Cancelar; sin librerías) y `components/ConfirmDialog.tsx` (pregunta + resumen + "Sí, …" / "Cancelar"). Todas las confirmaciones usan `ConfirmDialog` (eliminar película, baja / eliminar usuario, cambiar rol) y el `MovieForm` de crear / editar se abre dentro de un `Modal`.
 - Formularios: React Hook Form + `zodResolver`, `noValidate`, errores por campo (`aria-invalid`) y `setError("root.server")` para errores del back. Edición con `values` (no `defaultValues`).
 - Schemas del front espejan los del back (mismas reglas y mensajes).
 - Filtros del listado sincronizados con la URL (`useSearchParams`): así se pueden compartir y sobreviven al F5.
@@ -217,6 +237,8 @@ SEED_ADMIN_EMAIL=
 SEED_ADMIN_PASSWORD=
 SEED_USER_EMAIL=
 SEED_USER_PASSWORD=
+SEED_SUPERADMIN_EMAIL=
+SEED_SUPERADMIN_PASSWORD=
 ```
 
 El frontend **no tiene `.env`**: no le hace falta ninguna variable.
@@ -225,9 +247,10 @@ El frontend **no tiene `.env`**: no le hace falta ninguna variable.
 
 `backend/scripts/seed.ts` (`npm run seed`):
 
-1. Crea el usuario admin y el usuario común con `auth.api.signUpEmail` (si ya existen, los saltea).
-2. Al admin le pone `role: "admin"` directo en la colección `user`.
+1. Crea el superadmin (`superadmin`, Super Admin), el admin (`admin`, Admin Peliculas) y el usuario común (`usuario`, Usuario Prueba) con `auth.api.signUpEmail`. Si ya existen, **les actualiza** `username`, `firstName`, `lastName` y `name` (re-ejecutable).
+2. Al superadmin y al admin les pone `role` directo en la colección `user` (y los reactiva si estaban dados de baja).
 3. Inserta unas 15 películas de ejemplo con `createdBy` = id del admin, solo si la colección está vacía.
+4. **Pósters (F8e):** cada película del seed trae `posterUrl` (de `image.tmdb.org/t/p/w500/...` cuando se pudo; algunas de Wikimedia). En cada corrida, el seed le pone el `posterUrl` a las películas del seed que ya existen, buscándolas por **título** (`updateOne({ title }, { $set: { posterUrl } })`): no crea películas nuevas ni toca otros campos ni las demás películas. Las 15 tienen póster.
 
 Flujo: se prueba todo contra la base de **dev**. Cuando el deploy está listo, se corre **una vez contra la de producción** para que los usuarios de prueba existan de verdad en Render:
 
