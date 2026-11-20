@@ -1,10 +1,10 @@
 // Page: ruta "/admin/usuarios" (admin y superadmin). Quién puede hacer qué:
 //   superadmin: ve a todos y, sobre cualquiera menos sí mismo, cambia el rol, da de baja / reactiva y elimina.
-//   admin:      NO ve a los superadmin; da de baja / reactiva y elimina solo usuarios con rol "user"
-//               (a los admin los ve pero sin acciones) y no cambia roles.
+//   admin:      NO ve a los superadmin; sobre usuarios con rol "user" da de baja / reactiva, elimina y puede
+//               ascenderlos a "admin" (select con Usuario / Administrador). A los admin los ve pero sin acciones.
 // Cada acción pide confirmación en un modal. Los datos salen de Better Auth (authClient.admin), no de nuestra
 // API, por eso no pasan por RTK Query. Los permisos los aplica el backend (control de acceso del plugin admin
-// + el hook lib/user-management-guard.ts): acá solo se ocultan los botones que darían 403.
+// + el hook lib/user-management-guard.ts): acá solo se ocultan los botones y opciones que darían 403.
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { authClient, useSession } from "../lib/auth-client";
@@ -81,11 +81,15 @@ export const AdminUsers = () => {
       });
   }, [viewerRole]);
 
-  // ¿Puedo actuar (dar de baja / reactivar / eliminar) sobre este usuario?
+  // ¿Puedo actuar (dar de baja / reactivar / eliminar / cambiar rol) sobre este usuario? Nunca sobre mí mismo.
+  // El superadmin sobre cualquiera; el admin solo sobre los que tienen rol "user".
   const canActOn = (user: AdminUser): boolean => {
     if (user.id === session?.user.id) return false;
     return isSuperadmin || (viewerRole === "admin" && roleOf(user) === "user");
   };
+
+  // Roles que puedo asignar: el superadmin, cualquiera; el admin, solo ascender a "admin" (user -> admin).
+  const assignableRoles: UserRole[] = isSuperadmin ? ROLES : ["user", "admin"];
 
   // Ejecuta una acción sobre un usuario: maneja el "ocupado", el error y, si salió bien, actualiza la lista.
   // El modal queda abierto (con los botones bloqueados) hasta que termina, y se cierra al final.
@@ -164,8 +168,8 @@ export const AdminUsers = () => {
 
       {!isSuperadmin && session && (
         <p className="rounded bg-slate-100 p-3 text-sm text-slate-600">
-          Podés dar de baja, reactivar y eliminar usuarios con rol Usuario. Cambiar roles y
-          gestionar administradores es solo del superadmin.
+          Sobre los usuarios con rol Usuario podés dar de baja, reactivar, eliminar y ascenderlos a
+          Administrador. Una vez administradores, solo el superadmin puede gestionarlos.
         </p>
       )}
 
@@ -185,7 +189,7 @@ export const AdminUsers = () => {
         </p>
       )}
       {users === null && !loadError && (
-        <p role="status" className="text-slate-500">
+        <p role="status" className="text-slate-600">
           Cargando usuarios...
         </p>
       )}
@@ -238,12 +242,12 @@ export const AdminUsers = () => {
                       <td className="px-3 py-2 font-medium">
                         {user.name}
                         {isSelf && (
-                          <span className="ml-2 text-xs font-normal text-slate-500">(vos)</span>
+                          <span className="ml-2 text-xs font-normal text-slate-600">(vos)</span>
                         )}
                       </td>
                       <td className="px-3 py-2">{user.email}</td>
                       <td className="px-3 py-2">
-                        {isSuperadmin && !isSelf ? (
+                        {canAct ? (
                           // El select sigue mostrando el rol actual hasta que se confirma el cambio en el modal.
                           <select
                             aria-label={`Rol de ${user.name}`}
@@ -258,7 +262,7 @@ export const AdminUsers = () => {
                             }
                             className="rounded border border-slate-300 bg-white px-2 py-1 disabled:opacity-60"
                           >
-                            {ROLES.map((value) => (
+                            {assignableRoles.map((value) => (
                               <option key={value} value={value}>
                                 {ROLE_LABELS[value]}
                               </option>
@@ -298,7 +302,7 @@ export const AdminUsers = () => {
                           </div>
                         ) : (
                           <span
-                            className="text-xs text-slate-400"
+                            className="text-xs text-slate-500"
                             title={
                               isSelf
                                 ? "No podés gestionarte a vos mismo"

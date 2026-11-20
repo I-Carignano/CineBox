@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, Navigate, useNavigate } from "react-router";
 import { AuthCard } from "../components/AuthCard";
 import { FormField } from "../components/FormField";
+import { SocialLogin } from "../components/SocialLogin";
 import { authErrorMessage, isUsernameError } from "../lib/auth-errors";
 import { signUp, useSession } from "../lib/auth-client";
 import { registerSchema, type RegisterFormValues } from "../schemas/auth.schema";
@@ -111,7 +112,7 @@ export const Register = () => {
           {...register("confirmPassword")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-700">
             {errors.root.server.message}
           </p>
         )}
@@ -123,6 +124,8 @@ export const Register = () => {
           {isSubmitting ? "Creando..." : "Crear cuenta"}
         </button>
       </form>
+      {/* Registrarse con GitHub/Google es lo mismo que entrar: si la cuenta no existe, se crea. */}
+      <SocialLogin callbackURL="/peliculas" />
       <p className="mt-4 text-center text-sm text-slate-600">
         ¿Ya tenés cuenta?{" "}
         <Link to="/login" className="font-medium text-brand-600 underline">

@@ -5,9 +5,9 @@ import { Link, Navigate, useLocation, useNavigate, type Location } from "react-r
 import { AuthCard } from "../components/AuthCard";
 import { FormField } from "../components/FormField";
 import { authErrorMessage } from "../lib/auth-errors";
+import { SocialLogin } from "../components/SocialLogin";
 import { signIn, useSession } from "../lib/auth-client";
 import { loginSchema, type LoginFormValues } from "../schemas/auth.schema";
-import { useGetAuthProvidersQuery } from "../store/moviesApi";
 
 // Códigos que Better Auth manda en /login?error=<código> cuando falla el login social.
 const OAUTH_ERRORS: Record<string, string> = {
@@ -22,7 +22,6 @@ const OAUTH_ERRORS: Record<string, string> = {
 
 export const Login = () => {
   const { data: session } = useSession();
-  const { data: providers } = useGetAuthProvidersQuery();
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -56,11 +55,6 @@ export const Login = () => {
     navigate(from, { replace: true });
   };
 
-  // OAuth: redirige al proveedor; al volver, Better Auth crea la sesión y manda al callbackURL.
-  // Si falla, vuelve a /login?error=<código> en vez de la página de error genérica de Better Auth.
-  const handleSocial = (provider: "github" | "google") =>
-    signIn.social({ provider, callbackURL: from, errorCallbackURL: "/login" });
-
   return (
     <AuthCard title="Iniciar sesión">
       {oauthError && (
@@ -85,7 +79,7 @@ export const Login = () => {
           {...register("password")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-700">
             {errors.root.server.message}
           </p>
         )}
@@ -97,27 +91,8 @@ export const Login = () => {
           {isSubmitting ? "Ingresando..." : "Ingresar"}
         </button>
       </form>
-      <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
-        <span className="h-px flex-1 bg-slate-200" />o<span className="h-px flex-1 bg-slate-200" />
-      </div>
-      <div className="flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={() => handleSocial("github")}
-          className="w-full rounded border border-slate-300 py-2 font-medium transition hover:bg-slate-100"
-        >
-          Entrar con GitHub
-        </button>
-        {providers?.googleEnabled && (
-          <button
-            type="button"
-            onClick={() => handleSocial("google")}
-            className="w-full rounded border border-slate-300 py-2 font-medium transition hover:bg-slate-100"
-          >
-            Entrar con Google
-          </button>
-        )}
-      </div>
+      {/* Google / GitHub: si falla, vuelve a /login?error=<código> (se muestra arriba, OAUTH_ERRORS). */}
+      <SocialLogin callbackURL={from} />
       <p className="mt-4 text-center text-sm text-slate-600">
         ¿No tenés cuenta?{" "}
         <Link to="/register" className="font-medium text-brand-600 underline">

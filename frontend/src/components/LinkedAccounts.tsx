@@ -9,6 +9,7 @@ import { authClient, useSession } from "../lib/auth-client";
 import { authErrorMessage } from "../lib/auth-errors";
 import { useGetAuthProvidersQuery } from "../store/moviesApi";
 import { AddPasswordModal } from "./AddPasswordModal";
+import { ProviderIcon, SocialButton, type SocialProvider } from "./SocialButton";
 
 const PROVIDER_LABELS: Record<string, string> = {
   credential: "Email y contraseña",
@@ -16,7 +17,22 @@ const PROVIDER_LABELS: Record<string, string> = {
   google: "Google",
 };
 
-type SocialProvider = "github" | "google";
+const isSocial = (id: string): id is SocialProvider => id === "github" || id === "google";
+
+// Sobre para "Email y contraseña" (no es un proveedor social, así que no tiene logo de marca).
+const EmailIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-5 w-5 shrink-0 text-slate-600"
+  >
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="m3 7 9 6 9-6" />
+  </svg>
+);
 
 export const LinkedAccounts = () => {
   const { data: session } = useSession();
@@ -48,23 +64,29 @@ export const LinkedAccounts = () => {
     <div>
       <h3 className="text-sm font-semibold text-slate-700">Cuentas vinculadas</h3>
       {linked === null ? (
-        <p className="text-sm text-slate-500">Cargando...</p>
+        <p className="text-sm text-slate-600">Cargando...</p>
       ) : (
         <>
-          <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
+          <ul className="mt-2 flex flex-col gap-2 text-sm text-slate-700">
             {linked.map((id) => (
-              <li key={id}>{PROVIDER_LABELS[id] ?? id}</li>
+              <li key={id} className="flex items-center gap-2">
+                {isSocial(id) ? <ProviderIcon provider={id} /> : <EmailIcon />}
+                {PROVIDER_LABELS[id] ?? id}
+              </li>
             ))}
             {!linked.includes("credential") && (
-              <li>
-                {PROVIDER_LABELS.credential} —{" "}
-                <button
-                  type="button"
-                  onClick={() => setAddingPassword(true)}
-                  className="font-medium text-brand-600 underline"
-                >
-                  Agregar
-                </button>
+              <li className="flex items-center gap-2">
+                <EmailIcon />
+                <span>
+                  {PROVIDER_LABELS.credential} —{" "}
+                  <button
+                    type="button"
+                    onClick={() => setAddingPassword(true)}
+                    className="font-medium text-brand-600 underline"
+                  >
+                    Agregar
+                  </button>
+                </span>
               </li>
             )}
           </ul>
@@ -72,20 +94,19 @@ export const LinkedAccounts = () => {
             {linkable
               .filter((provider) => !linked.includes(provider))
               .map((provider) => (
-                <button
+                <SocialButton
                   key={provider}
-                  type="button"
+                  compact
+                  provider={provider}
+                  label={`Vincular ${PROVIDER_LABELS[provider]}`}
                   onClick={() => handleLink(provider)}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-sm font-medium transition hover:bg-slate-100"
-                >
-                  Vincular {PROVIDER_LABELS[provider]}
-                </button>
+                />
               ))}
           </div>
         </>
       )}
       {linkError && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className="mt-2 text-sm text-red-700">
           {linkError}
         </p>
       )}

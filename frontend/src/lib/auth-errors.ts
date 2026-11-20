@@ -20,6 +20,7 @@ const MESSAGES: Record<string, string> = {
   // Del hook lib/user-management-guard.ts del backend.
   CANNOT_MANAGE_ADMINS: "Un administrador solo puede gestionar usuarios con rol usuario",
   CANNOT_CHANGE_OWN_ROLE: "No podés cambiarte el rol a vos mismo",
+  ADMIN_CAN_ONLY_PROMOTE_TO_ADMIN: "Un administrador solo puede ascender usuarios a administrador",
   USERNAME_IS_ALREADY_TAKEN: "Ese nombre de usuario ya está en uso",
   INVALID_USERNAME: "El nombre de usuario no es válido (letras, números, guion bajo y punto)",
   USERNAME_TOO_SHORT: "El nombre de usuario debe tener al menos 3 caracteres",
