@@ -108,7 +108,9 @@ Uno solo en toda la API (el repo del profe mezcla dos):
 { "success": false, "error": { "message": "Texto claro en español", "details": { "title": ["El título es obligatorio"] } } }
 ```
 
-`details` solo aparece en los 400 de Zod (`z.flattenError(err).fieldErrors`). Mensajes en español y claros.
+`details` solo aparece en los 400 de Zod (`z.flattenError(err).fieldErrors`). Los errores de Zod que no son de un campo (un campo desconocido como `createdBy`, o "Hay que mandar al menos un campo") van bajo la clave `_general`. Mensajes en español y claros (locale `es` de Zod + mensajes propios).
+
+Un body que no es JSON válido responde 400 "El JSON enviado no es válido".
 
 | Caso | Status | message |
 |---|---|---|

@@ -153,8 +153,8 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 |---|---|
 | F0 | ✅ |
 | F1 | ✅ |
-| F2 | ✅ (pendiente de prueba y commit) |
-| F3 | ⬜ |
+| F2 | ✅ |
+| F3 | ✅ (pendiente de prueba y commit) |
 | F4 | ⬜ |
 | F5 | ⬜ |
 | F6 | ⬜ |
