@@ -125,7 +125,7 @@ npm run seed
 - Reemplazá los `<...>` en la terminal; **no** los guardes en ningún archivo del repo.
 - Verificá en la salida la línea `[seed] base de datos: <nombre>`: tiene que ser la de producción y no la de desarrollo.
 - Para que no quede la URI en el historial de Git Bash, podés anteponer un espacio al comando (según la config de `HISTCONTROL`) o borrar la línea después.
-- Se puede correr más de una vez: a los usuarios existentes les actualiza datos y rol, las películas se cargan solo si la colección está vacía y los pósters se sincronizan por título.
+- Se puede correr más de una vez: a los usuarios existentes les actualiza datos y rol, las películas del seed se insertan solo si no existe una con ese título (nunca duplica ni toca las que cargaron los usuarios) y a las que ya existen solo se les sincroniza el póster. El final de la salida resume `películas nuevas: N, pósters actualizados: M`.
 - Los emails y contraseñas de prueba que elijas acá son los que van al README (sección "Usuarios de prueba"). Usá contraseñas de prueba, no reales: van a figurar en el README.
 
 ## 5. Checklist de verificación

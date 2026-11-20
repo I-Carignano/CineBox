@@ -255,8 +255,8 @@ El frontend **no tiene `.env`**: no le hace falta ninguna variable.
 
 1. Crea el superadmin (`superadmin`, Super Admin), el admin (`admin`, Admin Peliculas) y el usuario común (`usuario`, Usuario Prueba) con `auth.api.signUpEmail`. Si ya existen, **les actualiza** `username`, `firstName`, `lastName` y `name` (re-ejecutable).
 2. Al superadmin y al admin les pone `role` directo en la colección `user` (y los reactiva si estaban dados de baja).
-3. Inserta unas 15 películas de ejemplo con `createdBy` = id del admin, solo si la colección está vacía.
-4. **Pósters (F8e):** cada película del seed trae `posterUrl` (de `image.tmdb.org/t/p/w500/...` cuando se pudo; algunas de Wikimedia). En cada corrida, el seed le pone el `posterUrl` a las películas del seed que ya existen, buscándolas por **título** (`updateOne({ title }, { $set: { posterUrl } })`): no crea películas nuevas ni toca otros campos ni las demás películas. Las 15 tienen póster.
+3. **Películas (F12b):** el seed trae 31 películas de ejemplo. Por cada una, si **no existe** una con ese título se inserta con `createdBy` = id del admin del seed; si ya existe, no se inserta de nuevo (re-ejecutable, sin duplicar). Las películas que cargaron los usuarios no se tocan. Antes decidía por "colección vacía"; ahora es por título, así se pueden sumar películas nuevas al seed sin vaciar nada.
+4. **Pósters:** cada película del seed trae `posterUrl` (de `image.tmdb.org/t/p/w500/...`; solo algunas de Wikimedia). A las que ya existen, el seed les sincroniza el `posterUrl` buscándolas por **título** y solo si es distinto (`updateOne({ title, posterUrl: { $ne: posterUrl } }, { $set: { posterUrl } })`: no modifica nada más, ni `updatedAt`, en una segunda corrida). Las 31 tienen póster. El log final es `películas nuevas: N, pósters actualizados: M` (segunda corrida: 0 y 0).
 
 Flujo: se prueba todo contra la base de **dev**. Cuando el deploy está listo, se corre **una vez contra la de producción** para que los usuarios de prueba existan de verdad en Render:
 

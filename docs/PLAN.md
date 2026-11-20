@@ -203,6 +203,19 @@ Commits:
 - `feat(frontend): add social login buttons with brand icons and footer`
 - `docs: update readme, spec and plan for cinema 24`
 
+## F12b — Texto del catálogo y 16 películas nuevas en el seed ✅
+
+- [x] Bajada del catálogo sin "puntuarlas" (la app no tiene puntuación de usuarios).
+- [x] Seed: inserta cada película del seed si no existe una con ese título (`createdBy` = admin del seed) y, si existe, solo sincroniza el póster (únicamente si cambia). Log: "películas nuevas: N, pósters actualizados: M".
+- [x] 16 películas nuevas (31 en total). Datos revisados contra TMDB/Wikipedia: año, duración, director y género coinciden con la tabla pedida.
+- [x] Pósters de `image.tmdb.org/t/p/w500` (las 16 y Nueve reinas): respuesta 200 con `image/jpeg` y revisados a ojo uno por uno (cada imagen es la película correcta).
+- Probado en local (base de dev): primera corrida 16 nuevas; corridas siguientes 0 nuevas y 0 pósters; catálogo con 3 páginas de 12; búsqueda "maze" devuelve las 3 películas de Maze Runner.
+
+Commits:
+- `fix(frontend): remove rating from catalog tagline`
+- `feat(backend): sync seed movies by title and add 16 new movies`
+- `docs: update spec, plan and deploy notes for seed movies`
+
 ## F9 — OAuth ✅
 
 - [x] GitHub OAuth App local, probar el login, vinculación de cuentas y `email_not_found`.
@@ -263,3 +276,4 @@ Commits:
 | F10 (deploy en Render) | ✅ |
 | F11 | ✅ |
 | F12 (marca, íconos sociales, footer, rol del admin) | ✅ (pendiente de prueba visual y commit) |
+| F12b (texto del catálogo y 16 películas en el seed) | ✅ (pendiente de commit) |

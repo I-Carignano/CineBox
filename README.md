@@ -159,7 +159,7 @@ El frontend no tiene variables de entorno: llama siempre a `/api` y el proxy de 
 cd backend
 cp .env.example .env      # completar los valores
 npm install
-npm run seed              # crea los usuarios de prueba y 15 películas (se puede repetir)
+npm run seed              # crea los usuarios de prueba y 31 películas de ejemplo (se puede repetir sin duplicar)
 npm run dev               # http://localhost:3000
 
 # 2) Frontend (otra terminal)
