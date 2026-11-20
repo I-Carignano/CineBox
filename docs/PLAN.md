@@ -189,36 +189,42 @@ Commits:
 - `feat(frontend): require completing the profile before using the app`
 - `chore(backend): add movie posters to the seed`
 
-## F9 — OAuth
+## F9 — OAuth ✅
 
-- [ ] GitHub OAuth App local, probar el login, vinculación de cuentas y `email_not_found`.
-- [ ] Google: proyecto en Google Cloud, pantalla de consentimiento (scopes básicos, **sin logo**), cliente OAuth web con redirect URIs local y prod, provider condicional. **Publicar la app** (In production). Respaldo: Testing + Gmail del profe como tester.
+- [x] GitHub OAuth App local, probar el login, vinculación de cuentas y `email_not_found`.
+- [x] Google: proyecto en Google Cloud, pantalla de consentimiento (scopes básicos, **sin logo**), cliente OAuth web con redirect URIs local y prod, provider condicional. **Publicar la app** (In production). Respaldo: Testing + Gmail del profe como tester.
 
 Commits:
 - `feat(auth): add google social login`
 - `fix(auth): ...` (lo que aparezca)
 
-## F10 — Deploy
+## F10 — Deploy ✅
 
-Preparación hecha (F10 prep, ✅ pendiente de prueba y commit): página pública `/privacidad` con links; `trustedOrigins` y cookies seguras explícitas en `lib/auth.ts`; `docs/DEPLOY.md` con la configuración de Render, variables, rewrites, callbacks de OAuth y comando del seed de producción. Falta el deploy en sí:
+Preparación hecha (F10 prep, commiteada): página pública `/privacidad` con links; `trustedOrigins` y cookies seguras explícitas en `lib/auth.ts`; `docs/DEPLOY.md` con la configuración de Render, variables, rewrites, callbacks de OAuth y comando del seed de producción. Deploy hecho en Render:
 
-- [ ] Atlas: base de prod y `0.0.0.0/0`.
-- [ ] Render backend → verificar `/api/auth/ok`.
-- [ ] Render frontend + rewrites en orden.
-- [ ] OAuth Apps de producción (GitHub + Google), actualizar `BETTER_AUTH_URL`.
-- [ ] Seed en prod (`MONGODB_URI="<prod>" npm run seed`, la URI solo en la terminal) y login probado con los 2 usuarios de prueba.
-- [ ] Opcional: keep-alive con UptimeRobot a `/health` cada 10 min.
-- [ ] Recorrido completo en producción: F5 en `/admin` y `/peliculas/:id`, login con email, GitHub y Google, ABM, 403 con user común.
+- [x] Atlas: base de prod y `0.0.0.0/0`.
+- [x] Render backend → verificar `/api/auth/ok`.
+- [x] Render frontend + rewrites en orden.
+- [x] OAuth Apps de producción (GitHub + Google), actualizar `BETTER_AUTH_URL`.
+- [x] Seed en prod (`MONGODB_URI="<prod>" npm run seed`, la URI solo en la terminal) y login probado con los 2 usuarios de prueba.
+- [x] Opcional: keep-alive con UptimeRobot a `/health` cada 10 min.
+- [x] Recorrido completo en producción: F5 en `/admin` y `/peliculas/:id`, login con email, GitHub y Google, ABM, 403 con user común.
 
-Commit: `chore: add render deploy notes` (si se agrega `render.yaml` o documentación).
+Verificado desde afuera (2026-11-20): `/health` del back, rewrite `/api/*` (catálogo y `/api/config` con `googleEnabled: true`), fallback de la SPA (`/peliculas`, `/privacidad`) y `QUERY` a través de Render. Login con GitHub y con Google probado en producción por el alumno.
 
-## F11 — Cierre
+Commit: `docs: add render deploy guide`.
 
-- [ ] README final (ver `CLAUDE.md` §README).
-- [ ] Auditoría de secretos en todo el historial: `git log -p | grep -iE "mongodb\+srv://[^<]|BETTER_AUTH_SECRET=.+|CLIENT_SECRET=.+"` tiene que dar vacío (o solo líneas vacías del `.env.example`).
-- [ ] Checklist final contra `CONSIGNA.md`, punto por punto.
+## F11 — Cierre ✅
 
-Commit: `docs: complete readme with endpoints, urls and test users`
+- [x] README final (ver `CLAUDE.md` §README).
+- [x] Auditoría de secretos en todo el historial: `git log -p | grep -iE "mongodb\+srv://[^<]|BETTER_AUTH_SECRET=.+|CLIENT_SECRET=.+"` tiene que dar vacío (o solo líneas vacías del `.env.example`).
+- [x] Checklist final contra `CONSIGNA.md`, punto por punto.
+
+Hecho: README completo (con los desvíos aprobados y las limitaciones), auditoría de secretos sin hallazgos (informe en el chat) y `docs/CHECKLIST.md`.
+
+Commits:
+- `docs: complete readme with endpoints, urls and test users`
+- `docs: add consigna checklist and close phases f9 to f11`
 
 ---
 
@@ -233,12 +239,12 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F5 | ✅ |
 | F6 | ✅ |
 | F7 | ✅ |
-| F8 | ✅ (pendiente de prueba y commit) |
-| F8b (usuario y autor) | ✅ (pendiente de prueba y commit) |
-| F8c (superadmin) | ✅ (pendiente de prueba y commit) |
-| F8d (permisos por rol, perfil, vincular, modales) | ✅ (pendiente de prueba y commit) |
-| F8e (perfil con lápiz, contraseña social, completar perfil, pósters) | ✅ (pendiente de prueba y commit) |
-| F9 | ⬜ |
-| F10 prep (privacidad, ajustes de producción, DEPLOY.md) | ✅ (pendiente de prueba y commit) |
-| F10 (deploy en Render) | ⬜ |
-| F11 | ⬜ |
+| F8 | ✅ |
+| F8b (usuario y autor) | ✅ |
+| F8c (superadmin) | ✅ |
+| F8d (permisos por rol, perfil, vincular, modales) | ✅ |
+| F8e (perfil con lápiz, contraseña social, completar perfil, pósters) | ✅ |
+| F9 | ✅ |
+| F10 prep (privacidad, ajustes de producción, DEPLOY.md) | ✅ |
+| F10 (deploy en Render) | ✅ |
+| F11 | ✅ (pendiente de commit) |
