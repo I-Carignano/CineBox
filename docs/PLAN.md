@@ -73,13 +73,16 @@ Commits:
 
 Commit: `feat(backend): add seed script for test users and movies`
 
-### F4b — Regla del dueño (bloqueada por P03)
+### F4b — Regla del dueño (P03 resuelta: el profe dijo "Sí")
 
-- [ ] ⚠️ **Antes de arrancar, preguntarle a Nacho qué respondió el profe sobre P03** (ver SPEC, regla del dueño).
-- [ ] `config/ownership.ts` con `ENFORCE_OWNERSHIP`.
-- [ ] 403 si no es dueño en PUT/PATCH/DELETE (entre el 404 y la escritura, en el controller).
+- [x] Escritura con `authMiddleware` + `requireRole("user", "admin")`.
+- [x] `lib/ownership.ts` (`canModifyMovie`): el admin modifica todo; el user, solo lo suyo.
+- [x] 403 "Solo podés modificar las películas que creaste" en PUT/PATCH/DELETE (entre el 404 y la escritura, en el controller).
+- [x] Sin `ENFORCE_OWNERSHIP`: ya no hace falta (nunca llegó a crearse el archivo).
 
-Commit: `feat(backend): restrict edits to the movie owner`
+Commits:
+- `feat(backend): allow users to write their own movies and restrict edits to the owner`
+- `docs: update spec with owner rule approved by the professor`
 
 ## F5 — Frontend base
 
@@ -113,13 +116,16 @@ Commits:
 - `feat(frontend): add movies list with filters and pagination`
 - `feat(frontend): add movie detail page`
 
-## F8 — Panel admin
+## F8 — ABM de películas y usuarios
 
-- [ ] `schemas/movie.schema.ts` (espejo del back), `MovieForm` (alta y edición con `values`, select de género, date input, checkbox).
-- [ ] `AdminMovies`: tabla, editar, eliminar con confirmación, toggle "Mis películas", errores de `unwrap()`.
-- [ ] `AdminUsers`: `authClient.admin.listUsers` + `setRole` (no dejar que un admin se quite el rol a sí mismo).
+- [ ] `schemas/movie.schema.ts` (espejo del back), mutations en `moviesApi` (crear, editar con PATCH, eliminar) y `MovieForm` (alta y edición con `values`, select de género, date input, checkbox).
+- [ ] `/mis-peliculas` (`MyMovies`, cualquier usuario logueado): ABM de **sus** películas (`mine=true`) reutilizando `MovieForm`. Link "Mis películas" en el header si hay sesión.
+- [ ] `/admin` (`AdminMovies`, solo admin): ABM de **todas**, con filtro "Mis películas"; eliminar con confirmación; errores de `unwrap()`.
+- [ ] `/admin/usuarios` (`AdminUsers`, solo admin): `authClient.admin.listUsers` + `setRole` (no dejar que un admin se quite el rol a sí mismo).
+- [ ] Rutas protegidas en el router (`ProtectedRoute` con y sin `roles`); user común en `/admin` va a `/perfil` con aviso.
 
 Commits:
+- `feat(frontend): add movie form and my movies page`
 - `feat(frontend): add admin movies crud`
 - `feat(frontend): add admin page to change user roles`
 
@@ -161,10 +167,10 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F2 | ✅ |
 | F3 | ✅ |
 | F4a (seed) | ✅ |
-| F4b (dueño) | ⏸️ espera P03 |
+| F4b (dueño) | ✅ (pendiente de prueba y commit) |
 | F5 | ✅ |
 | F6 | ✅ |
-| F7 | ✅ (pendiente de prueba y commit) |
+| F7 | ✅ |
 | F8 | ⬜ |
 | F9 | ⬜ |
 | F10 | ⬜ |

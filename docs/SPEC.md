@@ -7,8 +7,10 @@ Especificación técnica del sistema. Si algo de acá contradice a `CONSIGNA.md`
 Catálogo de películas full stack.
 
 - **Cualquiera (sin sesión):** ve el listado con búsqueda, filtros y paginación, y el detalle de cada película.
-- **`user` (rol por defecto al registrarse):** lo mismo, más su perfil. Solo lectura.
-- **`admin`:** además entra a `/admin` y hace el ABM de películas. Cada admin edita y borra **solo las películas que creó** (opcional "registros propios"). En `/admin/usuarios` cambia roles.
+- **`user` (rol por defecto al registrarse):** lo mismo, más su perfil. **Crea películas (quedan a su nombre) y edita/borra solo las suyas** desde `/mis-peliculas` (opcional "cada usuario edita solo sus registros").
+- **`admin`:** crea, edita y borra **todas** las películas desde `/admin` (con filtro "Mis películas") y gestiona usuarios y roles en `/admin/usuarios`.
+
+> **Desvío aprobado de la consigna.** La consigna dice "user: solo puede leer" y "escritura con `requireRole("admin")`". El profe aprobó (respuesta a P03: "Sí") este esquema, en el que el `user` también escribe sobre lo suyo. Conviene guardar esa respuesta (captura o mail) por si hace falta mostrarla; el README (F11) lo aclara.
 
 ## 2. Stack y versiones
 
@@ -63,10 +65,10 @@ Base: `/api`. Las rutas de la entidad cuelgan de `/api/peliculas` (como pide la 
 | GET | `/api/peliculas` | Público (con `mine=true` exige sesión) | 200 `{ data, meta }` | 400 query inválida, 401 si `mine=true` sin sesión |
 | QUERY | `/api/peliculas` | Público (con `mine: true` exige sesión) | 200 `{ data, meta }` | Igual que el GET, pero con los filtros en el **body** JSON (lineamiento del repo del profe) |
 | GET | `/api/peliculas/:id` | Público | 200 película | 400 id mal formado, 404 no existe |
-| POST | `/api/peliculas` | admin | 201 película creada | 400 Zod, 401, 403 |
-| PATCH | `/api/peliculas/:id` | admin, dueño | 200 película actualizada | 400, 401, 403 (no admin o no dueño), 404 |
-| PUT | `/api/peliculas/:id` | admin, dueño | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
-| DELETE | `/api/peliculas/:id` | admin, dueño | 204 sin body | 400, 401, 403, 404 |
+| POST | `/api/peliculas` | user o admin | 201 película creada (`createdBy` = el usuario) | 400 Zod, 401 |
+| PATCH | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 200 película actualizada | 400, 401, 403 (user sobre una ajena), 404 |
+| PUT | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
+| DELETE | `/api/peliculas/:id` | user (solo las suyas) o admin (todas) | 204 sin body | 400, 401, 403 (user sobre una ajena), 404 |
 | GET | `/api/auth/ok` | — | 200 `{ ok: true }` (healthcheck de Better Auth) | — |
 | GET | `/api/config` | Público | 200 `{ googleEnabled }` (el front lo usa para mostrar u ocultar el botón de Google, porque no tiene `.env`) | — |
 | GET | `/health` | — | 200 `{ status, uptimeSeconds, timestamp }` | — |
@@ -119,30 +121,28 @@ Un body que no es JSON válido responde 400 "El JSON enviado no es válido".
 | id no es ObjectId | 400 | "El id no es válido" |
 | No existe | 404 | "Película no encontrada" |
 | Sin sesión | 401 | "Sesión requerida" |
-| No es admin | 403 | "No tenés permisos para realizar esta acción" |
-| No es dueño | 403 | "Solo podés modificar las películas que creaste" |
+| Rol no habilitado para la ruta | 403 | "No tenés permisos para realizar esta acción" |
+| `user` sobre una película ajena | 403 | "Solo podés modificar las películas que creaste" |
 | Error inesperado | 500 | "Error interno del servidor" (el detalle va a `console.error`, nunca al cliente) |
 
 ### 4.4 Middlewares de escritura (orden)
 
 ```ts
-const onlyAdmin = [authMiddleware, requireRole("admin")];
-router.post("/", onlyAdmin, validateBody(createMovieSchema), createMovie);
-router.put("/:id", onlyAdmin, validateBody(createMovieSchema), replaceMovie);
-router.patch("/:id", onlyAdmin, validateBody(updateMovieSchema), updateMovie);
-router.delete("/:id", onlyAdmin, deleteMovie);
+const canWrite = [authMiddleware, requireRole("user", "admin")];
+router.post("/", canWrite, validateBody(createMovieSchema), createMovie);
+router.put("/:id", canWrite, validateBody(createMovieSchema), replaceMovie);
+router.patch("/:id", canWrite, validateBody(updateMovieSchema), updateMovie);
+router.delete("/:id", canWrite, deleteMovie);
 ```
 
-El chequeo de dueño va en el **service/controller**: buscar por id → 404 si no existe → 403 si `createdBy !== req.user.id` → recién ahí modificar.
+**Regla del dueño (P03, resuelta: el profe aprobó el esquema).** `requireRole("user", "admin")` solo exige estar logueado con un rol conocido; el permiso fino va en el **controller**: buscar por id → 404 si no existe → 403 si `role !== "admin"` y `createdBy !== req.user.id` → recién ahí modificar. El admin no tiene ese chequeo. La regla vive en `lib/ownership.ts` (`canModifyMovie`).
 
-**Regla del dueño: pendiente de la respuesta del profe (P03).** Desde F3, `createdBy` se guarda siempre (sirve para cualquier interpretación). Lo que se define en F4:
-
-| Opción | `user` | `admin` |
+| | `user` | `admin` |
 |---|---|---|
-| Planteada al profe (probable) | Crea registros a su nombre y edita/borra solo los suyos | Crea, edita y borra todos + gestiona usuarios y roles |
-| Default si no responde | Solo lee | Crea; edita/borra solo lo suyo (`ENFORCE_OWNERSHIP = true` en `src/config/ownership.ts`) |
-
-Si gana la opción planteada, las rutas de escritura pasan a `authMiddleware` + chequeo de dueño, con bypass para `admin`. **No implementar F4 sin confirmación de Nacho sobre esta tabla.**
+| Leer catálogo y detalle | ✅ (también sin sesión) | ✅ |
+| Crear (`createdBy` = él) | ✅ | ✅ |
+| Editar / borrar | Solo las suyas | Todas |
+| Usuarios y roles | ❌ | ✅ |
 
 ## 5. Better Auth (backend)
 
@@ -168,10 +168,12 @@ Si gana la opción planteada, las rutas de escritura pasan a `authMiddleware` + 
 | `/login` | `Login`: email + GitHub (+ Google) | Pública (si hay sesión, redirige) | No |
 | `/register` | `Register` | Pública | No |
 | `/perfil` | `Profile`: nombre, email, rol, cuentas vinculadas | Logueado | Sí |
-| `/admin` | `AdminMovies`: ABM, filtro "Mis películas" | admin | Sí |
-| `/admin/usuarios` | `AdminUsers`: listado + `authClient.admin.setRole` | admin | Sí |
+| `/mis-peliculas` | `MyMovies`: ABM de **sus** películas (`mine=true`), mismo `MovieForm` que el admin | Logueado (user o admin) | Sí |
+| `/admin` | `AdminMovies`: ABM de **todas** las películas, filtro "Mis películas" | admin | Sí |
+| `/admin/usuarios` | `AdminUsers`: listado + `authClient.admin.setRole` (un admin no puede quitarse su propio rol) | admin | Sí |
 | `*` | `NotFound` | — | Sí |
 
+Header: "Mis películas" si hay sesión; "Admin" solo si el rol es admin.
 Usuario común en `/admin` → `Navigate` a `/perfil` y aviso "No tenés permisos" (con `state`).
 
 ### 6.2 Reglas
