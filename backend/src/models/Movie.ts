@@ -33,7 +33,8 @@ const movieSchema = new Schema<IMovieDocument>(
     posterUrl: { type: String, trim: true },
     createdBy: { type: String, required: true, index: true },
   },
-  { timestamps: true }
+  // versionKey: false oculta __v de las respuestas.
+  { timestamps: true, versionKey: false }
 );
 
 const Movie: Model<IMovieDocument> = model<IMovieDocument>("Movie", movieSchema);

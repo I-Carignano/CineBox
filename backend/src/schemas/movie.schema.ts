@@ -27,42 +27,49 @@ const MAX_FUTURE_YEARS = 5;
 const typeError = (label: string, kind: string, required = "obligatorio") => (issue: { input?: unknown }) =>
   issue.input === undefined ? `${label} es ${required}` : `${label} tiene que ser ${kind}`;
 
+// Mensaje para un campo que el schema no conoce (ej: createdBy). Devolver undefined deja el mensaje por defecto.
+const unknownFieldError = (issue: { code: string; keys?: string[] }) =>
+  issue.code === "unrecognized_keys" ? `Campo no permitido: ${(issue.keys ?? []).join(", ")}` : undefined;
+
 // Sin ningún .default(): en Zod 4 un default se aplicaría también dentro de .partial() (PATCH)
 // y pisaría el valor guardado. El default de `available` vive en el modelo de Mongoose.
 // strictObject: un campo desconocido (ej: createdBy) se rechaza con 400.
-export const createMovieSchema = z.strictObject({
-  title: z
-    .string({ error: typeError("El título", "texto") })
-    .trim()
-    .min(1, "El título es obligatorio")
-    .max(150, "El título admite hasta 150 caracteres"),
-  director: z
-    .string({ error: typeError("El director", "texto") })
-    .trim()
-    .min(1, "El director es obligatorio")
-    .max(100, "El director admite hasta 100 caracteres"),
-  genre: z.enum(GENRES, { error: "El género es obligatorio y tiene que ser uno de la lista" }),
-  durationMinutes: z
-    .number({ error: typeError("La duración", "un número", "obligatoria") })
-    .int("La duración debe ser un número entero")
-    .min(1, "La duración mínima es 1 minuto")
-    .max(600, "La duración máxima es 600 minutos"),
-  releaseDate: z.iso
-    .date({ error: typeError("La fecha de estreno", "una fecha AAAA-MM-DD", "obligatoria") })
-    .refine((value) => {
-      const limit = new Date();
-      limit.setFullYear(limit.getFullYear() + MAX_FUTURE_YEARS);
-      return new Date(value) <= limit;
-    }, `La fecha de estreno no puede superar los ${MAX_FUTURE_YEARS} años a futuro`),
-  rating: z
-    .number({ error: typeError("El rating", "un número") })
-    .min(0, "El rating mínimo es 0")
-    .max(10, "El rating máximo es 10")
-    .refine((value) => Number.isInteger(Math.round(value * 10 * 1e6) / 1e6), "El rating admite un solo decimal"),
-  available: z.boolean().optional(),
-  synopsis: z.string().trim().max(1000, "La sinopsis admite hasta 1000 caracteres").optional(),
-  posterUrl: z.url("La URL del póster no es válida").optional(),
-});
+export const createMovieSchema = z.strictObject(
+  {
+    title: z
+      .string({ error: typeError("El título", "texto") })
+      .trim()
+      .min(1, "El título es obligatorio")
+      .max(150, "El título admite hasta 150 caracteres"),
+    director: z
+      .string({ error: typeError("El director", "texto") })
+      .trim()
+      .min(1, "El director es obligatorio")
+      .max(100, "El director admite hasta 100 caracteres"),
+    genre: z.enum(GENRES, { error: "El género es obligatorio y tiene que ser uno de la lista" }),
+    durationMinutes: z
+      .number({ error: typeError("La duración", "un número", "obligatoria") })
+      .int("La duración debe ser un número entero")
+      .min(1, "La duración mínima es 1 minuto")
+      .max(600, "La duración máxima es 600 minutos"),
+    releaseDate: z.iso
+      .date({ error: typeError("La fecha de estreno", "una fecha AAAA-MM-DD", "obligatoria") })
+      .refine((value) => {
+        const limit = new Date();
+        limit.setFullYear(limit.getFullYear() + MAX_FUTURE_YEARS);
+        return new Date(value) <= limit;
+      }, `La fecha de estreno no puede superar los ${MAX_FUTURE_YEARS} años a futuro`),
+    rating: z
+      .number({ error: typeError("El rating", "un número") })
+      .min(0, "El rating mínimo es 0")
+      .max(10, "El rating máximo es 10")
+      .refine((value) => Number.isInteger(Math.round(value * 10 * 1e6) / 1e6), "El rating admite un solo decimal"),
+    available: z.boolean().optional(),
+    synopsis: z.string().trim().max(1000, "La sinopsis admite hasta 1000 caracteres").optional(),
+    posterUrl: z.url("La URL del póster no es válida").optional(),
+  },
+  { error: unknownFieldError }
+);
 
 export const updateMovieSchema = createMovieSchema
   .partial()
