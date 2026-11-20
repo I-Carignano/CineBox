@@ -82,6 +82,11 @@ export const Layout = () => {
       <main className="mx-auto max-w-5xl p-4 sm:p-6">
         <Outlet />
       </main>
+      <footer className="mx-auto max-w-5xl px-4 pb-6 text-center text-sm text-slate-500 sm:px-6">
+        <Link to="/privacidad" className="underline hover:text-slate-700">
+          Privacidad
+        </Link>
+      </footer>
     </div>
   );
 };

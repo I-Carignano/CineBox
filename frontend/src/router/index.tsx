@@ -13,6 +13,7 @@ import { MovieDetail } from "../pages/MovieDetail";
 import { MoviesList } from "../pages/MoviesList";
 import { MyMovies } from "../pages/MyMovies";
 import { NotFound } from "../pages/NotFound";
+import { Privacy } from "../pages/Privacy";
 import { Profile } from "../pages/Profile";
 import { Register } from "../pages/Register";
 
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
   // Única ruta fuera del ProfileGate: ahí van los usuarios sociales sin username (si estuviera adentro,
   // el guard la redirigiría a sí misma sin parar). Pantalla completa, sin header.
   { path: "/completar-perfil", element: <CompleteProfile /> },
+
+  // Pública y también fuera del ProfileGate: se tiene que poder leer sin sesión y antes de completar el perfil
+  // (el link está en login, registro y footer). Usa el Layout para tener header y footer.
+  { element: <Layout />, children: [{ path: "/privacidad", element: <Privacy /> }] },
 
   {
     // ProfileGate: con sesión y sin username, TODAS las rutas de abajo redirigen a /completar-perfil.

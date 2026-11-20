@@ -12,6 +12,10 @@ export const AuthCard = ({ title, children }: { title: string; children: ReactNo
           <Link to="/peliculas" className="text-slate-500 underline">
             Volver al catálogo
           </Link>
+          {" · "}
+          <Link to="/privacidad" className="text-slate-500 underline">
+            Privacidad
+          </Link>
         </p>
       </section>
     </main>
