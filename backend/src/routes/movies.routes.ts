@@ -1,5 +1,5 @@
 // Mapeo entre (método HTTP + ruta) y controller. Sin lógica de negocio acá.
-// Lectura pública; escritura solo para admin (authMiddleware primero, después el rol, después la validación).
+// Lectura pública; escritura para user y admin (authMiddleware primero, después el rol, después la validación).
 import { Router } from "express";
 import {
   listMovies,
@@ -20,15 +20,16 @@ import {
 } from "../schemas/movie.schema.js";
 
 const router = Router();
-const onlyAdmin = [authMiddleware, requireRole("admin")];
+// Cualquier usuario logueado puede escribir; el controller limita al user a sus propias películas (lib/ownership.ts).
+const canWrite = [authMiddleware, requireRole("user", "admin")];
 
 router.get("/", optionalAuth, validateQuery(listMoviesQuerySchema), listMovies);
 // Extra (como el repo del profe): los mismos filtros en el body. QUERY es un método HTTP nuevo.
 router.query!("/", optionalAuth, validateBody(listMoviesBodySchema), listMoviesByBody);
 router.get("/:id", getMovieById);
-router.post("/", onlyAdmin, validateBody(createMovieSchema), createMovie);
-router.put("/:id", onlyAdmin, validateBody(createMovieSchema), replaceMovie);
-router.patch("/:id", onlyAdmin, validateBody(updateMovieSchema), updateMovie);
-router.delete("/:id", onlyAdmin, deleteMovie);
+router.post("/", canWrite, validateBody(createMovieSchema), createMovie);
+router.put("/:id", canWrite, validateBody(createMovieSchema), replaceMovie);
+router.patch("/:id", canWrite, validateBody(updateMovieSchema), updateMovie);
+router.delete("/:id", canWrite, deleteMovie);
 
 export default router;

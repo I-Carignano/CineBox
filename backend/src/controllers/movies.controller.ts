@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { isValidObjectId } from "mongoose";
 import * as moviesService from "../services/movies.service.js";
 import { sendError } from "../lib/http-errors.js";
+import { canModifyMovie } from "../lib/ownership.js";
 import { CreateMovieInput, ListMoviesInput, UpdateMovieInput } from "../schemas/movie.schema.js";
 import { IMovieDocument } from "../models/Movie.js";
 
@@ -44,6 +45,24 @@ async function findOrReply(id: string, res: Response): Promise<IMovieDocument | 
   return movie;
 }
 
+// Para modificar (PUT/PATCH/DELETE): igual que findOrReply y además 403 si es un user sobre una película ajena.
+// El orden importa: id inválido (400) -> no existe (404) -> sin permiso (403).
+async function findOwnedOrReply(
+  req: Request<{ id: string }>,
+  res: Response
+): Promise<IMovieDocument | null> {
+  const movie = await findOrReply(req.params.id, res);
+  if (!movie) return null;
+
+  // authMiddleware ya garantiza req.user.
+  if (!canModifyMovie(req.user!, movie)) {
+    sendError(res, 403, "Solo podés modificar las películas que creaste");
+    return null;
+  }
+
+  return movie;
+}
+
 export async function getMovieById(req: Request<{ id: string }>, res: Response): Promise<void> {
   const movie = await findOrReply(req.params.id, res);
   if (movie) res.status(200).json(movie);
@@ -56,21 +75,21 @@ export async function createMovie(req: Request<{}, {}, CreateMovieInput>, res: R
 }
 
 export async function replaceMovie(req: Request<{ id: string }, {}, CreateMovieInput>, res: Response): Promise<void> {
-  const movie = await findOrReply(req.params.id, res);
+  const movie = await findOwnedOrReply(req, res);
   if (!movie) return;
 
   res.status(200).json(await moviesService.replaceMovie(movie, req.body));
 }
 
 export async function updateMovie(req: Request<{ id: string }, {}, UpdateMovieInput>, res: Response): Promise<void> {
-  const movie = await findOrReply(req.params.id, res);
+  const movie = await findOwnedOrReply(req, res);
   if (!movie) return;
 
   res.status(200).json(await moviesService.updateMovie(movie, req.body));
 }
 
 export async function deleteMovie(req: Request<{ id: string }>, res: Response): Promise<void> {
-  const movie = await findOrReply(req.params.id, res);
+  const movie = await findOwnedOrReply(req, res);
   if (!movie) return;
 
   await moviesService.deleteMovie(movie);
