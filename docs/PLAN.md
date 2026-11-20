@@ -64,17 +64,22 @@ Commits:
 - `feat(backend): add movies crud protected by admin role`
 - `feat(backend): add QUERY method for movies list with filters in body`
 
-## F4 — Dueño + seed
+## F4 — Seed + dueño (dividida en F4a y F4b)
+
+### F4a — Seed (no depende de P03)
+
+- [x] `scripts/seed.ts` (SPEC §8): usuarios admin y user + 15 películas con `createdBy` del admin, solo si la colección está vacía.
+- [x] `createdBy` desde `req.user.id` y `mine=true` en el listado (ya hechos en F3).
+
+Commit: `feat(backend): add seed script for test users and movies`
+
+### F4b — Regla del dueño (bloqueada por P03)
 
 - [ ] ⚠️ **Antes de arrancar, preguntarle a Nacho qué respondió el profe sobre P03** (ver SPEC, regla del dueño).
 - [ ] `config/ownership.ts` con `ENFORCE_OWNERSHIP`.
-- [ ] `createdBy` desde `req.user.id`; 403 si no es dueño en PUT/PATCH/DELETE.
-- [ ] `mine=true` en el listado.
-- [ ] `scripts/seed.ts` (SPEC §8).
+- [ ] 403 si no es dueño en PUT/PATCH/DELETE (entre el 404 y la escritura, en el controller).
 
-Commits:
-- `feat(backend): restrict edits to the movie owner`
-- `feat(backend): add seed script for test users and movies`
+Commit: `feat(backend): restrict edits to the movie owner`
 
 ## F5 — Frontend base
 
@@ -154,8 +159,9 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F0 | ✅ |
 | F1 | ✅ |
 | F2 | ✅ |
-| F3 | ✅ (pendiente de prueba y commit) |
-| F4 | ⬜ |
+| F3 | ✅ |
+| F4a (seed) | ✅ (pendiente de prueba y commit) |
+| F4b (dueño) | ⏸️ espera P03 |
 | F5 | ⬜ |
 | F6 | ⬜ |
 | F7 | ⬜ |
