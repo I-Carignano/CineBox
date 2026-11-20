@@ -2,7 +2,8 @@
 // reglas que el control de acceso (lib/permissions.ts) no puede expresar porque dependen del usuario OBJETIVO:
 //   1. Nadie puede cambiarse su propio rol (400).
 //   2. Un admin solo puede gestionar usuarios con rol "user": si el objetivo es admin o superadmin, 403.
-// El superadmin no tiene la regla 2. Si no hay sesión o falta el userId, no se hace nada acá: el endpoint
+//   3. Un admin solo puede usar set-role para ascender a un "user" a "admin": cualquier otro rol nuevo, 403.
+// El superadmin no tiene las reglas 2 y 3. Si no hay sesión o falta el userId, no se hace nada acá: el endpoint
 // responde 401 o 400 por su cuenta.
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 
@@ -38,6 +39,14 @@ export const userManagementGuard = createAuthMiddleware(async (ctx) => {
       throw APIError.from("FORBIDDEN", {
         code: "CANNOT_MANAGE_ADMINS",
         message: "Un administrador solo puede gestionar usuarios con rol usuario",
+      });
+    }
+
+    // Regla 3: el único cambio de rol permitido al admin es user -> admin. El body puede traer un string o un array.
+    if (ctx.path === "/admin/set-role" && ctx.body?.role !== "admin") {
+      throw APIError.from("FORBIDDEN", {
+        code: "ADMIN_CAN_ONLY_PROMOTE_TO_ADMIN",
+        message: "Un administrador solo puede ascender usuarios a administrador",
       });
     }
   }
