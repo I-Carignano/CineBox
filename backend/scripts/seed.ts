@@ -1,6 +1,7 @@
-// Seed (npm run seed): crea los usuarios de prueba (superadmin, admin y user) y ~15 películas de ejemplo.
-// Se puede correr varias veces: a los usuarios que ya existen les actualiza username/nombre/apellido,
-// carga las películas de ejemplo solo si la colección está vacía y siempre actualiza el póster de las del seed.
+// Seed (npm run seed): crea los usuarios de prueba (superadmin, admin y user) y las películas de ejemplo.
+// Se puede correr varias veces sin duplicar: a los usuarios que ya existen les actualiza username/nombre/apellido,
+// y por cada película del seed, si no hay una con ese título la inserta (createdBy = el admin del seed) y, si ya
+// existe, solo le sincroniza el póster. Las películas que no son del seed no se tocan.
 // Para sembrar la base de producción: MONGODB_URI="<uri de prod>" npm run seed (la URI solo en la terminal).
 // dotenv no pisa variables que ya están en el entorno, así que esa URI gana sobre la del .env.
 import "dotenv/config";
@@ -61,6 +62,22 @@ const MOVIES: SeedMovie[] = [
   { title: "Superbad", director: "Greg Mottola", genre: "comedia", durationMinutes: 113, releaseDate: new Date("2007-08-17"), rating: 7.6, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/ek8e8txUyUwd2BNqj6lFEerJfbq.jpg", synopsis: "Dos amigos intentan conseguir alcohol para una fiesta antes de graduarse." },
   { title: "Nueve reinas", director: "Fabián Bielinsky", genre: "suspenso", durationMinutes: 114, releaseDate: new Date("2000-08-31"), rating: 7.9, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/v8l85vxFe9J1uEvK9qyIMBlYJNv.jpg", synopsis: "Dos estafadores se asocian para vender una falsificación en un solo día." },
   { title: "Bowling for Columbine", director: "Michael Moore", genre: "documental", durationMinutes: 120, releaseDate: new Date("2002-10-11"), rating: 7.6, available: false, posterUrl: "https://upload.wikimedia.org/wikipedia/en/e/e7/Bowling_for_columbine.jpg", synopsis: "Un documental sobre la violencia y las armas en Estados Unidos." },
+  { title: "La sospecha (Prisoners)", director: "Denis Villeneuve", genre: "suspenso", durationMinutes: 153, releaseDate: new Date("2013-09-20"), rating: 8.1, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/jsS3a3ep2KyBVmmiwaz3LvK49b1.jpg", synopsis: "Dos familias buscan a sus hijas desaparecidas y un padre decide hacer justicia por su cuenta." },
+  { title: "Interestelar", director: "Christopher Nolan", genre: "ciencia_ficcion", durationMinutes: 169, releaseDate: new Date("2014-11-07"), rating: 8.7, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg", synopsis: "Un grupo de astronautas viaja por un agujero de gusano para buscar un nuevo hogar para la humanidad." },
+  { title: "Pecados capitales (Se7en)", director: "David Fincher", genre: "suspenso", durationMinutes: 127, releaseDate: new Date("1995-09-22"), rating: 8.6, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/191nKfP0ehp3uIvWqgPbFmI4lv9.jpg", synopsis: "Dos detectives persiguen a un asesino que elige a sus víctimas según los siete pecados capitales." },
+  { title: "El club de la pelea", director: "David Fincher", genre: "drama", durationMinutes: 139, releaseDate: new Date("1999-10-15"), rating: 8.8, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg", synopsis: "Un empleado insomne y un vendedor de jabones fundan un club clandestino de peleas que se les va de las manos." },
+  { title: "Los Vengadores", director: "Joss Whedon", genre: "accion", durationMinutes: 143, releaseDate: new Date("2012-05-04"), rating: 8, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg", synopsis: "Un grupo de superhéroes se une para frenar la invasión alienígena de Loki a la Tierra." },
+  { title: "Capitán América: El primer vengador", director: "Joe Johnston", genre: "accion", durationMinutes: 124, releaseDate: new Date("2011-07-22"), rating: 6.9, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/vSNxAJTlD0r02V9sPYpOjqDZXUK.jpg", synopsis: "Un joven frágil se convierte en supersoldado y enfrenta a Cráneo Rojo durante la Segunda Guerra Mundial." },
+  { title: "Capitán América: El soldado del invierno", director: "Anthony y Joe Russo", genre: "accion", durationMinutes: 136, releaseDate: new Date("2014-04-04"), rating: 7.7, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/tVFRpFw3xTedgPGqxW0AOI8Qhh0.jpg", synopsis: "Steve Rogers descubre una conspiración dentro de S.H.I.E.L.D. y se enfrenta a un letal enemigo del pasado." },
+  { title: "Iron Man: El hombre de hierro", director: "Jon Favreau", genre: "accion", durationMinutes: 126, releaseDate: new Date("2008-05-02"), rating: 7.9, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/78lPtwv72eTNqFW9COBYI0dWDJa.jpg", synopsis: "Un millonario fabricante de armas construye una armadura para escapar de su cautiverio y se vuelve superhéroe." },
+  { title: "Sherlock Holmes", director: "Guy Ritchie", genre: "aventura", durationMinutes: 128, releaseDate: new Date("2009-12-25"), rating: 7.6, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/momkKuWburNTqKBF6ez7rvhYVhE.jpg", synopsis: "Holmes y Watson investigan una serie de crímenes ocultistas en el Londres victoriano." },
+  { title: "Ex Machina", director: "Alex Garland", genre: "ciencia_ficcion", durationMinutes: 108, releaseDate: new Date("2015-04-10"), rating: 7.7, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/dmJW8IAKHKxFNiUnoDR7JfsK7Rp.jpg", synopsis: "Un programador es elegido para evaluar si la androide creada por su jefe tiene conciencia propia." },
+  { title: "Cómo entrenar a tu dragón", director: "Dean DeBlois y Chris Sanders", genre: "animacion", durationMinutes: 98, releaseDate: new Date("2010-03-26"), rating: 8.1, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/ygGmAO60t8GyqUo9xYeYxSZAR3b.jpg", synopsis: "Un joven vikingo se hace amigo de un dragón herido y cambia la relación entre su pueblo y las criaturas." },
+  { title: "Maze Runner: Correr o morir", director: "Wes Ball", genre: "ciencia_ficcion", durationMinutes: 113, releaseDate: new Date("2014-09-19"), rating: 6.8, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/ode14q7WtDugFDp78fo9lCsmay9.jpg", synopsis: "Un chico sin memoria despierta en un claro rodeado por un laberinto cambiante y busca la salida." },
+  { title: "Maze Runner: Prueba de fuego", director: "Wes Ball", genre: "ciencia_ficcion", durationMinutes: 131, releaseDate: new Date("2015-09-18"), rating: 6.3, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/mYw7ZyejqSCPFlrT2jHZOESZDU3.jpg", synopsis: "Los sobrevivientes del laberinto cruzan un desierto devastado en busca de respuestas." },
+  { title: "Maze Runner: La cura mortal", director: "Wes Ball", genre: "ciencia_ficcion", durationMinutes: 142, releaseDate: new Date("2018-01-26"), rating: 6.2, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/s8K0US4tUEoOrQ1LDh0eppuwGDx.jpg", synopsis: "Thomas y sus amigos arriesgan todo para rescatar a un compañero de la organización que los encerró." },
+  { title: "Soy leyenda", director: "Francis Lawrence", genre: "ciencia_ficcion", durationMinutes: 101, releaseDate: new Date("2007-12-14"), rating: 7.2, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/iPDkaSdKk2jRLTM65UOEoKtsIZ8.jpg", synopsis: "Un científico, aparentemente el último hombre en Nueva York, lucha contra criaturas infectadas mientras busca una cura." },
+  { title: "¿Qué pasó ayer?", director: "Todd Phillips", genre: "comedia", durationMinutes: 100, releaseDate: new Date("2009-06-05"), rating: 7.7, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/A0uS9rHR56FeBtpjVki16M5xxSW.jpg", synopsis: "Tres amigos despiertan tras una despedida de soltero en Las Vegas sin recordar nada y sin el novio." },
 ];
 
 async function seed(): Promise<void> {
@@ -110,22 +127,24 @@ async function seed(): Promise<void> {
   );
   console.log(`[seed] roles asegurados: admin (${adminEmail}) y superadmin (${superadminEmail})`);
 
-  if ((await Movie.countDocuments()) === 0) {
-    await Movie.insertMany(MOVIES.map((movie) => ({ ...movie, createdBy: adminId })));
-    console.log(`[seed] ${MOVIES.length} películas cargadas`);
-  } else {
-    console.log("[seed] la colección de películas ya tiene datos: no se cargan las de ejemplo");
+  // Películas: se busca por título cuáles del seed ya existen. Las que faltan se insertan (con su póster); a las
+  // que ya existen solo se les pone el posterUrl (no se crean duplicados ni se tocan otros campos).
+  const titles = MOVIES.map((movie) => movie.title);
+  const existing = new Set<string>(await Movie.distinct("title", { title: { $in: titles } }));
+
+  const missing = MOVIES.filter((movie) => !existing.has(movie.title));
+  if (missing.length > 0) {
+    await Movie.insertMany(missing.map((movie) => ({ ...movie, createdBy: adminId })));
   }
 
-  // Pósters: a las películas del seed que ya existían (buscadas por título) se les pone el posterUrl.
-  // No se crean películas nuevas ni se toca ningún otro campo, ni las películas que no son del seed.
   let postersSet = 0;
   for (const { title, posterUrl } of MOVIES) {
-    if (!posterUrl) continue;
-    const result = await Movie.updateOne({ title }, { $set: { posterUrl } });
+    if (!posterUrl || !existing.has(title)) continue;
+    // Solo si el póster es distinto: así una segunda corrida no modifica nada (ni siquiera updatedAt).
+    const result = await Movie.updateOne({ title, posterUrl: { $ne: posterUrl } }, { $set: { posterUrl } });
     postersSet += result.modifiedCount;
   }
-  console.log(`[seed] pósters actualizados: ${postersSet}`);
+  console.log(`[seed] películas nuevas: ${missing.length}, pósters actualizados: ${postersSet}`);
 }
 
 seed()
