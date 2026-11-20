@@ -4,6 +4,8 @@ import "dotenv/config";
 import express, { Request, Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
+import apiRouter from "./routes/index.js";
+import { errorHandler } from "./middlewares/error-handler.js";
 import { connectMongoDB } from "./config/db.js";
 
 const app = express();
@@ -17,7 +19,8 @@ const PORT: number = Number(process.env.PORT) || 3000;
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
-// F3: acá se monta el router de la API en /api/peliculas.
+// Recursos de la API: /api/peliculas (sin /v1, como pide la consigna).
+app.use("/api", apiRouter);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({
@@ -26,6 +29,9 @@ app.get("/health", (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Siempre al final: atrapa los errores de todo lo anterior.
+app.use(errorHandler);
 
 async function startServer(): Promise<void> {
   await connectMongoDB();
