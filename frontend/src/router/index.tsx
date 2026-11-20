@@ -1,10 +1,19 @@
-// Árbol de rutas centralizado (data router). Las rutas de login/registro, perfil y admin se agregan en F6 y F8.
+// Árbol de rutas centralizado (data router). Tres niveles de acceso: público, privado y privado por rol.
+// Las rutas de admin se agregan en F8.
 import { createBrowserRouter, redirect } from "react-router";
 import { Layout } from "../layouts/Layout";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { Login } from "../pages/Login";
 import { MoviesList } from "../pages/MoviesList";
 import { NotFound } from "../pages/NotFound";
+import { Profile } from "../pages/Profile";
+import { Register } from "../pages/Register";
 
 export const router = createBrowserRouter([
+  // Fuera del Layout: pantalla completa, sin header
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
+
   {
     path: "/",
     element: <Layout />,
@@ -14,6 +23,12 @@ export const router = createBrowserRouter([
 
       // Públicas
       { path: "peliculas", element: <MoviesList /> },
+
+      // Privadas: cualquier usuario logueado
+      {
+        element: <ProtectedRoute />,
+        children: [{ path: "perfil", element: <Profile /> }],
+      },
 
       { path: "*", element: <NotFound /> },
     ],

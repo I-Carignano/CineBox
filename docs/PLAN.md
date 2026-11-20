@@ -162,8 +162,8 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F3 | ✅ |
 | F4a (seed) | ✅ |
 | F4b (dueño) | ⏸️ espera P03 |
-| F5 | ✅ (pendiente de prueba y commit) |
-| F6 | ⬜ |
+| F5 | ✅ |
+| F6 | ✅ (pendiente de prueba y commit) |
 | F7 | ⬜ |
 | F8 | ⬜ |
 | F9 | ⬜ |
