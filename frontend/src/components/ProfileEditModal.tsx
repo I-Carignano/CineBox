@@ -85,7 +85,7 @@ const UsernameForm = ({ initial, onClose }: { initial: string; onClose: () => vo
         {...register("username")}
       />
       {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-700">
           {errors.root.server.message}
         </p>
       )}
@@ -143,7 +143,7 @@ const NameForm = ({
         {...register("lastName")}
       />
       {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-700">
           {errors.root.server.message}
         </p>
       )}

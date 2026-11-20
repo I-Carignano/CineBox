@@ -45,7 +45,7 @@ export const Profile = () => {
         <div>
           <h2 className="text-xl font-semibold">Mi perfil</h2>
           <dl className="mt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
-            <dt className="text-slate-500">Usuario</dt>
+            <dt className="text-slate-600">Usuario</dt>
             <dd className="flex items-center gap-1">
               {user.username ? `@${user.username}` : "—"}
               <PencilButton
@@ -53,14 +53,14 @@ export const Profile = () => {
                 onClick={() => setEditing("username")}
               />
             </dd>
-            <dt className="text-slate-500">Nombre</dt>
+            <dt className="text-slate-600">Nombre</dt>
             <dd className="flex items-center gap-1">
               {`${firstName} ${lastName}`.trim() || user.name}
               <PencilButton label="Editar nombre" onClick={() => setEditing("name")} />
             </dd>
-            <dt className="text-slate-500">Email</dt>
+            <dt className="text-slate-600">Email</dt>
             <dd>{user.email}</dd>
-            <dt className="text-slate-500">Rol</dt>
+            <dt className="text-slate-600">Rol</dt>
             <dd>
               <span className="inline-block rounded bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                 {roleLabel(user.role)}

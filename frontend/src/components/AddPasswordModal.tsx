@@ -57,7 +57,7 @@ export const AddPasswordModal = ({ email, onClose, onDone }: AddPasswordModalPro
           {...register("confirmPassword")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-red-700">
             {errors.root.server.message}
           </p>
         )}

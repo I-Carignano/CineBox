@@ -118,7 +118,7 @@ export const MovieForm = ({ movie, onSave, onCancel }: MovieFormProps) => {
       </label>
 
       {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-700">
           {errors.root.server.message}
         </p>
       )}

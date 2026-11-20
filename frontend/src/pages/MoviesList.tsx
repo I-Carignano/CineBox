@@ -1,16 +1,18 @@
 // Page: ruta pública "/peliculas". Los filtros salen de la URL y los datos de la caché de RTK Query.
 import { useEffect } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { MovieCard } from "../components/MovieCard";
 import { MovieFilters } from "../components/MovieFilters";
 import { Pagination } from "../components/Pagination";
 import { useMovieFilters } from "../hooks/useMovieFilters";
 import { getErrorMessage } from "../lib/api";
+import { useSession } from "../lib/auth-client";
 import { useGetMoviesQuery } from "../store/moviesApi";
 
 export const MoviesList = () => {
   const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters();
   const location = useLocation();
+  const { data: session, isPending } = useSession();
   // `data` conserva el último resultado mientras se pide otro (isFetching): la lista no parpadea al paginar.
   const { data, isLoading, isFetching, error, refetch } = useGetMoviesQuery(filters);
 
@@ -23,7 +25,24 @@ export const MoviesList = () => {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">Catálogo de películas</h2>
+      {/* Encabezado de la marca. "Crear cuenta" solo sin sesión (y no mientras se sabe si hay una: evita el parpadeo). */}
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold tracking-tight text-ink">Cinema 24</h1>
+          <p className="mt-1 text-slate-700">
+            El catálogo de películas que arma la comunidad. Explorá sin cuenta, y registrate para
+            sumar tus películas, puntuarlas y gestionarlas.
+          </p>
+        </div>
+        {!isPending && !session && (
+          <Link
+            to="/register"
+            className="rounded bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-700"
+          >
+            Crear cuenta
+          </Link>
+        )}
+      </header>
 
       <MovieFilters
         filters={filters}
@@ -42,7 +61,7 @@ export const MoviesList = () => {
       )}
 
       {isLoading && (
-        <p role="status" className="text-slate-500">
+        <p role="status" className="text-slate-600">
           Cargando películas...
         </p>
       )}

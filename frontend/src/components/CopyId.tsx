@@ -18,7 +18,7 @@ export const CopyId = ({ id }: { id: string }) => {
   };
 
   return (
-    <p className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+    <p className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
       <span>
         ID: <span className="font-mono">#{id}</span>
       </span>
@@ -29,7 +29,7 @@ export const CopyId = ({ id }: { id: string }) => {
       >
         Copiar
       </button>
-      <span role="status" className={status === "error" ? "text-red-600" : "text-green-700"}>
+      <span role="status" className={status === "error" ? "text-red-700" : "text-green-700"}>
         {status === "copied" && "¡Copiado!"}
         {status === "error" && "No se pudo copiar"}
       </span>

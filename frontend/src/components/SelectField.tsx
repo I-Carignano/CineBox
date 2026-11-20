@@ -21,7 +21,7 @@ export const SelectField = ({ label, error, children, ...selectProps }: SelectFi
         {children}
       </select>
       {error && (
-        <span id={errorId} className="text-xs text-red-600">
+        <span id={errorId} className="text-xs text-red-700">
           {error}
         </span>
       )}

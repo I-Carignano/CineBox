@@ -148,7 +148,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
       )}
 
       {isLoading && (
-        <p role="status" className="text-slate-500">
+        <p role="status" className="text-slate-600">
           Cargando películas...
         </p>
       )}
@@ -229,7 +229,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
                     <td className="px-3 py-2">{formatYear(movie.releaseDate)}</td>
                     <td className="px-3 py-2">{movie.rating.toFixed(1)}</td>
                     <td
-                      className={`px-3 py-2 ${movie.available ? "text-green-700" : "text-slate-400"}`}
+                      className={`px-3 py-2 ${movie.available ? "text-green-700" : "text-slate-500"}`}
                     >
                       {movie.available ? "Disponible" : "No disponible"}
                     </td>

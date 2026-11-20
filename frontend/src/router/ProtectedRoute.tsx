@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ roles, redirectTo = "/peliculas" }: ProtectedRo
   const location = useLocation();
 
   if (isPending) {
-    return <p className="text-slate-500">Verificando sesión...</p>;
+    return <p className="text-slate-600">Verificando sesión...</p>;
   }
 
   if (!session) {

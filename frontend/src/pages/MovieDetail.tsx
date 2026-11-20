@@ -14,7 +14,7 @@ export const MovieDetail = () => {
   // "Volver" conserva los filtros del listado si se venía desde ahí (los manda MovieCard en el state).
   const listSearch = (location.state as { listSearch?: string } | null)?.listSearch ?? "";
   const backLink = (
-    <Link to={`/peliculas${listSearch}`} className="text-sm text-slate-500 underline">
+    <Link to={`/peliculas${listSearch}`} className="text-sm text-slate-600 underline">
       ← Volver al catálogo
     </Link>
   );
@@ -24,7 +24,7 @@ export const MovieDetail = () => {
 
   if (isLoading) {
     return (
-      <p role="status" className="text-slate-500">
+      <p role="status" className="text-slate-600">
         Cargando película...
       </p>
     );
@@ -61,17 +61,17 @@ export const MovieDetail = () => {
                 <span aria-hidden="true">★</span> {movie.rating.toFixed(1)}
                 <span className="sr-only"> de 10</span>
               </span>
-              <span className={movie.available ? "text-green-700" : "text-slate-400"}>
+              <span className={movie.available ? "text-green-700" : "text-slate-500"}>
                 {movie.available ? "Disponible" : "No disponible"}
               </span>
             </p>
 
             <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-              <dt className="text-slate-500">Estreno</dt>
+              <dt className="text-slate-600">Estreno</dt>
               <dd>{formatDate(movie.releaseDate)}</dd>
-              <dt className="text-slate-500">Duración</dt>
+              <dt className="text-slate-600">Duración</dt>
               <dd>{formatDuration(movie.durationMinutes)}</dd>
-              <dt className="text-slate-500">Cargada por</dt>
+              <dt className="text-slate-600">Cargada por</dt>
               <dd>{formatAuthor(movie.author)}</dd>
             </dl>
 

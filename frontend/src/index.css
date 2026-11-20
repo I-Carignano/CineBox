@@ -1,14 +1,20 @@
 @import "tailwindcss";
 
-/* Tokens propios: generan utilidades como bg-brand-600, text-brand-50, bg-ink */
+/* Paleta de Cinema 24. Tokens propios: generan utilidades como bg-brand-600, bg-brand-50, bg-ink.
+   - brand-600 = rojo primario (botones, acentos, links). Blanco sobre él: contraste 5.9:1.
+   - brand-700 = hover / estado presionado del primario (8:1 con blanco).
+   - brand-500 = anillo de foco (más claro, pero > 3:1 sobre blanco y sobre el fondo rosa).
+   - brand-100 = rosa un poco más marcado para chips o fondos suaves.
+   - brand-50  = rosa de fondo de la página; las tarjetas van en blanco encima.
+   - ink       = casi negro cálido: header y textos fuertes. */
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
-  --color-ink: oklch(22% 0.02 20);
-  --color-brand-50: oklch(97% 0.015 20);
-  --color-brand-100: oklch(93% 0.04 20);
-  --color-brand-500: oklch(58% 0.21 25);
-  --color-brand-600: oklch(51% 0.21 25);
-  --color-brand-700: oklch(44% 0.18 25);
+  --color-ink: #211b1c;
+  --color-brand-50: #fbecee;
+  --color-brand-100: #f6d3d8;
+  --color-brand-500: #e0364c;
+  --color-brand-600: #c5162e;
+  --color-brand-700: #a11226;
 }
 
 /* Foco visible en todo lo interactivo (accesibilidad por teclado) */

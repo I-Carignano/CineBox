@@ -19,7 +19,7 @@ export const FormField = ({ label, error, ...inputProps }: FormFieldProps) => {
         className="rounded border border-slate-300 bg-white px-3 py-2 aria-invalid:border-red-500"
       />
       {error && (
-        <span id={errorId} className="text-xs text-red-600">
+        <span id={errorId} className="text-xs text-red-700">
           {error}
         </span>
       )}

@@ -27,7 +27,7 @@ export const CompleteProfile = () => {
   });
 
   if (isPending) {
-    return <p className="p-4 text-slate-500">Cargando...</p>;
+    return <p className="p-4 text-slate-600">Cargando...</p>;
   }
   if (!session) {
     return <Navigate to="/login" replace />;
@@ -104,7 +104,7 @@ export const CompleteProfile = () => {
             {...register("lastName")}
           />
           {errors.root?.server && (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="text-sm text-red-700">
               {errors.root.server.message}
             </p>
           )}
@@ -117,7 +117,7 @@ export const CompleteProfile = () => {
           </button>
         </form>
         <p className="mt-4 text-center text-sm">
-          <button type="button" onClick={handleLogout} className="text-slate-500 underline">
+          <button type="button" onClick={handleLogout} className="text-slate-600 underline">
             Cerrar sesión
           </button>
         </p>

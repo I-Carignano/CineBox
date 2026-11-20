@@ -21,7 +21,7 @@ export const MovieCard = ({ movie, listSearch }: MovieCardProps) => {
       <Poster movie={movie} className="aspect-[2/3] w-full" />
       <article className="flex flex-1 flex-col gap-1 p-3">
         <h3 className="line-clamp-2 font-semibold">{movie.title}</h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-600">
           {formatYear(movie.releaseDate)} · {GENRE_LABELS[movie.genre]}
         </p>
         <div className="mt-auto flex items-center justify-between pt-2 text-xs">
@@ -29,7 +29,7 @@ export const MovieCard = ({ movie, listSearch }: MovieCardProps) => {
             <span aria-hidden="true">★</span> {movie.rating.toFixed(1)}
             <span className="sr-only"> de 10</span>
           </span>
-          <span className={movie.available ? "text-green-700" : "text-slate-400"}>
+          <span className={movie.available ? "text-green-700" : "text-slate-500"}>
             {movie.available ? "Disponible" : "No disponible"}
           </span>
         </div>

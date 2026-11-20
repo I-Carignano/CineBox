@@ -35,7 +35,7 @@ export const ConfirmDialog = ({
       <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded bg-slate-50 p-3 text-sm">
         {summary.map(({ label, value }) => (
           <div key={label} className="contents">
-            <dt className="text-slate-500">{label}</dt>
+            <dt className="text-slate-600">{label}</dt>
             <dd className="font-medium break-words">{value}</dd>
           </div>
         ))}

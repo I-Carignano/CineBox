@@ -1,7 +1,8 @@
-// Layout general: header con navegación, usuario y logout. Se monta una sola vez;
+// Layout general: header con logo, navegación, usuario y logout, y footer. Se monta una sola vez;
 // al navegar solo cambia lo que renderiza <Outlet />.
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
+import { Footer } from "../components/Footer";
 import { signOut, useSession } from "../lib/auth-client";
 import { isAdminRole } from "../lib/roles";
 
@@ -26,11 +27,15 @@ export const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-50 font-sans text-slate-900">
-      <header className="bg-ink px-4 py-3 text-white sm:px-6">
+    <div className="flex min-h-screen flex-col bg-brand-50 font-sans text-slate-900">
+      <header className="border-b-2 border-brand-600 bg-ink px-4 py-3 text-white sm:px-6">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2">
-          <Link to="/peliculas" className="text-xl font-bold tracking-tight">
-            🎬 Películas
+          <Link to="/peliculas" className="flex items-center">
+            <img
+              src="/cinema24-brand/logo-cinema24-dark-bg.png"
+              alt="Cinema 24"
+              className="h-9 w-auto"
+            />
           </Link>
           <nav aria-label="Principal" className="flex flex-wrap items-center gap-1">
             <NavLink to="/peliculas" className={navLinkClass}>
@@ -79,14 +84,10 @@ export const Layout = () => {
           {logoutError}
         </p>
       )}
-      <main className="mx-auto max-w-5xl p-4 sm:p-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 p-4 sm:p-6">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-5xl px-4 pb-6 text-center text-sm text-slate-500 sm:px-6">
-        <Link to="/privacidad" className="underline hover:text-slate-700">
-          Privacidad
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 };
