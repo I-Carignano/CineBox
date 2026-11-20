@@ -8,7 +8,8 @@ const LIMIT = 12;
 const DEFAULT_SORT_BY = "createdAt";
 const DEFAULT_SORT_ORDER = "desc";
 
-export const parseFilters = (params: URLSearchParams): MovieFilters => {
+// allowMine: solo el panel de admin usa ?mine=true; en el catálogo público se ignora (mine exige sesión).
+export const parseFilters = (params: URLSearchParams, allowMine = false): MovieFilters => {
   const page = Number(params.get("page"));
   const search = params.get("search")?.trim().slice(0, 100);
   const available = params.get("available");
@@ -24,6 +25,7 @@ export const parseFilters = (params: URLSearchParams): MovieFilters => {
     minRating: minRating >= 0 && minRating <= 10 ? minRating : undefined,
     sortBy: SORT_FIELDS.find((field) => field === params.get("sortBy")) ?? DEFAULT_SORT_BY,
     sortOrder: params.get("sortOrder") === "asc" ? "asc" : DEFAULT_SORT_ORDER,
+    mine: allowMine && params.get("mine") === "true" ? true : undefined,
   };
 };
 
@@ -36,13 +38,14 @@ export const toSearchParams = (filters: MovieFilters): URLSearchParams => {
   if (filters.minRating !== undefined) params.set("minRating", String(filters.minRating));
   if (filters.sortBy !== DEFAULT_SORT_BY) params.set("sortBy", filters.sortBy);
   if (filters.sortOrder !== DEFAULT_SORT_ORDER) params.set("sortOrder", filters.sortOrder);
+  if (filters.mine) params.set("mine", "true");
   if (filters.page > 1) params.set("page", String(filters.page));
   return params;
 };
 
-export const useMovieFilters = () => {
+export const useMovieFilters = (allowMine = false) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const filters = parseFilters(searchParams);
+  const filters = parseFilters(searchParams, allowMine);
 
   // Cualquier cambio de filtro vuelve a la página 1; solo cambiar la página la conserva.
   const setFilters = (changes: Partial<MovieFilters>) =>
@@ -54,7 +57,8 @@ export const useMovieFilters = () => {
     !!filters.search ||
     !!filters.genre ||
     filters.available !== undefined ||
-    filters.minRating !== undefined;
+    filters.minRating !== undefined ||
+    !!filters.mine;
 
   return { filters, setFilters, clearFilters, hasActiveFilters };
 };

@@ -13,8 +13,23 @@ export interface Movie {
   synopsis?: string;
   posterUrl?: string;
   createdBy: string;
+  // Quién la cargó (solo en GET lista y detalle). username es null si entró con GitHub/Google.
+  author?: { id: string; username: string | null; name: string | null };
   createdAt: string;
   updatedAt: string;
+}
+
+// Body de POST y PUT /api/peliculas (sin createdBy: lo pone el servidor).
+export interface MoviePayload {
+  title: string;
+  director: string;
+  genre: Genre;
+  durationMinutes: number;
+  releaseDate: string; // AAAA-MM-DD
+  rating: number;
+  available: boolean;
+  synopsis?: string;
+  posterUrl?: string;
 }
 
 // Envelope de los listados paginados del backend: { data, meta }.

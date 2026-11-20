@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, Navigate, useNavigate } from "react-router";
 import { AuthCard } from "../components/AuthCard";
 import { FormField } from "../components/FormField";
-import { authErrorMessage } from "../lib/auth-errors";
+import { authErrorMessage, isUsernameError } from "../lib/auth-errors";
 import { signUp, useSession } from "../lib/auth-client";
 import { registerSchema, type RegisterFormValues } from "../schemas/auth.schema";
 
@@ -18,7 +18,14 @@ export const Register = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: {
+      username: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   // !isSubmitting: signUp deja la sesión abierta y no hay que rebotar antes de que termine onSubmit.
@@ -26,10 +33,30 @@ export const Register = () => {
     return <Navigate to="/peliculas" replace />;
   }
 
-  const onSubmit = async ({ name, email, password }: RegisterFormValues) => {
-    // signUp ya deja la sesión abierta, no hace falta un login aparte.
-    const { error } = await signUp.email({ name, email, password });
+  const onSubmit = async ({
+    username,
+    firstName,
+    lastName,
+    email,
+    password,
+  }: RegisterFormValues) => {
+    // signUp ya deja la sesión abierta, no hace falta un login aparte. name = "Nombre Apellido".
+    const { error } = await signUp.email({
+      name: `${firstName} ${lastName}`,
+      username,
+      firstName,
+      lastName,
+      email,
+      password,
+    });
     if (error) {
+      // Usuario repetido o inválido: el error va en su campo, no arriba del botón.
+      if (isUsernameError(error)) {
+        setError("username", {
+          message: authErrorMessage(error, "El nombre de usuario no es válido"),
+        });
+        return;
+      }
       setError("root.server", {
         message: authErrorMessage(error, "No se pudo crear la cuenta. Probá de nuevo."),
       });
@@ -42,11 +69,25 @@ export const Register = () => {
     <AuthCard title="Crear cuenta">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
         <FormField
+          label="Nombre de usuario"
+          type="text"
+          autoComplete="username"
+          error={errors.username?.message}
+          {...register("username")}
+        />
+        <FormField
           label="Nombre"
           type="text"
-          autoComplete="name"
-          error={errors.name?.message}
-          {...register("name")}
+          autoComplete="given-name"
+          error={errors.firstName?.message}
+          {...register("firstName")}
+        />
+        <FormField
+          label="Apellido"
+          type="text"
+          autoComplete="family-name"
+          error={errors.lastName?.message}
+          {...register("lastName")}
         />
         <FormField
           label="Email"

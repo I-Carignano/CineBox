@@ -1,39 +1,32 @@
 // Ruta privada "/perfil": cualquier usuario logueado (ProtectedRoute garantiza que hay sesión).
-// Muestra nombre, email, rol y cuentas vinculadas, y el aviso de "sin permisos" si lo mandaron desde /admin.
-import { useEffect, useState } from "react";
+// Datos en modo lectura: el lápiz de "Usuario" y el de "Nombre" abren un modal para editarlos. Email y rol
+// son solo lectura. Abajo, las cuentas vinculadas. También muestra el aviso "sin permisos" (si lo mandaron
+// desde /admin) y los errores de vinculación (Better Auth vuelve acá con ?error=<código>).
+import { useState } from "react";
 import { useLocation } from "react-router";
-import { authClient, useSession } from "../lib/auth-client";
-import { authErrorMessage } from "../lib/auth-errors";
+import { LinkedAccounts } from "../components/LinkedAccounts";
+import { PencilButton } from "../components/PencilButton";
+import { ProfileEditModal } from "../components/ProfileEditModal";
+import { useSession } from "../lib/auth-client";
+import { getFirstAndLastName } from "../lib/names";
+import { roleLabel } from "../lib/roles";
 
-const PROVIDER_LABELS: Record<string, string> = {
-  credential: "Email y contraseña",
-  github: "GitHub",
-  google: "Google",
+// Códigos que Better Auth manda en /perfil?error=<código> cuando falla la vinculación de una cuenta.
+const LINK_ERRORS: Record<string, string> = {
+  account_already_linked_to_different_user: "Esa cuenta ya está vinculada a otro usuario.",
 };
 
 export const Profile = () => {
   const { data: session } = useSession();
   const location = useLocation();
   const forbidden = (location.state as { forbidden?: boolean } | null)?.forbidden;
-  // null = todavía cargando
-  const [providers, setProviders] = useState<string[] | null>(null);
-  const [linkError, setLinkError] = useState<string | null>(null);
-
-  useEffect(() => {
-    authClient
-      .listAccounts()
-      .then(({ data }) => setProviders((data ?? []).map((a) => a.providerId)));
-  }, []);
+  const linkError = new URLSearchParams(location.search).get("error");
+  // Qué modal de edición está abierto (null = ninguno).
+  const [editing, setEditing] = useState<"username" | "name" | null>(null);
 
   if (!session) return null;
   const { user } = session;
-
-  // Link EXPLÍCITO: el usuario ya está logueado (probó que es dueño de la cuenta local).
-  // Redirige a GitHub y vuelve acá con las cuentas unidas.
-  const handleLinkGithub = async () => {
-    const { error } = await authClient.linkSocial({ provider: "github", callbackURL: "/perfil" });
-    if (error) setLinkError(authErrorMessage(error, "No se pudo conectar GitHub"));
-  };
+  const { firstName, lastName } = getFirstAndLastName(user);
 
   return (
     <section className="flex flex-col gap-4">
@@ -42,39 +35,50 @@ export const Profile = () => {
           No tenés permisos para entrar a esa sección.
         </p>
       )}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold">{user.name}</h2>
-        <p className="text-slate-600">{user.email}</p>
-        <span className="mt-2 inline-block rounded bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-          {user.role === "admin" ? "Administrador" : "Usuario"}
-        </span>
+      {linkError && (
+        <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+          {LINK_ERRORS[linkError] ?? "No se pudo vincular la cuenta. Probá de nuevo."}
+        </p>
+      )}
 
-        <h3 className="mt-6 text-sm font-semibold text-slate-700">Cuentas vinculadas</h3>
-        {providers === null ? (
-          <p className="text-sm text-slate-500">Cargando...</p>
-        ) : (
-          <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
-            {providers.map((id) => (
-              <li key={id}>{PROVIDER_LABELS[id] ?? id}</li>
-            ))}
-          </ul>
-        )}
+      <div className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-xl font-semibold">Mi perfil</h2>
+          <dl className="mt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
+            <dt className="text-slate-500">Usuario</dt>
+            <dd className="flex items-center gap-1">
+              {user.username ? `@${user.username}` : "—"}
+              <PencilButton
+                label="Editar nombre de usuario"
+                onClick={() => setEditing("username")}
+              />
+            </dd>
+            <dt className="text-slate-500">Nombre</dt>
+            <dd className="flex items-center gap-1">
+              {`${firstName} ${lastName}`.trim() || user.name}
+              <PencilButton label="Editar nombre" onClick={() => setEditing("name")} />
+            </dd>
+            <dt className="text-slate-500">Email</dt>
+            <dd>{user.email}</dd>
+            <dt className="text-slate-500">Rol</dt>
+            <dd>
+              <span className="inline-block rounded bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
+                {roleLabel(user.role)}
+              </span>
+            </dd>
+          </dl>
+        </div>
 
-        {providers !== null && !providers.includes("github") && (
-          <button
-            type="button"
-            onClick={handleLinkGithub}
-            className="mt-4 rounded border border-slate-300 px-3 py-1.5 text-sm font-medium transition hover:bg-slate-100"
-          >
-            Conectar GitHub
-          </button>
-        )}
-        {linkError && (
-          <p role="alert" className="mt-2 text-sm text-red-600">
-            {linkError}
-          </p>
-        )}
+        <LinkedAccounts />
       </div>
+
+      {editing && (
+        <ProfileEditModal
+          field={editing}
+          initial={{ username: user.username ?? "", firstName, lastName }}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </section>
   );
 };

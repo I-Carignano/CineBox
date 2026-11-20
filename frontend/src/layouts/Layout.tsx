@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
 import { signOut, useSession } from "../lib/auth-client";
+import { isAdminRole } from "../lib/roles";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded px-3 py-1.5 text-sm hover:bg-white/10 ${isActive ? "bg-white/15 font-semibold" : ""}`;
@@ -36,11 +37,16 @@ export const Layout = () => {
               Catálogo
             </NavLink>
             {user && (
-              <NavLink to="/perfil" className={navLinkClass}>
-                Perfil
-              </NavLink>
+              <>
+                <NavLink to="/mis-peliculas" className={navLinkClass}>
+                  Mis películas
+                </NavLink>
+                <NavLink to="/perfil" className={navLinkClass}>
+                  Perfil
+                </NavLink>
+              </>
             )}
-            {user?.role === "admin" && (
+            {isAdminRole(user?.role) && (
               <NavLink to="/admin" className={navLinkClass}>
                 Admin
               </NavLink>
