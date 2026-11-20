@@ -4,6 +4,7 @@ import { createBrowserRouter, redirect } from "react-router";
 import { Layout } from "../layouts/Layout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Login } from "../pages/Login";
+import { MovieDetail } from "../pages/MovieDetail";
 import { MoviesList } from "../pages/MoviesList";
 import { NotFound } from "../pages/NotFound";
 import { Profile } from "../pages/Profile";
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
 
       // Públicas
       { path: "peliculas", element: <MoviesList /> },
+      { path: "peliculas/:id", element: <MovieDetail /> },
 
       // Privadas: cualquier usuario logueado
       {
