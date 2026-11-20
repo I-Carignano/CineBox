@@ -200,6 +200,8 @@ Commits:
 
 ## F10 — Deploy
 
+Preparación hecha (F10 prep, ✅ pendiente de prueba y commit): página pública `/privacidad` con links; `trustedOrigins` y cookies seguras explícitas en `lib/auth.ts`; `docs/DEPLOY.md` con la configuración de Render, variables, rewrites, callbacks de OAuth y comando del seed de producción. Falta el deploy en sí:
+
 - [ ] Atlas: base de prod y `0.0.0.0/0`.
 - [ ] Render backend → verificar `/api/auth/ok`.
 - [ ] Render frontend + rewrites en orden.
@@ -237,5 +239,6 @@ Commit: `docs: complete readme with endpoints, urls and test users`
 | F8d (permisos por rol, perfil, vincular, modales) | ✅ (pendiente de prueba y commit) |
 | F8e (perfil con lápiz, contraseña social, completar perfil, pósters) | ✅ (pendiente de prueba y commit) |
 | F9 | ⬜ |
-| F10 | ⬜ |
+| F10 prep (privacidad, ajustes de producción, DEPLOY.md) | ✅ (pendiente de prueba y commit) |
+| F10 (deploy en Render) | ⬜ |
 | F11 | ⬜ |

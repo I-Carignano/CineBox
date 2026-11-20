@@ -168,6 +168,7 @@ router.delete("/:id", canWrite, deleteMovie);
 - `plugins: [admin({ ac, roles, defaultRole: "user", adminRoles: ["admin", "superadmin"] }), username({ minUsernameLength: 3, maxUsernameLength: 30, usernameValidator: /^[a-zA-Z0-9_.]+$/, displayUsername: false })]`. El plugin guarda `username` normalizado a minúsculas y único (error `USERNAME_IS_ALREADY_TAKEN`). El login sigue siendo **por email** (el plugin expone `/sign-in/username`, pero el front no lo usa).
 - `user.additionalFields`: `firstName` y `lastName` (string, `required: false`, `input: true`, para no romper el alta por GitHub/Google; el registro por email los exige en el Zod del front). El registro manda `name = "firstName lastName"`. Los usuarios de GitHub/Google no tienen `username`, `firstName` ni `lastName`: para mostrarlos se usa su `name`.
 - En `server.ts`: `app.all("/api/auth/*splat", toNodeHandler(auth))` **antes** de `express.json()`.
+- Producción (F10 prep, ver `docs/DEPLOY.md`): `baseURL = BETTER_AUTH_URL` (la URL del **front**); `trustedOrigins: [origen de esa URL]` (el navegador manda `Origin` = front a través del rewrite); `advanced.useSecureCookies` solo si la URL empieza con `https://`. No se usa `trust proxy`: el código no lee `req.ip` ni `req.secure`. El back escucha en `process.env.PORT`; `npm run build` → `dist/`, `npm start` → `node dist/server.js`.
 
 ## 6. Frontend
 
@@ -185,9 +186,10 @@ router.delete("/:id", canWrite, deleteMovie);
 | `/mis-peliculas` | `MyMovies`: ABM de **sus** películas (`mine=true`), mismo `MovieForm` que el admin | Logueado (cualquier rol) | Sí |
 | `/admin` | `AdminMovies`: ABM de **todas** las películas, filtro "Mis películas" | admin o superadmin | Sí |
 | `/admin/usuarios` | `AdminUsers`: listado (usuario, nombre, email, rol, estado). **Superadmin:** ve a todos; en cada fila (menos la suya, sin acciones) select de rol (`setRole`), "Dar de baja" / "Reactivar" (`banUser` / `unbanUser`) y "Eliminar" (`removeUser`), también sobre admins. **Admin:** no ve filas de superadmin (`listUsers` con `filterField: "role"`, `filterOperator: "ne"`, `filterValue: "superadmin"`, más un filtro de respaldo en el front); acciones de baja / reactivar / eliminar solo en filas con rol `user`; sin select de rol. Ambos ven la columna Estado. Cambiar rol, dar de baja y eliminar piden confirmación en un modal (reactivar no) | admin o superadmin | Sí |
+| `/privacidad` | `Privacy`: texto corto de privacidad (datos que se guardan: email, nombre, apellido, usuario y contraseña cifrada; para qué; no se comparten; cómo pedir la baja a un admin). Link "Privacidad" en el footer del Layout y en login/registro (`AuthCard`) | Pública, también sin username | Sí |
 | `*` | `NotFound` | — | Sí |
 
-**`ProfileGate`** (`router/ProfileGate.tsx`) envuelve todas las rutas menos `/completar-perfil`: con sesión y sin `username` redirige a `/completar-perfil` (cualquier ruta, incluido el catálogo). Mientras la sesión carga no bloquea nada, para que el catálogo público no espere.
+**`ProfileGate`** (`router/ProfileGate.tsx`) envuelve todas las rutas menos `/completar-perfil` y `/privacidad`: con sesión y sin `username` redirige a `/completar-perfil` (cualquier ruta, incluido el catálogo). Mientras la sesión carga no bloquea nada, para que el catálogo público no espere.
 Header: "Mis películas" si hay sesión; "Admin" solo si el rol es admin o superadmin (`lib/roles.ts`).
 Login con cuenta dada de baja: "Tu cuenta fue dada de baja. Contactá a un administrador." (`BANNED_USER` en `lib/auth-errors.ts`).
 Detalle de película: primera línea dentro de la tarjeta, antes del póster y el título: "ID: #<id>" con botón "Copiar" (`CopyId`, copia el ID sin el `#`), útil para probar la API.
