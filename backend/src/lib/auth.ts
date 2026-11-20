@@ -23,10 +23,18 @@ const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 // El front consulta esto (GET /api/config) para saber si muestra el botón de Google.
 export const googleEnabled = Boolean(googleClientId && googleClientSecret);
 
+// URL pública que ve el navegador: la del FRONT, porque /api llega al back a través del rewrite del Static Site.
+// Local: http://localhost:5173. Producción: https://<front>.onrender.com.
+const baseURL = requireEnv("BETTER_AUTH_URL");
+
 export const auth = betterAuth({
-  // URL pública que ve el navegador: la del FRONT, porque /api llega al back a través del proxy / rewrite.
   // El secret se lee solo de BETTER_AUTH_SECRET.
-  baseURL: requireEnv("BETTER_AUTH_URL"),
+  baseURL,
+  // Detrás del rewrite el navegador manda Origin = URL del front (y el Host que llega al back es el del back).
+  // Better Auth valida ese Origin contra esta lista (CSRF); se deja explícito aunque ya es el valor por defecto.
+  trustedOrigins: [new URL(baseURL).origin],
+  // Cookies "Secure" (prefijo __Secure-) solo si el front se sirve por https; en local (http) no, o el navegador las descarta.
+  advanced: { useSecureCookies: baseURL.startsWith("https://") },
   database: mongodbAdapter(client.db(), { client }),
   emailAndPassword: {
     enabled: true, // hashea con scrypt; mínimo 8 caracteres por defecto
