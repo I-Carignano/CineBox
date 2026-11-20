@@ -68,6 +68,7 @@ Base: `/api`. Las rutas de la entidad cuelgan de `/api/peliculas` (como pide la 
 | PUT | `/api/peliculas/:id` | admin, dueño | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
 | DELETE | `/api/peliculas/:id` | admin, dueño | 204 sin body | 400, 401, 403, 404 |
 | GET | `/api/auth/ok` | — | 200 `{ ok: true }` (healthcheck de Better Auth) | — |
+| GET | `/api/config` | Público | 200 `{ googleEnabled }` (el front lo usa para mostrar u ocultar el botón de Google, porque no tiene `.env`) | — |
 | GET | `/health` | — | 200 `{ status, uptimeSeconds, timestamp }` | — |
 | * | `/api/auth/*` | Better Auth | sign-up/email, sign-in/email, sign-in/social, sign-out, get-session, callback/github, callback/google, admin/* | — |
 

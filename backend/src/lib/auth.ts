@@ -17,6 +17,8 @@ const client = new MongoClient(requireEnv("MONGODB_URI"));
 // Google es opcional: si faltan las variables, no se registra el provider y el login con Google queda desactivado.
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+// El front consulta esto (GET /api/config) para saber si muestra el botón de Google.
+export const googleEnabled = Boolean(googleClientId && googleClientSecret);
 
 export const auth = betterAuth({
   // URL pública que ve el navegador: la del FRONT, porque /api llega al back a través del proxy / rewrite.
@@ -31,8 +33,8 @@ export const auth = betterAuth({
       clientId: requireEnv("GITHUB_CLIENT_ID"),
       clientSecret: requireEnv("GITHUB_CLIENT_SECRET"),
     },
-    ...(googleClientId && googleClientSecret
-      ? { google: { clientId: googleClientId, clientSecret: googleClientSecret } }
+    ...(googleEnabled
+      ? { google: { clientId: googleClientId!, clientSecret: googleClientSecret! } }
       : {}),
   },
   // Si alguien ya registrado con email+password entra con GitHub/Google (mismo email), une las cuentas
