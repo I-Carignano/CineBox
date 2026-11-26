@@ -195,8 +195,19 @@ Rewrites del Static Site, en este orden: `/api/*` → `https://tp2-peliculas-api
 
 ## 10. Documentación del proyecto
 
-- [`docs/CHECKLIST.md`](docs/CHECKLIST.md): cada requisito de la consigna con su estado y dónde se cumple.
-- [`docs/SPEC.md`](docs/SPEC.md): decisiones técnicas (entidad, endpoints, errores, rutas del frontend).
-- [`docs/PLAN.md`](docs/PLAN.md): fases del trabajo.
+- [`docs/CONSIGNA_FINAL.md`](docs/CONSIGNA_FINAL.md): la consigna del TP Final y los acuerdos con el docente.
+- [`docs/PLAN_FINAL.md`](docs/PLAN_FINAL.md): fases, ramas y PRs del TP Final.
+- [`docs/SPEC.md`](docs/SPEC.md): decisiones técnicas vigentes (entidad, endpoints, errores, rutas del frontend).
+- [`docs/DISENO.md`](docs/DISENO.md): paleta, componentes y pantallas.
 - [`docs/DEPLOY.md`](docs/DEPLOY.md): configuración de Render.
-- [`docs/CONSIGNA.md`](docs/CONSIGNA.md): la consigna del trabajo.
+- Historia del TP2 en [`docs/tp2/`](docs/tp2/): [`CONSIGNA.md`](docs/tp2/CONSIGNA.md), [`PLAN.md`](docs/tp2/PLAN.md) y [`CHECKLIST.md`](docs/tp2/CHECKLIST.md).
+
+## 11. Metodología de trabajo
+
+> El historial anterior a este PR corresponde al TP2 (commits directos a `main`, aprobado por el docente). Desde F0, todo cambio entra por Pull Request con descripción.
+
+- Una rama por PR (`feat/…`, `fix/…`, `chore/…`, `docs/…`), commits chicos y convencionales, y PR a `main` con la plantilla de [`.github/pull_request_template.md`](.github/pull_request_template.md): qué se agregó, cómo verificarlo y qué requisitos de la consigna cubre.
+- Merge con merge commit, para preservar el historial granular.
+- Fases y PRs: [`docs/PLAN_FINAL.md`](docs/PLAN_FINAL.md). Consigna: [`docs/CONSIGNA_FINAL.md`](docs/CONSIGNA_FINAL.md).
+
+El README completo del TP Final se rehace en F12.
