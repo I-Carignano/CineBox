@@ -48,5 +48,4 @@ export interface MovieFilters {
   minRating?: number;
   sortBy: SortField;
   sortOrder: SortOrder;
-  mine?: boolean;
 }

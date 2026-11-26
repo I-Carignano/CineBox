@@ -14,16 +14,17 @@ export const Layout = () => {
   const user = session?.user;
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
-  // signOut borra la sesión EN LA BASE (no solo la cookie).
-  // Recarga completa en vez de navigate(): useSession se refresca async y con navigate() el Login
-  // todavía vería la sesión vieja. La recarga también limpia la caché de RTK Query.
+  // signOut borra la sesión EN LA BASE (no solo la cookie). Después va al inicio ("/", que muestra el catálogo),
+  // como pide la consigna. Recarga completa en vez de navigate(): arranca de cero el estado de useSession (con
+  // navigate() se vería un instante la sesión vieja) y la caché de RTK Query, así no queda nada del usuario.
+  // replace: "atrás" no vuelve a la pantalla privada en la que estaba.
   const handleLogout = async () => {
     const { error } = await signOut();
     if (error) {
       setLogoutError(error.message ?? "No se pudo cerrar la sesión");
       return;
     }
-    window.location.replace("/login");
+    window.location.replace("/");
   };
 
   return (
@@ -42,14 +43,9 @@ export const Layout = () => {
               Catálogo
             </NavLink>
             {user && (
-              <>
-                <NavLink to="/mis-peliculas" className={navLinkClass}>
-                  Mis películas
-                </NavLink>
-                <NavLink to="/perfil" className={navLinkClass}>
-                  Perfil
-                </NavLink>
-              </>
+              <NavLink to="/perfil" className={navLinkClass}>
+                Perfil
+              </NavLink>
             )}
             {isAdminRole(user?.role) && (
               <NavLink to="/admin" className={navLinkClass}>

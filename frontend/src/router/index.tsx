@@ -11,7 +11,6 @@ import { AdminUsers } from "../pages/AdminUsers";
 import { Login } from "../pages/Login";
 import { MovieDetail } from "../pages/MovieDetail";
 import { MoviesList } from "../pages/MoviesList";
-import { MyMovies } from "../pages/MyMovies";
 import { NotFound } from "../pages/NotFound";
 import { Privacy } from "../pages/Privacy";
 import { Profile } from "../pages/Profile";
@@ -45,13 +44,10 @@ export const router = createBrowserRouter([
           { path: "peliculas", element: <MoviesList /> },
           { path: "peliculas/:id", element: <MovieDetail /> },
 
-          // Privadas: cualquier usuario logueado
+          // Privada: cualquier usuario logueado. (/mis-peliculas ya no existe desde F1: cae en el 404.)
           {
             element: <ProtectedRoute />,
-            children: [
-              { path: "perfil", element: <Profile /> },
-              { path: "mis-peliculas", element: <MyMovies /> },
-            ],
+            children: [{ path: "perfil", element: <Profile /> }],
           },
 
           // Solo admin y superadmin: un user común vuelve a /perfil con el aviso "No tenés permisos".

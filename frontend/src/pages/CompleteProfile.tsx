@@ -64,7 +64,7 @@ export const CompleteProfile = () => {
 
   const handleLogout = async () => {
     await signOut();
-    window.location.replace("/login");
+    window.location.replace("/"); // al inicio, igual que el logout del header
   };
 
   return (
@@ -72,8 +72,8 @@ export const CompleteProfile = () => {
       <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold text-slate-900">Completá tu perfil</h1>
         <p className="mt-1 mb-4 text-sm text-slate-600">
-          Para seguir, elegí tu nombre de usuario y revisá tu nombre. Es el que se muestra en las
-          películas que cargás.
+          Para seguir, elegí tu nombre de usuario y revisá tu nombre. Es el que te identifica en
+          Cinema 24.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
           <div className="flex flex-col gap-1 text-sm text-slate-700">
