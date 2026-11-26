@@ -1,7 +1,8 @@
 // Seed (npm run seed): crea los usuarios de prueba (superadmin, admin y user) y las películas de ejemplo.
 // Se puede correr varias veces sin duplicar: a los usuarios que ya existen les actualiza username/nombre/apellido,
 // y por cada película del seed, si no hay una con ese título la inserta (createdBy = el admin del seed) y, si ya
-// existe, solo le sincroniza el póster. Las películas que no son del seed no se tocan.
+// existe, solo le sincroniza el póster. El catálogo es del admin (DF08): todas las películas del seed se crean a su
+// nombre. Las que no son del seed (por ejemplo, las que cargaron users en el TP2) no se tocan (DF26).
 // Para sembrar la base de producción: MONGODB_URI="<uri de prod>" npm run seed (la URI solo en la terminal).
 // dotenv no pisa variables que ya están en el entorno, así que esa URI gana sobre la del .env.
 import "dotenv/config";
