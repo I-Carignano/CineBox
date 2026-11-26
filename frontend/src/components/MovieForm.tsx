@@ -1,4 +1,4 @@
-// Formulario de alta y edición de películas (lo usan /mis-peliculas y /admin). Se muestra dentro de un Modal.
+// Formulario de alta y edición de películas (solo lo usa el panel /admin). Se muestra dentro de un Modal.
 // Edición con `values` (no defaultValues): al elegir otra película, el formulario se rellena solo.
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

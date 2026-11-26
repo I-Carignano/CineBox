@@ -29,14 +29,14 @@ export const Privacy = () => {
 
       <h2 className="mt-6 text-lg font-semibold">Para qué los usamos</h2>
       <p className="mt-2 text-slate-700">
-        Solo para que puedas iniciar sesión, identificarte en la app y mostrar tu @usuario como
-        autor de las películas que cargás. No usamos tus datos para publicidad ni para nada más.
+        Solo para que puedas iniciar sesión e identificarte en la app con tu @usuario. No usamos tus
+        datos para publicidad ni para nada más.
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Con quién los compartimos</h2>
       <p className="mt-2 text-slate-700">
         Con nadie. Tus datos no se venden ni se comparten con terceros. Lo único visible para otras
-        personas es tu @usuario (o tu nombre) junto a las películas que creaste.
+        personas es tu @usuario (o tu nombre).
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Cómo pedir la baja</h2>
@@ -45,7 +45,7 @@ export const Privacy = () => {
         <a href={`mailto:${CONTACT_EMAIL}`} className="text-brand-600 underline">
           {CONTACT_EMAIL}
         </a>{" "}
-        y la eliminamos. Tus películas quedan en el catálogo, pero sin autor asociado.
+        y la eliminamos.
       </p>
 
       <p className="mt-6 text-sm">

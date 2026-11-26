@@ -1,13 +1,10 @@
-// ABM de películas: tabla con editar/eliminar; el formulario de alta/edición y la confirmación de borrado
-// se abren en modales. Lo comparten dos pantallas:
-//   scope="mine" -> /mis-peliculas: solo las películas del usuario logueado (mine=true).
-//   scope="all"  -> /admin: todas las películas, con un filtro "Solo mis películas".
-// El backend decide los permisos (el user solo toca lo suyo); acá solo se muestran las acciones.
+// ABM de películas del panel de admin (/admin): tabla con editar/eliminar; el formulario de alta/edición y la
+// confirmación de borrado se abren en modales. Es la ÚNICA pantalla con acciones de escritura sobre películas:
+// el catálogo es del admin (DF08). La ruta ya exige rol admin/superadmin y el backend responde 403 a un user.
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useMovieFilters } from "../hooks/useMovieFilters";
 import { getErrorMessage } from "../lib/api";
-import { useSession } from "../lib/auth-client";
 import { formatAuthor, formatDate, formatDuration, formatYear } from "../lib/format";
 import { GENRE_LABELS } from "../lib/movies";
 import { toMoviePayload, type MovieFormValues } from "../schemas/movie.schema";
@@ -24,17 +21,9 @@ import { MovieFilters } from "./MovieFilters";
 import { MovieForm } from "./MovieForm";
 import { Pagination } from "./Pagination";
 
-interface MovieManagerProps {
-  scope: "mine" | "all";
-}
-
-export const MovieManager = ({ scope }: MovieManagerProps) => {
-  const isAdminPanel = scope === "all";
-  const { data: session } = useSession();
-  // En el panel de admin ?mine=true es un filtro más (checkbox); en /mis-peliculas siempre va fijo.
-  const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters(isAdminPanel);
-  const query = scope === "mine" ? { ...filters, mine: true } : filters;
-  const { data, isLoading, isFetching, error, refetch } = useGetMoviesQuery(query);
+export const MovieManager = () => {
+  const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters();
+  const { data, isLoading, isFetching, error, refetch } = useGetMoviesQuery(filters);
   const [createMovie] = useCreateMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie, { isLoading: isDeleting }] = useDeleteMovieMutation();
@@ -89,16 +78,10 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
     setNotice(`"${movie.title}" se eliminó.`);
   };
 
-  // "Vos" si la película es mía; si no, @username (o el name, o "—").
-  const authorOf = (movie: Movie): string =>
-    movie.createdBy === session?.user.id ? "Vos" : formatAuthor(movie.author);
-
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-2xl font-semibold">
-          {isAdminPanel ? "Administrar películas" : "Mis películas"}
-        </h2>
+        <h2 className="text-2xl font-semibold">Administrar películas</h2>
         <button
           type="button"
           onClick={() => openForm("new")}
@@ -120,17 +103,6 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
         onChange={setFilters}
         onClear={clearFilters}
       />
-
-      {isAdminPanel && (
-        <label className="flex items-center gap-2 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            checked={!!filters.mine}
-            onChange={(event) => setFilters({ mine: event.target.checked || undefined })}
-          />
-          Solo mis películas
-        </label>
-      )}
 
       {actionError && (
         <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
@@ -158,9 +130,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
           <p className="text-slate-600">
             {hasActiveFilters || filters.page > 1
               ? "No hay películas que coincidan con tu búsqueda."
-              : isAdminPanel
-                ? "Todavía no hay películas cargadas."
-                : "Todavía no cargaste ninguna película."}
+              : "Todavía no hay películas cargadas."}
           </p>
           {hasActiveFilters || filters.page > 1 ? (
             <button type="button" onClick={clearFilters} className="mt-2 text-brand-600 underline">
@@ -187,9 +157,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
             className={`overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm transition-opacity ${isFetching ? "opacity-50" : ""}`}
           >
             <table className="w-full min-w-xl text-left text-sm">
-              <caption className="sr-only">
-                {isAdminPanel ? "Todas las películas" : "Tus películas"}
-              </caption>
+              <caption className="sr-only">Todas las películas</caption>
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">
@@ -207,11 +175,10 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
                   <th scope="col" className="px-3 py-2 font-medium">
                     Estado
                   </th>
-                  {isAdminPanel && (
-                    <th scope="col" className="px-3 py-2 font-medium">
-                      Autor
-                    </th>
-                  )}
+                  {/* Autor = quién la cargó (createdBy): dato histórico, no da permisos (DF26). */}
+                  <th scope="col" className="px-3 py-2 font-medium">
+                    Autor
+                  </th>
                   <th scope="col" className="px-3 py-2 font-medium">
                     Acciones
                   </th>
@@ -233,7 +200,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
                     >
                       {movie.available ? "Disponible" : "No disponible"}
                     </td>
-                    {isAdminPanel && <td className="px-3 py-2">{authorOf(movie)}</td>}
+                    <td className="px-3 py-2">{formatAuthor(movie.author)}</td>
                     <td className="px-3 py-2">
                       <div className="flex gap-2">
                         <button
@@ -297,7 +264,7 @@ export const MovieManager = ({ scope }: MovieManagerProps) => {
             { label: "Estreno", value: formatDate(deleting.releaseDate) },
             { label: "Duración", value: formatDuration(deleting.durationMinutes) },
             { label: "Rating", value: deleting.rating.toFixed(1) },
-            { label: "Autor", value: authorOf(deleting) },
+            { label: "Autor", value: formatAuthor(deleting.author) },
           ]}
           confirmLabel="Sí, eliminar"
           busyLabel="Eliminando..."
