@@ -10,7 +10,7 @@ Catálogo de películas full stack.
 
 - **Cualquiera (sin sesión):** ve el listado con búsqueda, filtros y paginación, y el detalle de cada película.
 - **`user` (rol por defecto al registrarse):** lo mismo, más su perfil. **No escribe en el catálogo** (DF08, F1): cualquier POST/PUT/PATCH/DELETE de películas le da **403**, y el front no le muestra ningún botón de crear, editar o borrar (las acciones solo existen en `/admin`).
-- **`admin`:** crea, edita y borra **todas** las películas desde `/admin`. En `/admin/usuarios` (F8d) **no ve a los superadmin**, ve a los admin sin acciones, y sobre los usuarios con rol `user` puede dar de baja, reactivar, eliminar y **ascender a `admin`** (F12: es el único cambio de rol que puede hacer, y después no puede tocar a ese admin).
+- **`admin`:** crea, edita y borra **todas** las películas desde `/admin`, con **baja lógica** (restaurable) y **baja física** (F1, DF27). En `/admin/usuarios` (F8d) **no ve a los superadmin**, ve a los admin sin acciones, y sobre los usuarios con rol `user` puede dar de baja, reactivar, eliminar y **ascender a `admin`** (F12: es el único cambio de rol que puede hacer, y después no puede tocar a ese admin).
 - **`superadmin` (F8c):** todo lo del admin, más **gestionar usuarios** en `/admin/usuarios`: ve a todos y, sobre cualquiera menos sí mismo (admins incluidos), cambia el rol (`user` / `admin` / `superadmin`), da de baja (ban), reactiva (unban) y elimina. Un usuario eliminado deja sus películas en el catálogo (su autor se muestra como "—"). Nadie puede cambiarse su propio rol. Se crea con el seed (`SEED_SUPERADMIN_*`) o lo asigna otro superadmin.
 - **Perfil (F8d, F8e):** cualquier usuario logueado edita su nombre de usuario, nombre y apellido en `/perfil` (con el lápiz, en un modal) y puede vincular cuentas de GitHub/Google. Quien entró con GitHub/Google puede **agregar email y contraseña** para entrar también así. El email no se edita.
 - **Perfil completo obligatorio (F8e):** con sesión y sin nombre de usuario (cuentas sociales), todas las rutas redirigen a `/completar-perfil`.
@@ -50,7 +50,11 @@ El código va en inglés, como en el repo del profe (`Movie`, `movies.service.ts
 | `synopsis` | String | `z.string().trim().max(1000).optional()` | opcional |
 | `posterUrl` | String | `z.url().optional()` | opcional |
 | `createdBy` | String (id de usuario de Better Auth) | **no viene en el body** | lo pone el server con `req.user.id`; desde F1 es solo el dato de quién la cargó (no da permisos ni filtra) |
+| `active` | Boolean (indexado) | **no viene en el body** | default `true`. Baja lógica (F1, DF27): `false` = dada de baja. Solo lo cambian `DELETE /:id` y `PATCH /:id/restaurar`. No confundir con `available` |
+| `deletedAt` | Date \| null | **no viene en el body** | default `null`; fecha de la baja lógica (se conserva si se repite el DELETE) |
 | `createdAt` / `updatedAt` | Date | — | `timestamps: true` |
+
+**Documentos viejos (sin `active`):** no se migran. Las consultas públicas filtran `{ active: { $ne: false } }`, que los incluye, y Mongoose les completa el default (`active: true`, `deletedAt: null`) al leerlos. No hay índices únicos en `Movie`: una película inactiva no impide crear otra igual. El seed busca por título **incluyendo** las inactivas, así que no vuelve a crear una película del seed dada de baja lógica (se restaura desde el panel).
 | `author` | — (no se guarda) | — | **Solo en las respuestas** de GET lista, GET por id y QUERY: `{ id, username, name }` (ver abajo) |
 
 **`author` (F8b).** El service junta los `createdBy` distintos de la página, hace **una** consulta a la colección `user` de Better Auth (proyectando solo `username` y `name`, sin populate ni email) y agrega a cada película `author: { id, username, name }`: `username` es el username real o `null` (los usuarios de GitHub/Google no tienen y no se les inventa uno) y `name` es el nombre o `null` (si el usuario ya no existe, ambos `null`). El front muestra `@username` si existe, si no `name`, si no "—". POST/PUT/PATCH devuelven la película sin `author`.
@@ -72,13 +76,15 @@ Base: `/api`. Las rutas de la entidad cuelgan de `/api/peliculas` (como pide la 
 
 | Método | Ruta | Rol requerido | Éxito | Errores |
 |---|---|---|---|---|
-| GET | `/api/peliculas` | Público | 200 `{ data, meta }` | 400 query inválida |
-| QUERY | `/api/peliculas` | Público | 200 `{ data, meta }` | Igual que el GET, pero con los filtros en el **body** JSON (lineamiento del repo del profe) |
-| GET | `/api/peliculas/:id` | Público | 200 película | 400 id mal formado, 404 no existe |
+| GET | `/api/peliculas` | Público (solo activas; el admin puede pedir `estado`) | 200 `{ data, meta }` | 400 query inválida |
+| QUERY | `/api/peliculas` | Público (igual que el GET) | 200 `{ data, meta }` | Igual que el GET, pero con los filtros en el **body** JSON (lineamiento del repo del profe) |
+| GET | `/api/peliculas/:id` | Público (el admin ve también las inactivas) | 200 película | 400 id mal formado, 404 no existe **o está inactiva** (salvo para admin) |
 | POST | `/api/peliculas` | admin o superadmin | 201 película creada (`createdBy` = el admin) | 400 Zod, 401, 403 (`user`) |
 | PATCH | `/api/peliculas/:id` | admin o superadmin | 200 película actualizada | 400, 401, 403 (`user`), 404 |
 | PUT | `/api/peliculas/:id` | admin o superadmin | 200 | igual que PATCH, pero exige el objeto completo (`createMovieSchema`) |
-| DELETE | `/api/peliculas/:id` | admin o superadmin | 204 sin body | 400, 401, 403 (`user`), 404 |
+| DELETE | `/api/peliculas/:id` | admin o superadmin | **Baja lógica:** 200 con la película (`active: false`, `deletedAt`). Idempotente: si ya estaba inactiva, 200 sin cambios | 400 id mal formado, 401, 403 (`user`), 404 |
+| DELETE | `/api/peliculas/:id?permanente=true` | admin o superadmin | **Baja física:** 204 sin body (activa o inactiva) | 400 (id o `permanente` distinto de `true`/`false`), 401, 403, 404 |
+| PATCH | `/api/peliculas/:id/restaurar` | admin o superadmin | 200 con la película (`active: true`, `deletedAt: null`). Idempotente sobre una activa | 400, 401, 403, 404 |
 | GET | `/api/auth/ok` | — | 200 `{ ok: true }` (healthcheck de Better Auth) | — |
 | POST | `/api/perfil/contrasena` | Logueado (cualquier rol) | 204 sin body. Body `{ newPassword }` (8 a 128 caracteres): agrega la cuenta de email y contraseña ("credential") al usuario logueado con `auth.api.setPassword`, para que quien entró con GitHub/Google pueda entrar también con su email | 400 Zod, 400 "Tu cuenta ya tiene email y contraseña" (ya tiene cuenta credential), 401 |
 | GET | `/api/config` | Público | 200 `{ googleEnabled }` (el front lo usa para mostrar u ocultar el botón de Google, porque no tiene `.env`) | — |
@@ -101,6 +107,7 @@ GET y QUERY: el **GET con query params es el obligatorio** (consigna) y es el qu
 | `minRating` | number | — | 0–10 |
 | `sortBy` | enum | `createdAt` | `createdAt`, `title`, `releaseDate`, `rating`, `durationMinutes` |
 | `sortOrder` | `asc` / `desc` | `desc` | — |
+| `estado` | `activas` / `inactivas` / `todas` | `activas` | Solo para admin y superadmin (la ruta lee la sesión con `optionalAuth`). Sin sesión o con `user` se ignora y se ven las activas. Un valor fuera de la lista da 400. En QUERY va en el body |
 
 `mine` (filtro del TP2) **ya no existe** (F1): el schema no es estricto, así que `?mine=true` se ignora (200 con el listado completo, sin 400). `createdBy` no se usa como filtro ni como permiso.
 
@@ -139,19 +146,23 @@ Un body que no es JSON válido responde 400 "El JSON enviado no es válido".
 ### 4.4 Middlewares de escritura (orden)
 
 ```ts
-const onlyAdmin = [authMiddleware, requireRole("admin", "superadmin")];
+const onlyAdmin = [authMiddleware, requireRole(...ADMIN_ROLES)]; // ADMIN_ROLES = ["admin", "superadmin"] (lib/roles.ts)
 router.post("/", onlyAdmin, validateBody(createMovieSchema), createMovie);
 router.put("/:id", onlyAdmin, validateBody(createMovieSchema), replaceMovie);
 router.patch("/:id", onlyAdmin, validateBody(updateMovieSchema), updateMovie);
-router.delete("/:id", onlyAdmin, deleteMovie);
+router.delete("/:id", onlyAdmin, validateQuery(deleteMovieQuerySchema), deleteMovie); // ?permanente=true → física
+router.patch("/:id/restaurar", onlyAdmin, restoreMovie);
 ```
 
-**Permisos de películas (DF08, F1).** Como en la clase (`requireRole("admin")`): sin sesión → **401** (`authMiddleware`); con sesión y rol `user` → **403** (`requireRole`), antes de validar el body o buscar la película; admin y superadmin → validación (400) → 404 si no existe → modificar. El permiso depende **solo del rol**: no hay regla de dueño (se borró `lib/ownership.ts`). `createdBy` se sigue guardando como dato de quién la cargó (el `author` de las respuestas). GET y QUERY son públicos y no leen la sesión.
+**Permisos de películas (DF08, F1).** Como en la clase (`requireRole("admin")`): sin sesión → **401** (`authMiddleware`); con sesión y rol `user` → **403** (`requireRole`), antes de validar el body o buscar la película; admin y superadmin → validación (400) → 404 si no existe → modificar. El permiso depende **solo del rol**: no hay regla de dueño (se borró `lib/ownership.ts`). `createdBy` se sigue guardando como dato de quién la cargó (el `author` de las respuestas). GET, QUERY y GET `/:id` son públicos con `optionalAuth` (leen la sesión si existe, sin exigirla) solo para saber si quien pide es admin (`isAdmin` de `lib/roles.ts`) y puede ver inactivas.
+
+**Baja lógica y física (DF10, DF27, F1).** Toda la lógica vive en el service: `listMovies(input, canSeeInactive)` arma el filtro de estado (`activas` = `{ active: { $ne: false } }`, `inactivas` = `{ active: false }`, `todas` = sin filtro) junto con los demás filtros, así la paginación cuenta bien; `findMovieById(id, includeInactive)`; `deactivateMovie`, `restoreMovie` y `deleteMovie` (física). Las rutas de escritura buscan **incluyendo** las inactivas (el admin puede editar, restaurar o borrar definitivamente una dada de baja). El repo del profe no tiene baja lógica (su DELETE es físico), por eso se sigue DF27.
 
 | | `user` | `admin` | `superadmin` |
 |---|---|---|---|
 | Leer catálogo y detalle | ✅ (también sin sesión) | ✅ | ✅ |
-| Crear, editar y borrar películas | ❌ 403 | ✅ todas | ✅ todas |
+| Crear, editar y borrar películas (baja lógica, física y restaurar) | ❌ 403 | ✅ todas | ✅ todas |
+| Ver películas inactivas (lista con `estado`, detalle) | ❌ (404 / se ignora) | ✅ | ✅ |
 | Ver la lista de usuarios | ❌ | ✅ (sin los superadmin) | ✅ (todos) |
 | Dar de baja, reactivar, eliminar usuarios | ❌ | Solo usuarios con rol `user` (si no, 403) | Todos menos él mismo |
 | Cambiar roles | ❌ | Solo `user` → `admin` (cualquier otro caso, 403) | Todos menos él mismo |
