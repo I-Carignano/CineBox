@@ -40,6 +40,8 @@ Hoy es el modelo **`Movie`** del TP2, expuesto en `/api/peliculas`. En **F3** ev
 | `synopsis` | texto | opcional, hasta 1000 caracteres |
 | `posterUrl` | texto (URL) | opcional |
 | `createdBy` | texto (id de usuario) | lo pone el servidor: quién la cargó (no da permisos) |
+| `active` | booleano | por defecto `true`; `false` = dada de baja (baja lógica) |
+| `deletedAt` | fecha o vacío | fecha de la baja lógica |
 | `createdAt` / `updatedAt` | fecha | automáticos |
 
 ### 1.2 Calificaciones (`/api/calificaciones`, F4)
@@ -50,7 +52,7 @@ Lo que cada usuario hace con un título: `userId` (texto), `titleId` (referencia
 
 Listas de títulos armadas por los usuarios: `ownerId` (texto), `name` y `description` (texto), `isPublic` (booleano) e `items` (títulos con nota y fecha en que se agregaron). Cada usuario gestiona solo las suyas.
 
-Los tres modelos van a tener **baja lógica** (`active` + `deletedAt`, restaurable) y **baja física**.
+Los tres modelos tienen **baja lógica** (`active` + `deletedAt`: se oculta de lo público y se puede restaurar) y **baja física** (eliminación definitiva). En Títulos ya está hecha (F1); Calificaciones y Listas la suman en F4 y F5.
 
 ## 2. Stack y arquitectura
 
@@ -167,25 +169,27 @@ Base: `/api`. Respuestas de error con el formato `{ success: false, error: { mes
 
 | Método | Ruta | Rol | Respuestas |
 |---|---|---|---|
-| GET | `/api/peliculas` | Público | 200 `{ data, meta }`, con paginación, filtros y orden; 400 si la query es inválida |
+| GET | `/api/peliculas` | Público | 200 `{ data, meta }` con las películas **activas**, paginación, filtros y orden; 400 si la query es inválida |
 | QUERY | `/api/peliculas` | Público | Igual que el GET, con los filtros en el body JSON |
-| GET | `/api/peliculas/:id` | Público | 200; 400 id mal formado; 404 no existe |
+| GET | `/api/peliculas/:id` | Público | 200; 400 id mal formado; 404 no existe o está dada de baja (el admin sí la ve) |
 | POST | `/api/peliculas` | admin, superadmin | 201; 400 validación; 401 sin sesión; 403 `user` |
 | PUT / PATCH | `/api/peliculas/:id` | admin, superadmin | 200; 400; 401; 403; 404 |
-| DELETE | `/api/peliculas/:id` | admin, superadmin | 204; 400; 401; 403; 404 |
+| DELETE | `/api/peliculas/:id` | admin, superadmin | **Baja lógica:** 200 con la película inactiva; 400; 401; 403; 404 |
+| DELETE | `/api/peliculas/:id?permanente=true` | admin, superadmin | **Baja física:** 204; 400; 401; 403; 404 |
+| PATCH | `/api/peliculas/:id/restaurar` | admin, superadmin | 200 con la película activa de nuevo; 400; 401; 403; 404 |
 | POST | `/api/perfil/contrasena` | Logueado | 204: agrega email y contraseña a una cuenta de GitHub o Google |
 | GET | `/api/config` | Público | `{ googleEnabled }` |
 | GET | `/health` | Público | Estado del servidor (fuera de `/api`) |
 | * | `/api/auth/*` | Better Auth | Registro, login, logout, sesión, OAuth y `admin/*` |
 
-Filtros del listado: `page`, `limit` (máximo 50), `search` (título o director), `genre`, `available`, `minRating`, `sortBy` y `sortOrder`.
+Filtros del listado: `page`, `limit` (máximo 50), `search` (título o director), `genre`, `available`, `minRating`, `sortBy` y `sortOrder`. Solo para admin: `estado` (`activas`, `inactivas` o `todas`; para cualquier otro rol se ignora).
 
 ## 7. Funcionalidades
 
 - **Opcionales de la consigna ya implementados:** login con Google (y GitHub), paginación en backend y frontend, y panel de usuarios con cambio de roles (`/admin/usuarios`).
 - **Autenticación:** registro y login con validaciones y mensajes de error visibles; logout con vuelta al inicio; las rutas privadas sin sesión redirigen al login y, después de entrar, vuelven a donde se iba.
 - **Perfil:** nombre de usuario único, nombre y apellido editables, cuentas de GitHub y Google vinculables, y contraseña agregable a una cuenta social.
-- **Panel de administración:** ABM de películas con modales y confirmación antes de eliminar.
+- **Panel de administración** (`/admin`): ABM de películas con pestañas **Activas / Inactivas**. En Activas, "Editar" y "Dar de baja" (baja lógica); en Inactivas, "Restaurar" y "Eliminar definitivamente" (baja física). Cada baja tiene su propio modal de confirmación con Cancelar y Confirmar. Los cambios se reflejan solos en el catálogo público: una película dada de baja desaparece y su dirección muestra el 404 de la app.
 - Método `QUERY` además del GET para el listado, y página de privacidad (`/privacidad`).
 
 ## 8. Deploy

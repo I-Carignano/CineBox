@@ -9,6 +9,10 @@ export const formatDate = (iso: string): string =>
 
 export const formatYear = (iso: string): number => new Date(iso).getUTCFullYear();
 
+// Fecha y hora de un momento real (ej.: deletedAt), en la hora local de quien mira: "26/11/2026, 10:42".
+export const formatDateTime = (iso: string): string =>
+  new Date(iso).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
+
 // Autor de una película: "@usuario" si tiene username; si no (GitHub/Google) su name; si no hay nada, "—".
 export const formatAuthor = (
   author: { username: string | null; name: string | null } | undefined,

@@ -2,17 +2,18 @@
 // Una sola API para todo /api (así lo recomienda RTK Query).
 import { createApi, type BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import type { AxiosRequestConfig } from "axios";
-import { api as http, getErrorMessage } from "../lib/api";
+import { api as http, toApiError, type ApiError } from "../lib/api";
 import type { AuthProviders } from "../types/auth";
 import type { Movie, MovieFilters, MoviePayload, Paginated } from "../types/movie";
 
-// Usa la misma instancia de axios (baseURL "/api"). El error se guarda ya como string, listo para mostrar.
-const axiosBaseQuery: BaseQueryFn<AxiosRequestConfig, unknown, string> = async (config) => {
+// Usa la misma instancia de axios (baseURL "/api"). El error se guarda como { status, message }: el mensaje
+// listo para mostrar (getErrorMessage lo entiende) y el status para casos como el 404 del detalle.
+const axiosBaseQuery: BaseQueryFn<AxiosRequestConfig, unknown, ApiError> = async (config) => {
   try {
     const { data } = await http.request(config);
     return { data };
   } catch (err) {
-    return { error: getErrorMessage(err) };
+    return { error: toApiError(err) };
   }
 };
 
@@ -32,6 +33,7 @@ export const moviesApi = createApi({
     }),
     // Los filtros son el argumento: cada combinación queda en su propia entrada de caché.
     // axios omite los params undefined, así que solo viajan los filtros que están puestos.
+    // `estado` (activas / inactivas / todas) solo lo respeta el backend si quien pide es admin.
     getMovies: build.query<Paginated<Movie>, MovieFilters>({
       query: (filters) => ({ url: "/peliculas", params: filters }),
       providesTags: ["Movies"],
@@ -52,8 +54,21 @@ export const moviesApi = createApi({
       query: ({ id, data }) => ({ url: `/peliculas/${id}`, method: "PUT", data }),
       invalidatesTags: ["Movies"],
     }),
-    deleteMovie: build.mutation<void, string>({
+    // Bajas (DF27). Las tres invalidan "Movies": se vuelven a pedir el panel (las dos pestañas), el catálogo
+    // público y el detalle, así el cambio se ve solo en todas las pantallas.
+    // DELETE /:id = baja lógica: la película se oculta de lo público y se puede restaurar (200 con la película).
+    deleteMovie: build.mutation<Movie, string>({
       query: (id) => ({ url: `/peliculas/${id}`, method: "DELETE" }),
+      invalidatesTags: ["Movies"],
+    }),
+    // DELETE /:id?permanente=true = baja física: se borra de la base para siempre (204 sin body).
+    deleteMoviePermanently: build.mutation<void, string>({
+      query: (id) => ({ url: `/peliculas/${id}`, method: "DELETE", params: { permanente: true } }),
+      invalidatesTags: ["Movies"],
+    }),
+    // PATCH /:id/restaurar = deshace la baja lógica (200 con la película activa).
+    restoreMovie: build.mutation<Movie, string>({
+      query: (id) => ({ url: `/peliculas/${id}/restaurar`, method: "PATCH" }),
       invalidatesTags: ["Movies"],
     }),
   }),
@@ -66,5 +81,7 @@ export const {
   useCreateMovieMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
+  useDeleteMoviePermanentlyMutation,
+  useRestoreMovieMutation,
   useSetPasswordMutation,
 } = moviesApi;

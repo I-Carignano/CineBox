@@ -123,13 +123,14 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **F8 — agente:** el repo del profe solo publicó la clase 14 (agente **sin memoria**: cada pregunta es independiente); la memoria es "clase 15" y todavía no está. El "historial de la conversación" de F8 depende de eso (o se resuelve mandando los últimos mensajes desde el front). `docs/SPEC.md` §2 dice "no se usa LangChain": se actualiza en F8.
 - **F12 — `.env.example`:** tiene `NODE_ENV`, que hoy el código no lee; documentarla o sacarla en la tabla de variables.
 
-### F1 — Obligatorios sobre lo existente 🔄 (asegura el 4 con un modelo)
+### F1 — Obligatorios sobre lo existente ✅ (asegura el 4 con un modelo)
 - Películas **solo admin/superadmin** en escritura: quitar el permiso de `user`, `/mis-peliculas` y el filtro `mine`. `user` → 403. Ajustar el seed (las películas pasan a ser del admin).
 - **Baja lógica y física** en películas: `active`/`deletedAt`, endpoints o query para desactivar/restaurar y DELETE físico; el público solo ve activas; el panel admin muestra "Activas / Inactivas", con **modal** distinto para cada acción.
 - **Logout → inicio (`/`)**. Ruta privada sin sesión → `/login` con vuelta a donde iba.
 - Login/registro: errores visibles para campos vacíos y credenciales inválidas (verificar y completar).
 - README: secciones obligatorias de 4.2 (integrantes y modelos, arquitectura) en borrador.
-- **PRs (en este orden):** `fix/f1-permisos-backend`, `fix/f1-permisos-y-redirecciones-frontend`, `feat/f1-baja-logica-backend`, `feat/f1-baja-logica-frontend`.
+- **PRs (en este orden):** `fix/f1-permisos-backend` (#2), `fix/f1-permisos-y-redirecciones-frontend` (#3), `feat/f1-baja-logica-backend` (#4), `feat/f1-baja-logica-frontend`.
+- **Al cerrar F1 (Nacho, en producción):** borrar la película de prueba "h" y la basura que hayan cargado users, con baja física desde el panel (DF26).
 
 ### F2 — Base de UI (paleta y layout) ⏳
 - Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; activar logo y favicon de `brand-gold/` y borrar `cinema24-brand/`.

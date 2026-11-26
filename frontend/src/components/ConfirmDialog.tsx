@@ -10,8 +10,10 @@ interface ConfirmDialogProps {
   summary?: { label: string; value: ReactNode }[];
   confirmLabel: string;
   busyLabel?: string;
-  // true = botón rojo (acciones destructivas).
+  // true = botón rojo (acciones destructivas, que no se pueden deshacer).
   danger?: boolean;
+  // true = botón ámbar (acciones que se pueden deshacer, como una baja lógica). danger tiene prioridad.
+  warning?: boolean;
   busy?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -24,6 +26,7 @@ export const ConfirmDialog = ({
   confirmLabel,
   busyLabel = "Procesando...",
   danger = false,
+  warning = false,
   busy = false,
   onConfirm,
   onCancel,
@@ -55,7 +58,7 @@ export const ConfirmDialog = ({
         type="button"
         onClick={onConfirm}
         disabled={busy}
-        className={`rounded px-4 py-2 font-medium text-white transition disabled:opacity-50 ${danger ? "bg-red-600 hover:bg-red-700" : "bg-brand-600 hover:bg-brand-700"}`}
+        className={`rounded px-4 py-2 font-medium text-white transition disabled:opacity-50 ${danger ? "bg-red-600 hover:bg-red-700" : warning ? "bg-amber-700 hover:bg-amber-800" : "bg-brand-600 hover:bg-brand-700"}`}
       >
         {busy ? busyLabel : confirmLabel}
       </button>
