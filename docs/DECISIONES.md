@@ -23,6 +23,8 @@ Registro de decisiones. Formato: **ID · decisión · por qué · estado**. Las 
 | DF10 | **Baja lógica** (`active`/`deletedAt`, restaurable) y **física** en los 3 modelos, desde el panel admin, con modales distintos | Requisito obligatorio 4.3 y paso 6 de la evaluación | ✅ |
 | DF11 | Se mantienen `superadmin` y las reglas del TP2 (admin gestiona solo `user` y asciende `user → admin`; hook en backend) | Ya funciona y suma al panel de permisos | ✅ |
 | DF12 | Puntos y niveles **calculados** (sin modelo propio). Follows como colección de apoyo (F11) | No cuentan como modelo y no hace falta CRUD | ✅ |
+| DF26 | Películas existentes cargadas por usuarios `user`: **no se migran**. Quedan en el catálogo (con F1 solo el admin las edita o borra) y `createdBy` queda como dato histórico. La basura (la "h") la borra el admin desde el panel con baja física al cerrar F1. El seed nuevo crea todo a nombre del admin | Lo más simple: sin script ni migración que defender; el permiso depende del rol, no del dueño | ✅ Confirmado por Nacho (26/11) |
+| DF27 | Baja en películas: `DELETE /:id` = **baja lógica** (`active: false`, `deletedAt`); `DELETE /:id?permanente=true` = **física**; `PATCH /:id/restaurar`. Lo público filtra `active: { $ne: false }` (los documentos viejos sin el campo cuentan como activos, sin migración). Inactivas: 404 en GET /:id para no admin; el admin las ve con `?estado=inactivas\|todas` | Ambas son "eliminar" (DELETE, como la tabla de la consigna); un solo filtro sirve para dev y prod sin tocar datos | ✅ |
 
 ## Catálogo
 
@@ -40,7 +42,7 @@ Registro de decisiones. Formato: **ID · decisión · por qué · estado**. Las 
 | DF17 | Panel de **sesiones**: ver y revocar (admin sobre `user`, superadmin sobre todos) | Completa el opcional "sesiones y permisos" | ✅ |
 | DF18 | **Swagger 2.0** en `/api/docs`, con todos los endpoints propios | Opcional | ✅ |
 | DF19 | Imágenes en **Cloudflare R2**: foto de perfil y pósters/backdrops del admin; en Mongo solo la URL | Opcional; la temática lo justifica | ✅ |
-| DF20 | **Agente** con LangChain siguiendo las clases 14–15; modelo de la clase si es gratis, si no **Gemini** (Google AI Studio). Herramientas sobre nuestra base | Opcional; además es una funcionalidad central ("¿qué veo?") | ✅ |
+| DF20 | **Agente** con LangChain como la **clase 14**: `@langchain/groq` (`ChatGroq`, modelo `openai/gpt-oss-20b` por `GROQ_MODEL`, temperature 0, streaming), `createAgent` con herramientas `tool()` que llaman a nuestros services y endpoint con SSE. Si la clase 15 (memoria) no sale a tiempo, el historial lo manda el front con los últimos mensajes | Es el patrón de la clase (fácil de defender) y Groq es gratis; reemplaza a Gemini | ✅ (26/11) |
 
 ## Diseño e infraestructura
 
