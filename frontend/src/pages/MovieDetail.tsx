@@ -3,10 +3,11 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { Link, useLocation, useParams } from "react-router";
 import { CopyId } from "../components/CopyId";
 import { Poster } from "../components/Poster";
-import { getErrorMessage } from "../lib/api";
+import { getErrorMessage, getErrorStatus } from "../lib/api";
 import { formatAuthor, formatDate, formatDuration } from "../lib/format";
 import { GENRE_LABELS } from "../lib/movies";
 import { useGetMovieByIdQuery } from "../store/moviesApi";
+import { NotFound } from "./NotFound";
 
 export const MovieDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,13 @@ export const MovieDetail = () => {
     );
   }
 
+  // 404 (no existe o está dada de baja: el backend solo se la muestra al admin) o 400 (id mal formado):
+  // para quien navega es una dirección que no existe, así que se muestra el 404 de la app.
+  const status = getErrorStatus(error);
+  if (status === 404 || status === 400) {
+    return <NotFound />;
+  }
+
   if (error || !movie) {
     return (
       <section className="flex flex-col gap-2">
@@ -50,6 +58,15 @@ export const MovieDetail = () => {
         <div className="grid gap-6 md:grid-cols-[14rem_1fr]">
           <Poster movie={movie} className="aspect-[2/3] w-full max-w-56 self-start rounded-lg" />
           <div>
+            {/* Solo un admin recibe una película inactiva (para el resto es 404): se avisa que no es pública. */}
+            {!movie.active && (
+              <p
+                role="status"
+                className="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-800"
+              >
+                Inactiva: no aparece en el catálogo público
+              </p>
+            )}
             <h2 className="text-2xl font-semibold">{movie.title}</h2>
             <p className="text-slate-600">Dirigida por {movie.director}</p>
 
