@@ -21,6 +21,10 @@ export type Genre = (typeof GENRES)[number];
 
 export const SORT_FIELDS = ["createdAt", "title", "releaseDate", "rating", "durationMinutes"] as const;
 
+// Estado de baja lógica para el listado (DF27). Solo lo puede pedir un admin; sin él, "activas".
+export const MOVIE_STATUSES = ["activas", "inactivas", "todas"] as const;
+export type MovieStatus = (typeof MOVIE_STATUSES)[number];
+
 const MAX_FUTURE_YEARS = 5;
 
 // Mensaje de tipo: "falta" si no vino el campo, "tiene que ser <tipo>" si vino otra cosa.
@@ -81,6 +85,8 @@ const sortFields = {
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
   search: z.string().trim().min(1).max(100).optional(),
   genre: z.enum(GENRES).optional(),
+  // Sin default acá: el service decide (activas para todos; el admin puede pedir inactivas o todas).
+  estado: z.enum(MOVIE_STATUSES).optional(),
 };
 
 // GET /api/peliculas: todo llega como string, así que se coerciona.
@@ -102,6 +108,15 @@ export const listMoviesBodySchema = z.object({
   available: z.boolean().optional(),
 });
 
+// DELETE /api/peliculas/:id?permanente=true → baja física; sin el parámetro (o con false) → baja lógica (DF27).
+export const deleteMovieQuerySchema = z.object({
+  permanente: z
+    .enum(["true", "false"], { error: "permanente tiene que ser true o false" })
+    .transform((value) => value === "true")
+    .optional(),
+});
+
 export type CreateMovieInput = z.infer<typeof createMovieSchema>;
 export type UpdateMovieInput = z.infer<typeof updateMovieSchema>;
 export type ListMoviesInput = z.infer<typeof listMoviesBodySchema>;
+export type DeleteMovieQuery = z.infer<typeof deleteMovieQuerySchema>;
