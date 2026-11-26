@@ -1,6 +1,6 @@
 // Capa de servicio: la lógica de negocio y el acceso a datos de películas, en UN solo lugar.
 // No sabe nada de HTTP (req/res). Los ids llegan ya validados (isValidObjectId) por el controller.
-// replace/update/delete reciben el documento ya buscado: así el controller puede chequear 404 y dueño antes.
+// replace/update/delete reciben el documento ya buscado: así el controller puede responder 400/404 antes.
 import mongoose, { QueryFilter, Types } from "mongoose";
 import Movie, { IMovie, IMovieDocument } from "../models/Movie.js";
 import { escapeRegex } from "../lib/escape-regex.js";
@@ -54,15 +54,12 @@ async function withAuthors(movies: IMovieDocument[]): Promise<MovieWithAuthor[]>
 
 // El filtro se arma campo por campo desde input ya validado por Zod: nunca se pasa el input crudo
 // a Mongo (eso permitiría inyectar operadores como { "$gt": "" }).
-function buildFilter(
-  { search, genre, available, minRating, mine }: ListMoviesInput,
-  userId?: string
-): QueryFilter<IMovieDocument> {
+// createdBy no se usa como filtro: es solo el dato de quién la cargó.
+function buildFilter({ search, genre, available, minRating }: ListMoviesInput): QueryFilter<IMovieDocument> {
   const filter: QueryFilter<IMovieDocument> = {};
   if (genre) filter.genre = genre;
   if (available !== undefined) filter.available = available;
   if (minRating !== undefined) filter.rating = { $gte: minRating };
-  if (mine && userId) filter.createdBy = userId;
   if (search) {
     const safe = escapeRegex(search);
     filter.$or = [
@@ -73,9 +70,9 @@ function buildFilter(
   return filter;
 }
 
-export async function listMovies(input: ListMoviesInput, userId?: string): Promise<Paginated<MovieWithAuthor>> {
+export async function listMovies(input: ListMoviesInput): Promise<Paginated<MovieWithAuthor>> {
   const { page, limit, sortBy, sortOrder } = input;
-  const filter = buildFilter(input, userId);
+  const filter = buildFilter(input);
 
   const [data, total] = await Promise.all([
     Movie.find(filter)

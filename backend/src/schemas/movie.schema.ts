@@ -84,13 +84,13 @@ const sortFields = {
 };
 
 // GET /api/peliculas: todo llega como string, así que se coerciona.
+// z.object (no strict): un parámetro desconocido, como el `mine` del TP2, se ignora (200 sin filtrar), no da 400.
 export const listMoviesQuerySchema = z.object({
   ...sortFields,
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(12),
   minRating: z.coerce.number().min(0).max(10).optional(),
   available: z.enum(["true", "false"]).transform((value) => value === "true").optional(),
-  mine: z.enum(["true"]).transform(() => true).optional(),
 });
 
 // QUERY /api/peliculas: mismos filtros pero en el body JSON, con tipos nativos.
@@ -100,7 +100,6 @@ export const listMoviesBodySchema = z.object({
   limit: z.number().int().min(1).max(50).default(12),
   minRating: z.number().min(0).max(10).optional(),
   available: z.boolean().optional(),
-  mine: z.boolean().optional(),
 });
 
 export type CreateMovieInput = z.infer<typeof createMovieSchema>;
