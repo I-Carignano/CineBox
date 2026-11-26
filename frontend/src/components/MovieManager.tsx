@@ -1,42 +1,60 @@
-// ABM de películas del panel de admin (/admin): tabla con editar/eliminar; el formulario de alta/edición y la
-// confirmación de borrado se abren en modales. Es la ÚNICA pantalla con acciones de escritura sobre películas:
+// ABM de películas del panel de admin (/admin): tabla con acciones; el formulario de alta/edición y las
+// confirmaciones se abren en modales. Es la ÚNICA pantalla con acciones de escritura sobre películas:
 // el catálogo es del admin (DF08). La ruta ya exige rol admin/superadmin y el backend responde 403 a un user.
+// Baja lógica y física (DF27): pestañas Activas / Inactivas (?estado= en la URL).
+//   Activas:   Editar · Dar de baja (baja lógica, restaurable).
+//   Inactivas: Restaurar · Eliminar definitivamente (baja física).
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useMovieFilters } from "../hooks/useMovieFilters";
 import { getErrorMessage } from "../lib/api";
-import { formatAuthor, formatDate, formatDuration, formatYear } from "../lib/format";
+import { formatAuthor, formatDateTime, formatYear } from "../lib/format";
 import { GENRE_LABELS } from "../lib/movies";
 import { toMoviePayload, type MovieFormValues } from "../schemas/movie.schema";
 import {
   useCreateMovieMutation,
   useDeleteMovieMutation,
+  useDeleteMoviePermanentlyMutation,
   useGetMoviesQuery,
+  useRestoreMovieMutation,
   useUpdateMovieMutation,
 } from "../store/moviesApi";
 import type { Movie } from "../types/movie";
-import { ConfirmDialog } from "./ConfirmDialog";
 import { Modal } from "./Modal";
+import { MovieDeleteDialog, type MovieDeleteMode } from "./MovieDeleteDialog";
 import { MovieFilters } from "./MovieFilters";
 import { MovieForm } from "./MovieForm";
 import { Pagination } from "./Pagination";
 
+const tabClass = (active: boolean) =>
+  `rounded-t px-4 py-2 text-sm font-medium transition ${
+    active
+      ? "border-b-2 border-brand-600 text-brand-700"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+  }`;
+
 export const MovieManager = () => {
-  const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters();
+  // true: este panel sí lee ?estado= (el catálogo público no).
+  const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters(true);
+  const showingInactive = filters.estado === "inactivas";
   const { data, isLoading, isFetching, error, refetch } = useGetMoviesQuery(filters);
   const [createMovie] = useCreateMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
-  const [deleteMovie, { isLoading: isDeleting }] = useDeleteMovieMutation();
+  const [deleteMovie, { isLoading: isSoftDeleting }] = useDeleteMovieMutation();
+  const [deleteMoviePermanently, { isLoading: isPermanentDeleting }] = useDeleteMoviePermanentlyMutation();
+  const [restoreMovie] = useRestoreMovieMutation();
 
   // Estado de UI de esta pantalla: no es global, se queda en useState.
   // editing: el formulario está abierto en un modal (película nueva o existente).
   const [editing, setEditing] = useState<Movie | "new" | null>(null);
-  // deleting: la película que se está por eliminar (confirmación en un modal).
-  const [deleting, setDeleting] = useState<Movie | null>(null);
+  // deleting: la película que se está por dar de baja y con qué tipo de baja (cada una tiene su modal).
+  const [deleting, setDeleting] = useState<{ movie: Movie; mode: MovieDeleteMode } | null>(null);
+  // restoringId: la fila que se está restaurando (restaurar no pide confirmación: se puede volver a dar de baja).
+  const [restoringId, setRestoringId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  // Si se borró lo último de la última página, la página actual quedó vacía: volver a la última que tenga datos.
+  // Si se sacó lo último de la última página, la página actual quedó vacía: volver a la última que tenga datos.
   useEffect(() => {
     if (data && data.data.length === 0 && data.meta.total > 0 && filters.page > 1) {
       setFilters({ page: data.meta.totalPages });
@@ -47,10 +65,20 @@ export const MovieManager = () => {
 
   const movies = data?.data ?? [];
 
-  const openForm = (target: Movie | "new") => {
+  const clearMessages = () => {
     setNotice(null);
     setActionError(null);
+  };
+
+  const openForm = (target: Movie | "new") => {
+    clearMessages();
     setEditing(target);
+  };
+
+  const changeTab = (inactive: boolean) => {
+    clearMessages();
+    // undefined = "activas" (el default): la URL queda limpia. Cambiar de pestaña vuelve a la página 1.
+    setFilters({ estado: inactive ? "inactivas" : undefined });
   };
 
   // unwrap() lanza si el backend responde error: MovieForm lo atrapa y lo muestra en el formulario.
@@ -66,17 +94,43 @@ export const MovieManager = () => {
     setEditing(null);
   };
 
-  // Se llama desde el botón "Sí, eliminar" del modal: al terminar (bien o mal) el modal se cierra.
-  const handleDelete = async (movie: Movie) => {
-    setActionError(null);
-    const result = await deleteMovie(movie._id);
+  // Se llama desde el botón de confirmar del modal: al terminar (bien o mal) el modal se cierra.
+  // Los errores del backend llegan con su mensaje (ej.: 403 "No tenés permisos para realizar esta acción").
+  const handleDelete = async ({ movie, mode }: { movie: Movie; mode: MovieDeleteMode }) => {
+    clearMessages();
+    const result =
+      mode === "soft" ? await deleteMovie(movie._id) : await deleteMoviePermanently(movie._id);
     setDeleting(null);
     if (result.error) {
-      setActionError(`No se pudo eliminar "${movie.title}": ${getErrorMessage(result.error)}`);
+      const action = mode === "soft" ? "dar de baja" : "eliminar definitivamente";
+      setActionError(`No se pudo ${action} "${movie.title}": ${getErrorMessage(result.error)}`);
       return;
     }
-    setNotice(`"${movie.title}" se eliminó.`);
+    setNotice(
+      mode === "soft"
+        ? `"${movie.title}" se dio de baja: ya no aparece en el catálogo. La podés restaurar desde Inactivas.`
+        : `"${movie.title}" se eliminó definitivamente.`,
+    );
   };
+
+  const handleRestore = async (movie: Movie) => {
+    clearMessages();
+    setRestoringId(movie._id);
+    const result = await restoreMovie(movie._id);
+    setRestoringId(null);
+    if (result.error) {
+      setActionError(`No se pudo restaurar "${movie.title}": ${getErrorMessage(result.error)}`);
+      return;
+    }
+    setNotice(`"${movie.title}" se restauró y volvió al catálogo.`);
+  };
+
+  const isFiltered = hasActiveFilters || filters.page > 1;
+  const emptyMessage = isFiltered
+    ? "No hay películas que coincidan con tu búsqueda."
+    : showingInactive
+      ? "No hay películas dadas de baja."
+      : "Todavía no hay películas cargadas.";
 
   return (
     <section className="flex flex-col gap-4">
@@ -90,6 +144,35 @@ export const MovieManager = () => {
           + Nueva película
         </button>
       </div>
+
+      {/* Pestañas de baja lógica: cada una es un ?estado= distinto (una entrada propia en la caché). */}
+      <div role="tablist" aria-label="Estado de las películas" className="flex gap-1 border-b border-slate-200">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!showingInactive}
+          onClick={() => changeTab(false)}
+          className={tabClass(!showingInactive)}
+        >
+          Activas
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={showingInactive}
+          onClick={() => changeTab(true)}
+          className={tabClass(showingInactive)}
+        >
+          Inactivas
+        </button>
+      </div>
+
+      {showingInactive && (
+        <p className="text-sm text-slate-600">
+          Películas dadas de baja: no se ven en el catálogo público. Podés restaurarlas o eliminarlas
+          definitivamente.
+        </p>
+      )}
 
       {notice && (
         <p role="status" className="rounded bg-green-50 p-3 text-sm text-green-800">
@@ -127,23 +210,21 @@ export const MovieManager = () => {
 
       {data && movies.length === 0 && (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-          <p className="text-slate-600">
-            {hasActiveFilters || filters.page > 1
-              ? "No hay películas que coincidan con tu búsqueda."
-              : "Todavía no hay películas cargadas."}
-          </p>
-          {hasActiveFilters || filters.page > 1 ? (
+          <p className="text-slate-600">{emptyMessage}</p>
+          {isFiltered ? (
             <button type="button" onClick={clearFilters} className="mt-2 text-brand-600 underline">
               Limpiar filtros
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={() => openForm("new")}
-              className="mt-2 text-brand-600 underline"
-            >
-              Crear la primera
-            </button>
+            !showingInactive && (
+              <button
+                type="button"
+                onClick={() => openForm("new")}
+                className="mt-2 text-brand-600 underline"
+              >
+                Crear la primera
+              </button>
+            )
           )}
         </div>
       )}
@@ -151,13 +232,22 @@ export const MovieManager = () => {
       {data && movies.length > 0 && (
         <>
           <p role="status" className="text-sm text-slate-600">
-            {data.meta.total} {data.meta.total === 1 ? "película" : "películas"}
+            {data.meta.total} {data.meta.total === 1 ? "película" : "películas"}{" "}
+            {showingInactive
+              ? data.meta.total === 1
+                ? "inactiva"
+                : "inactivas"
+              : data.meta.total === 1
+                ? "activa"
+                : "activas"}
           </p>
           <div
             className={`overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm transition-opacity ${isFetching ? "opacity-50" : ""}`}
           >
             <table className="w-full min-w-xl text-left text-sm">
-              <caption className="sr-only">Todas las películas</caption>
+              <caption className="sr-only">
+                {showingInactive ? "Películas dadas de baja" : "Películas activas"}
+              </caption>
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">
@@ -186,7 +276,7 @@ export const MovieManager = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {movies.map((movie) => (
-                  <tr key={movie._id}>
+                  <tr key={movie._id} className={movie.active ? "" : "bg-amber-50/40"}>
                     <td className="px-3 py-2 font-medium">
                       <Link to={`/peliculas/${movie._id}`} className="hover:underline">
                         {movie.title}
@@ -195,35 +285,72 @@ export const MovieManager = () => {
                     <td className="px-3 py-2">{GENRE_LABELS[movie.genre]}</td>
                     <td className="px-3 py-2">{formatYear(movie.releaseDate)}</td>
                     <td className="px-3 py-2">{movie.rating.toFixed(1)}</td>
-                    <td
-                      className={`px-3 py-2 ${movie.available ? "text-green-700" : "text-slate-500"}`}
-                    >
-                      {movie.available ? "Disponible" : "No disponible"}
+                    <td className="px-3 py-2">
+                      {movie.active ? (
+                        <span className={movie.available ? "text-green-700" : "text-slate-500"}>
+                          {movie.available ? "Disponible" : "No disponible"}
+                        </span>
+                      ) : (
+                        <span className="flex flex-col items-start gap-0.5">
+                          <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                            Inactiva
+                          </span>
+                          {movie.deletedAt && (
+                            <span className="text-xs text-slate-600">
+                              desde {formatDateTime(movie.deletedAt)}
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-2">{formatAuthor(movie.author)}</td>
                     <td className="px-3 py-2">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openForm(movie)}
-                          aria-label={`Editar ${movie.title}`}
-                          className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setNotice(null);
-                            setActionError(null);
-                            setDeleting(movie);
-                          }}
-                          aria-label={`Eliminar ${movie.title}`}
-                          className="rounded border border-red-300 px-2 py-1 text-red-700 hover:bg-red-50"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                      {movie.active ? (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openForm(movie)}
+                            aria-label={`Editar ${movie.title}`}
+                            className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              clearMessages();
+                              setDeleting({ movie, mode: "soft" });
+                            }}
+                            aria-label={`Dar de baja ${movie.title}`}
+                            className="rounded border border-amber-400 px-2 py-1 text-amber-800 hover:bg-amber-50"
+                          >
+                            Dar de baja
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRestore(movie)}
+                            disabled={restoringId === movie._id}
+                            aria-label={`Restaurar ${movie.title}`}
+                            className="rounded border border-green-600 px-2 py-1 text-green-800 hover:bg-green-50 disabled:opacity-50"
+                          >
+                            {restoringId === movie._id ? "Restaurando..." : "Restaurar"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              clearMessages();
+                              setDeleting({ movie, mode: "permanent" });
+                            }}
+                            aria-label={`Eliminar definitivamente ${movie.title}`}
+                            className="rounded border border-red-300 px-2 py-1 text-red-700 hover:bg-red-50"
+                          >
+                            Eliminar definitivamente
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -253,23 +380,12 @@ export const MovieManager = () => {
         </Modal>
       )}
 
+      {/* Baja lógica o física: cada una con su modal (Cancelar / Confirmar). */}
       {deleting && (
-        <ConfirmDialog
-          title="Eliminar película"
-          message="¿Estás seguro de que querés eliminar esta película?"
-          summary={[
-            { label: "Título", value: deleting.title },
-            { label: "Director", value: deleting.director },
-            { label: "Género", value: GENRE_LABELS[deleting.genre] },
-            { label: "Estreno", value: formatDate(deleting.releaseDate) },
-            { label: "Duración", value: formatDuration(deleting.durationMinutes) },
-            { label: "Rating", value: deleting.rating.toFixed(1) },
-            { label: "Autor", value: formatAuthor(deleting.author) },
-          ]}
-          confirmLabel="Sí, eliminar"
-          busyLabel="Eliminando..."
-          danger
-          busy={isDeleting}
+        <MovieDeleteDialog
+          mode={deleting.mode}
+          movie={deleting.movie}
+          busy={deleting.mode === "soft" ? isSoftDeleting : isPermanentDeleting}
           onConfirm={() => handleDelete(deleting)}
           onCancel={() => setDeleting(null)}
         />
