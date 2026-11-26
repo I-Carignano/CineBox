@@ -1,10 +1,11 @@
 // Capa de servicio: la lógica de negocio y el acceso a datos de películas, en UN solo lugar.
 // No sabe nada de HTTP (req/res). Los ids llegan ya validados (isValidObjectId) por el controller.
 // replace/update/delete reciben el documento ya buscado: así el controller puede responder 400/404 antes.
+// Baja lógica (DF27): lo público solo ve activas; el admin puede ver inactivas (canSeeInactive / includeInactive).
 import mongoose, { QueryFilter, Types } from "mongoose";
 import Movie, { IMovie, IMovieDocument } from "../models/Movie.js";
 import { escapeRegex } from "../lib/escape-regex.js";
-import { CreateMovieInput, ListMoviesInput, UpdateMovieInput } from "../schemas/movie.schema.js";
+import { CreateMovieInput, ListMoviesInput, MovieStatus, UpdateMovieInput } from "../schemas/movie.schema.js";
 import { Paginated } from "../types/pagination.types.js";
 
 // Quién cargó la película: solo datos públicos (nunca el email). username es null si el usuario no tiene
@@ -52,11 +53,24 @@ async function withAuthors(movies: IMovieDocument[]): Promise<MovieWithAuthor[]>
   });
 }
 
+// Activa = active distinto de false: incluye los documentos viejos que no tienen el campo (sin migración).
+const ACTIVE_ONLY: QueryFilter<IMovieDocument> = { active: { $ne: false } };
+
+function statusFilter(status: MovieStatus): QueryFilter<IMovieDocument> {
+  if (status === "inactivas") return { active: false };
+  if (status === "todas") return {};
+  return { ...ACTIVE_ONLY };
+}
+
 // El filtro se arma campo por campo desde input ya validado por Zod: nunca se pasa el input crudo
 // a Mongo (eso permitiría inyectar operadores como { "$gt": "" }).
 // createdBy no se usa como filtro: es solo el dato de quién la cargó.
-function buildFilter({ search, genre, available, minRating }: ListMoviesInput): QueryFilter<IMovieDocument> {
-  const filter: QueryFilter<IMovieDocument> = {};
+// `estado` solo cuenta si quien pide puede ver inactivas (admin); si no, siempre "activas".
+function buildFilter(
+  { search, genre, available, minRating, estado }: ListMoviesInput,
+  canSeeInactive: boolean
+): QueryFilter<IMovieDocument> {
+  const filter = statusFilter(canSeeInactive ? (estado ?? "activas") : "activas");
   if (genre) filter.genre = genre;
   if (available !== undefined) filter.available = available;
   if (minRating !== undefined) filter.rating = { $gte: minRating };
@@ -70,9 +84,13 @@ function buildFilter({ search, genre, available, minRating }: ListMoviesInput): 
   return filter;
 }
 
-export async function listMovies(input: ListMoviesInput): Promise<Paginated<MovieWithAuthor>> {
+// canSeeInactive = false por defecto: si nadie dice lo contrario, se ve lo público.
+export async function listMovies(
+  input: ListMoviesInput,
+  canSeeInactive = false
+): Promise<Paginated<MovieWithAuthor>> {
   const { page, limit, sortBy, sortOrder } = input;
-  const filter = buildFilter(input);
+  const filter = buildFilter(input, canSeeInactive);
 
   const [data, total] = await Promise.all([
     Movie.find(filter)
@@ -86,8 +104,9 @@ export async function listMovies(input: ListMoviesInput): Promise<Paginated<Movi
   return { data: await withAuthors(data), meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
 }
 
-export function findMovieById(id: string): Promise<IMovieDocument | null> {
-  return Movie.findById(id);
+// Sin includeInactive, una película dada de baja es como si no existiera (el controller responde 404).
+export function findMovieById(id: string, includeInactive = false): Promise<IMovieDocument | null> {
+  return Movie.findOne(includeInactive ? { _id: id } : { _id: id, ...ACTIVE_ONLY });
 }
 
 // Para GET /:id: la película con su autor.
@@ -112,6 +131,22 @@ export function updateMovie(movie: IMovieDocument, input: UpdateMovieInput): Pro
   return movie.save();
 }
 
+// Baja lógica: queda en la base, oculta en lo público y restaurable. Si ya estaba inactiva no cambia nada
+// (se conserva la fecha de la primera baja): repetir el DELETE da el mismo resultado.
+export async function deactivateMovie(movie: IMovieDocument): Promise<IMovieDocument> {
+  if (!movie.active) return movie;
+  movie.set({ active: false, deletedAt: new Date() });
+  return movie.save();
+}
+
+// Restaurar: vuelve a ser pública. Sobre una activa no hace nada.
+export async function restoreMovie(movie: IMovieDocument): Promise<IMovieDocument> {
+  if (movie.active) return movie;
+  movie.set({ active: true, deletedAt: null });
+  return movie.save();
+}
+
+// Baja física: eliminación definitiva, no se puede deshacer.
 export async function deleteMovie(movie: IMovieDocument): Promise<void> {
   await movie.deleteOne();
 }
