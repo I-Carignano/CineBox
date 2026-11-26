@@ -107,7 +107,7 @@ Cada modelo tiene **PRs separados de backend y frontend** (lo pide la consigna p
 
 Estado: ⏳ pendiente · 🔄 en curso · ✅ hecha.
 
-### F0 — Setup del final 🔄
+### F0 — Setup del final ✅
 - Mover los docs del TP2 a `docs/tp2/` (CONSIGNA, PLAN, CHECKLIST). `SPEC.md` sigue como spec viva (renombrar el título a "TP Final").
 - Sumar `docs/CONSIGNA_FINAL.md`, `docs/PLAN_FINAL.md`, `docs/DISENO.md`, `.github/pull_request_template.md`, `CLAUDE.md` nuevo y logos en dorado (`frontend/public/brand-gold/`, sin activarlos todavía).
 - README: nota de "corte" (historial previo = TP2, desde F0 todo por PR).
@@ -123,13 +123,13 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **F8 — agente:** el repo del profe solo publicó la clase 14 (agente **sin memoria**: cada pregunta es independiente); la memoria es "clase 15" y todavía no está. El "historial de la conversación" de F8 depende de eso (o se resuelve mandando los últimos mensajes desde el front). `docs/SPEC.md` §2 dice "no se usa LangChain": se actualiza en F8.
 - **F12 — `.env.example`:** tiene `NODE_ENV`, que hoy el código no lee; documentarla o sacarla en la tabla de variables.
 
-### F1 — Obligatorios sobre lo existente ⏳ (asegura el 4 con un modelo)
+### F1 — Obligatorios sobre lo existente 🔄 (asegura el 4 con un modelo)
 - Películas **solo admin/superadmin** en escritura: quitar el permiso de `user`, `/mis-peliculas` y el filtro `mine`. `user` → 403. Ajustar el seed (las películas pasan a ser del admin).
 - **Baja lógica y física** en películas: `active`/`deletedAt`, endpoints o query para desactivar/restaurar y DELETE físico; el público solo ve activas; el panel admin muestra "Activas / Inactivas", con **modal** distinto para cada acción.
 - **Logout → inicio (`/`)**. Ruta privada sin sesión → `/login` con vuelta a donde iba.
 - Login/registro: errores visibles para campos vacíos y credenciales inválidas (verificar y completar).
 - README: secciones obligatorias de 4.2 (integrantes y modelos, arquitectura) en borrador.
-- **PRs:** `feat/f1-baja-logica-backend`, `feat/f1-baja-logica-frontend`, `fix/f1-permisos-y-redirecciones`.
+- **PRs (en este orden):** `fix/f1-permisos-backend`, `fix/f1-permisos-y-redirecciones-frontend`, `feat/f1-baja-logica-backend`, `feat/f1-baja-logica-frontend`.
 
 ### F2 — Base de UI (paleta y layout) ⏳
 - Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; activar logo y favicon de `brand-gold/` y borrar `cinema24-brand/`.
@@ -167,7 +167,7 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **PRs:** `feat/f7-r2-backend`, `feat/f7-r2-frontend`.
 
 ### F8 — Agente LLM ⏳ (+1)
-- Seguir el patrón del agente de las **clases 14–15** del repo del profe (`../mdw-2026-ref`), con LangChain. Modelo: el que use la clase si es gratuito; si no, **Gemini** (API key de Google AI Studio).
+- Seguir el patrón del agente de las **clases 14–15** del repo del profe (`../mdw-2026-ref`), con LangChain. Modelo: **Groq (como la clase 14)**, `ChatGroq` con `openai/gpt-oss-20b` (API key gratis en console.groq.com; ver DF20).
 - Herramientas que consultan **nuestra base**: `buscar_titulos(filtros)`, `detalle_titulo(id)`, `mis_calificaciones()`, `recomendar(criterios)`, `que_veo_hoy(tipo, compania, ganas, tiempo)`.
 - Burbuja flotante en el front con historial de la conversación; requiere sesión para las herramientas personales. Límite simple de uso.
 - **PRs:** `feat/f8-agente-backend`, `feat/f8-agente-frontend`.
