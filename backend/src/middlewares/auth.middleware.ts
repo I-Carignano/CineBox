@@ -1,5 +1,5 @@
 // Protege rutas: Better Auth lee la cookie de sesión y la busca en Mongo.
-// authMiddleware exige sesión (401) y requireRole exige rol (403).
+// authMiddleware exige sesión (401), optionalAuth la lee si existe y requireRole exige rol (403).
 // Errores con el formato único de la SPEC §4.3: { success: false, error: { message } }.
 import { Request, Response, NextFunction } from "express";
 import { fromNodeHeaders } from "better-auth/node";
@@ -19,6 +19,19 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     next();
   } catch (error) {
     // El detalle va al log, nunca al cliente.
+    console.error("[auth] error al leer la sesión:", error);
+    res.status(500).json({ success: false, error: { message: "Error interno del servidor" } });
+  }
+}
+
+// optionalAuth: si hay sesión carga req.user; si no, sigue igual. Para rutas públicas que muestran más
+// a un admin (ej.: GET /api/peliculas?estado=inactivas o el detalle de una película dada de baja).
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
+    if (session) req.user = session.user;
+    next();
+  } catch (error) {
     console.error("[auth] error al leer la sesión:", error);
     res.status(500).json({ success: false, error: { message: "Error interno del servidor" } });
   }
