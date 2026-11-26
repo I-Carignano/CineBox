@@ -1,6 +1,8 @@
-# SPEC — Cinema 24, app de películas (TP2)
+# SPEC — Cinema 24 (TP Final)
 
-Especificación técnica del sistema. Si algo de acá contradice a `CONSIGNA.md`, **gana la consigna**: avisar y corregir este archivo.
+> **Estado al cierre del TP2.** Evoluciona según [`docs/PLAN_FINAL.md`](PLAN_FINAL.md); cada fase actualiza las secciones que toca.
+
+Especificación técnica del sistema. Si algo de acá contradice a [`CONSIGNA_FINAL.md`](CONSIGNA_FINAL.md), **gana la consigna**: avisar y corregir este archivo. La consigna y el plan del TP2 quedaron como historia en [`docs/tp2/`](tp2/).
 
 ## 1. Qué es la app
 
@@ -14,6 +16,8 @@ Catálogo de películas full stack.
 - **Perfil completo obligatorio (F8e):** con sesión y sin nombre de usuario (cuentas sociales), todas las rutas redirigen a `/completar-perfil`.
 
 > **Desvío aprobado de la consigna.** La consigna dice "user: solo puede leer" y "escritura con `requireRole("admin")`". El profe aprobó (respuesta a P03: "Sí") este esquema, en el que el `user` también escribe sobre lo suyo. Conviene guardar esa respuesta (captura o mail) por si hace falta mostrarla; el README (F11) lo aclara.
+
+> **Reemplazado en el TP Final (a implementar en F1).** Este desvío del TP2 (el `user` crea películas) queda reemplazado por **DF08/DF09**: los **Títulos son solo del admin** (el `user` recibe 403 al escribir) y el `user` escribe **solo sus propias calificaciones y listas**. Ver `docs/PLAN_FINAL.md` §1–2 y los acuerdos con el docente en `docs/CONSIGNA_FINAL.md`. Hasta F1, el código sigue funcionando como se describe arriba.
 
 ## 2. Stack y versiones
 
