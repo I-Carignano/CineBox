@@ -45,7 +45,9 @@ async function ensureUser({ username, firstName, lastName, email, password }: Se
   return user.id;
 }
 
-type SeedMovie = Omit<IMovie, "createdBy">;
+// active y deletedAt toman el default del modelo (activa). Una película del seed dada de baja lógica no se
+// vuelve a crear: la búsqueda por título de abajo también encuentra a las inactivas.
+type SeedMovie = Omit<IMovie, "createdBy" | "active" | "deletedAt">;
 
 const MOVIES: SeedMovie[] = [
   { title: "El padrino", director: "Francis Ford Coppola", genre: "drama", durationMinutes: 175, releaseDate: new Date("1972-03-24"), rating: 9.2, available: true, posterUrl: "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg", synopsis: "La saga de la familia Corleone y el poder de la mafia en Nueva York." },
