@@ -1,14 +1,14 @@
-// Ruta pública "/login": email + contraseña, GitHub y Google (si el backend lo habilitó).
+// Pestaña "Ingresar" de la tarjeta de autenticación: email + contraseña con Better Auth.
+// Si sale bien vuelve a `from` (la ruta protegida desde la que llegó) o al catálogo.
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, Navigate, useLocation, useNavigate, type Location } from "react-router";
-import { AuthCard } from "../components/AuthCard";
-import { FormField } from "../components/FormField";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import { authErrorMessage } from "../lib/auth-errors";
-import { SocialLogin } from "../components/SocialLogin";
 import { signIn, useSession } from "../lib/auth-client";
 import { loginSchema, type LoginFormValues } from "../schemas/auth.schema";
-import { Button } from "../components/ui/Button";
+import { FormField } from "./FormField";
+import { Button } from "./ui/Button";
+import { FormError } from "./ui/FormError";
 
 // Códigos que Better Auth manda en /login?error=<código> cuando falla el login social.
 const OAUTH_ERRORS: Record<string, string> = {
@@ -21,7 +21,7 @@ const OAUTH_ERRORS: Record<string, string> = {
     "Tu cuenta del proveedor no comparte un email. Hacelo público en tu cuenta o registrate con email.",
 };
 
-export const Login = () => {
+export const LoginForm = ({ from }: { from: string }) => {
   const { data: session } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,8 +35,6 @@ export const Login = () => {
     defaultValues: { email: "", password: "" },
   });
 
-  // Si venía de una ruta protegida vuelve ahí; si no, al catálogo.
-  const from = (location.state as { from?: Location } | null)?.from?.pathname ?? "/peliculas";
   const oauthError = new URLSearchParams(location.search).get("error");
 
   // !isSubmitting: mientras onSubmit sigue corriendo no rebotar por la sesión recién creada.
@@ -57,9 +55,12 @@ export const Login = () => {
   };
 
   return (
-    <AuthCard title="Iniciar sesión">
+    <>
       {oauthError && (
-        <p role="alert" className="mb-4 rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300"
+        >
           {OAUTH_ERRORS[oauthError] ??
             "No se pudo iniciar sesión con el proveedor. Probá de nuevo."}
         </p>
@@ -79,23 +80,11 @@ export const Login = () => {
           error={errors.password?.message}
           {...register("password")}
         />
-        {errors.root?.server && (
-          <p role="alert" className="text-sm text-danger">
-            {errors.root.server.message}
-          </p>
-        )}
+        <FormError message={errors.root?.server?.message} />
         <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? "Ingresando..." : "Ingresar"}
         </Button>
       </form>
-      {/* Google / GitHub: si falla, vuelve a /login?error=<código> (se muestra arriba, OAUTH_ERRORS). */}
-      <SocialLogin callbackURL={from} />
-      <p className="mt-4 text-center text-sm text-muted">
-        ¿No tenés cuenta?{" "}
-        <Link to="/register" className="font-medium text-gold underline">
-          Crear cuenta
-        </Link>
-      </p>
-    </AuthCard>
+    </>
   );
 };

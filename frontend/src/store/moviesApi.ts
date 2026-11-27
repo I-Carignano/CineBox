@@ -23,7 +23,7 @@ export const moviesApi = createApi({
   // Las queries "proveen" el tag y las mutations lo "invalidan" -> RTK Query vuelve a pedir solo.
   tagTypes: ["Movies"],
   endpoints: (build) => ({
-    // Qué login social está habilitado (Google es opcional): decide si Login muestra su botón.
+    // Qué login social está habilitado (Google es opcional): decide si SocialLogin muestra su botón.
     getAuthProviders: build.query<AuthProviders, void>({
       query: () => ({ url: "/config" }),
     }),
