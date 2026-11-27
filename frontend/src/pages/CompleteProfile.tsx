@@ -27,7 +27,7 @@ export const CompleteProfile = () => {
   });
 
   if (isPending) {
-    return <p className="p-4 text-slate-600">Cargando...</p>;
+    return <p className="p-4 text-muted">Cargando...</p>;
   }
   if (!session) {
     return <Navigate to="/login" replace />;
@@ -68,17 +68,17 @@ export const CompleteProfile = () => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-brand-50 p-4 font-sans">
-      <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Completá tu perfil</h1>
-        <p className="mt-1 mb-4 text-sm text-slate-600">
+    <main className="flex min-h-screen items-center justify-center bg-bg p-4 font-sans">
+      <section className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h1 className="text-xl font-semibold text-text">Completá tu perfil</h1>
+        <p className="mt-1 mb-4 text-sm text-muted">
           Para seguir, elegí tu nombre de usuario y revisá tu nombre. Es el que te identifica en
-          Cinema 24.
+          CineBox.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1 text-sm text-slate-700">
+          <div className="flex flex-col gap-1 text-sm text-text">
             <span>Email</span>
-            <span className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-slate-600">
+            <span className="rounded border border-border bg-surface-2 px-3 py-2 text-muted">
               {session.user.email}
             </span>
           </div>
@@ -104,20 +104,20 @@ export const CompleteProfile = () => {
             {...register("lastName")}
           />
           {errors.root?.server && (
-            <p role="alert" className="text-sm text-red-700">
+            <p role="alert" className="text-sm text-danger">
               {errors.root.server.message}
             </p>
           )}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded bg-brand-600 py-2 font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
+            className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
           >
             {isSubmitting ? "Guardando..." : "Guardar y continuar"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">
-          <button type="button" onClick={handleLogout} className="text-slate-600 underline">
+          <button type="button" onClick={handleLogout} className="text-muted underline">
             Cerrar sesión
           </button>
         </p>

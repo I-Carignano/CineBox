@@ -7,14 +7,14 @@ const CONTACT_EMAIL = "nachocarignano@gmail.com";
 
 export const Privacy = () => {
   return (
-    <article className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <article className="mx-auto max-w-2xl rounded-xl border border-border bg-surface p-6 shadow-sm">
       <h1 className="text-2xl font-semibold">Política de privacidad</h1>
-      <p className="mt-2 text-sm text-slate-600">
-        Cinema 24 — trabajo práctico de Programación Web Full Stack (UAI).
+      <p className="mt-2 text-sm text-muted">
+        CineBox — trabajo práctico de Programación Web Full Stack (UAI).
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Qué datos guardamos</h2>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-700">
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-text">
         <li>Tu email.</li>
         <li>Tu nombre y apellido.</li>
         <li>Tu nombre de usuario.</li>
@@ -28,28 +28,28 @@ export const Privacy = () => {
       </ul>
 
       <h2 className="mt-6 text-lg font-semibold">Para qué los usamos</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-text">
         Solo para que puedas iniciar sesión e identificarte en la app con tu @usuario. No usamos tus
         datos para publicidad ni para nada más.
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Con quién los compartimos</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-text">
         Con nadie. Tus datos no se venden ni se comparten con terceros. Lo único visible para otras
         personas es tu @usuario (o tu nombre).
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Cómo pedir la baja</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-text">
         Si querés que borremos tu cuenta y tus datos, escribí a{" "}
-        <a href={`mailto:${CONTACT_EMAIL}`} className="text-brand-600 underline">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold underline">
           {CONTACT_EMAIL}
         </a>{" "}
         y la eliminamos.
       </p>
 
       <p className="mt-6 text-sm">
-        <Link to="/peliculas" className="text-brand-600 underline">
+        <Link to="/peliculas" className="text-gold underline">
           Volver al catálogo
         </Link>
       </p>
