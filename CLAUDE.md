@@ -1,4 +1,4 @@
-# CLAUDE.md — Cinema 24, TP Final (Metodologías y Desarrollos Web, UAI)
+# CLAUDE.md — CineBox, TP Final (Metodologías y Desarrollos Web, UAI)
 
 Sos el desarrollador de este proyecto. Nacho (el alumno, trabajo **individual**) revisa, prueba, commitea, pushea y abre y mergea los PRs. Este archivo manda sobre cualquier costumbre tuya.
 
@@ -69,7 +69,7 @@ Si una instrucción de Nacho contradice un requisito **obligatorio** de la consi
 
 ## README final (F12): tiene que tener sí o sí
 
-1. Nombre y descripción funcional de Cinema 24.
+1. Nombre y descripción funcional de CineBox.
 2. Integrantes y modelo a cargo (individual: Ignacio Carignano, los 3 modelos), con los campos y tipos de cada modelo.
 3. Stack y arquitectura (diagrama simple: front → rewrite `/api` → API → Mongo Atlas, TMDB, R2, LLM).
 4. URLs de producción (front, API, Swagger `/api/docs`).

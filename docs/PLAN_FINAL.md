@@ -1,4 +1,4 @@
-# PLAN FINAL — Cinema 24 (TP Final MDW 2026)
+# PLAN FINAL — CineBox (TP Final MDW 2026)
 
 Plan de fases para llevar el TP2 al trabajo final. Fuente de verdad de lo que se corrige: `docs/CONSIGNA_FINAL.md`. Decisiones técnicas vigentes: `docs/SPEC.md` (se actualiza en cada fase). Diseño: `docs/DISENO.md`.
 
@@ -6,7 +6,7 @@ Plan de fases para llevar el TP2 al trabajo final. Fuente de verdad de lo que se
 
 ## 0. Visión del producto
 
-**Cinema 24** es una app para registrar, calificar y descubrir películas y series. El catálogo sale de TMDB (precargado más búsqueda bajo demanda). Cada usuario marca lo que vio, califica (0,5 a 5), reseña, guarda para ver, arma listas, y la app aprende sus gustos: recomendaciones, modo deslizar, "¿Qué veo hoy?", estadísticas, niveles y un agente conversacional que recomienda con datos reales de la base. Referencia visual y funcional: Glynbox (capturas en el proyecto de Claude), pero mejor resuelto.
+**CineBox** es una app para registrar, calificar y descubrir películas y series. El catálogo sale de TMDB (precargado más búsqueda bajo demanda). Cada usuario marca lo que vio, califica (0,5 a 5), reseña, guarda para ver, arma listas, y la app aprende sus gustos: recomendaciones, modo deslizar, "¿Qué veo hoy?", estadísticas, niveles y un agente conversacional que recomienda con datos reales de la base. Referencia visual y funcional: Glynbox (capturas en el proyecto de Claude), pero mejor resuelto.
 
 ## 1. Modelos propios (3, alumno individual)
 
@@ -132,12 +132,12 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **PRs (en este orden):** `fix/f1-permisos-backend` (#2), `fix/f1-permisos-y-redirecciones-frontend` (#3), `feat/f1-baja-logica-backend` (#4), `feat/f1-baja-logica-frontend`.
 - **Al cerrar F1 (Nacho, en producción):** borrar la película de prueba "h" y la basura que hayan cargado users, con baja física desde el panel (DF26).
 
-### F2 — Base de UI (paleta y layout) ⏳
-- Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; activar logo y favicon de `brand-gold/` y borrar `cinema24-brand/`.
+### F2 — Base de UI (paleta y layout) 🔄
+- Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; marca CineBox en `public/brand/` (DF28).
 - Layout responsive: barra superior en desktop, **barra inferior** en mobile (Inicio, Buscar, Qué veo, Comunidad, Perfil).
 - Login/registro en **una tarjeta con pestañas** ("Iniciar sesión / Crear cuenta") y "o continuá con" Google y GitHub.
 - Componentes base: botón, chip, tarjeta, póster, estrellas con medias, modal, carrusel horizontal, skeletons.
-- **PRs:** `feat/f2-tema-y-layout`, `feat/f2-login-pestanas`.
+- **PRs:** `feat/f2-marca-y-tema`, `feat/f2-layout-responsive`, `feat/f2-login-pestanas`.
 
 ### F3 — Títulos con TMDB ⏳ (modelo 1)
 - Migrar `Movie` → `Title` (`/api/titulos`), con script de migración de las 31 películas.
@@ -174,7 +174,7 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **PRs:** `feat/f8-agente-backend`, `feat/f8-agente-frontend`.
 
 ### F9 — Descubrir ⏳ (producto)
-- **Inicio:** carrusel de destacadas, Modo deslizar y ¿Qué veo hoy? (accesos), Recomendado para vos, Tendencias en Cinema 24 (más calificados en 7 días), Populares (TMDB), Novedades de quienes seguís (F11).
+- **Inicio:** carrusel de destacadas, Modo deslizar y ¿Qué veo hoy? (accesos), Recomendado para vos, Tendencias en CineBox (más calificados en 7 días), Populares (TMDB), Novedades de quienes seguís (F11).
 - **Modo deslizar:** un póster por vez con La vi / Me gusta / puntaje / Para ver / Pasar; texto corto que explique para qué sirve (calificar lo que ya viste para mejorar tus recomendaciones). Excluye lo ya calificado.
 - **¿Qué veo hoy?:** película o serie, con quién, qué ganas, cuánto tiempo → filtros de género y duración, excluye lo visto, resultados que se pueden ir pasando.
 - **Descubrir:** filtros por tipo, género, año, plataforma y orden.

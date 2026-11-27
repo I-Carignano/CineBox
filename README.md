@@ -1,16 +1,25 @@
-# Cinema 24
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="frontend/public/brand/logo-cinebox-dark-bg.png" />
+    <img src="frontend/public/brand/logo-cinebox-light-bg.png" alt="CineBox" width="360" />
+  </picture>
+</p>
 
-**Cinema 24** es una aplicación web full stack para descubrir, calificar y organizar películas y series. Cualquier persona puede explorar el catálogo sin cuenta; quien se registra tiene su perfil y, a medida que avance el proyecto, va a poder marcar lo que vio, calificar y reseñar, armar listas y recibir recomendaciones. El catálogo lo administran los administradores.
+# CineBox
+
+Antes Cinema 24 (TP2).
+
+**CineBox** es una aplicación web full stack para descubrir, calificar y organizar películas y series. Cualquier persona puede explorar el catálogo sin cuenta; quien se registra tiene su perfil y, a medida que avance el proyecto, va a poder marcar lo que vio, calificar y reseñar, armar listas y recibir recomendaciones. El catálogo lo administran los administradores.
 
 Trabajo Práctico Final de **Metodologías y Desarrollos Web** (UAI, 2026).
 
-> **Estado:** borrador del TP Final (fase F1 de [`docs/PLAN_FINAL.md`](docs/PLAN_FINAL.md)). Hoy la app tiene el catálogo de películas heredado del TP2; los otros dos modelos se suman en F4 y F5. Este README se completa en F12.
+> **Estado:** borrador del TP Final (fase F2 de [`docs/PLAN_FINAL.md`](docs/PLAN_FINAL.md)). Hoy la app tiene el catálogo de películas heredado del TP2; los otros dos modelos se suman en F4 y F5. Este README se completa en F12.
 
 | | URL |
 |---|---|
 | Frontend | <https://tp2-peliculas.onrender.com> |
 | API | <https://tp2-peliculas-api.onrender.com/api> |
-| Repositorio | <https://github.com/I-Carignano/TP2-Peliculas> |
+| Repositorio | <https://github.com/I-Carignano/CineBox> |
 
 > **Aviso:** Render usa el plan gratuito. Si nadie usó la app en los últimos ~15 minutos, el backend está dormido y **la primera carga puede tardar ~50 segundos**.
 

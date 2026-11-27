@@ -1,4 +1,4 @@
-# DECISIONES — Cinema 24 (TP Final)
+# DECISIONES — CineBox (TP Final)
 
 Registro de decisiones. Formato: **ID · decisión · por qué · estado**. Las del TP2 siguen vigentes salvo que se indique lo contrario.
 
@@ -7,7 +7,7 @@ Registro de decisiones. Formato: **ID · decisión · por qué · estado**. Las 
 | ID | Decisión | Por qué | Estado |
 |---|---|---|---|
 | DF01 | Trabajo **individual** con **3 modelos**: Títulos, Calificaciones, Listas | La consigna pide 1 modelo por integrante en grupos de 2–3; el profe aprobó individual "si cubrís los tres modelos" | ✅ Aprobado por el profe (25/11) |
-| DF02 | Se mantiene el **repo del TP2** (`I-Carignano/TP2-Peliculas`) | El profe: "hacé un corte y de ahí en adelante PRs" | ✅ Aprobado |
+| DF02 | Se mantiene el **repo del TP2** (antes `I-Carignano/TP2-Peliculas`, renombrado a `I-Carignano/CineBox` en DF28: es el mismo repo, con su historial y sus PRs) | El profe: "hacé un corte y de ahí en adelante PRs" | ✅ Aprobado |
 | DF03 | **Corte en F0**: desde ahí, `main` protegida y todo por PR con plantilla; merge commit para conservar el historial granular | Requisito obligatorio 4.1 | ✅ |
 | DF04 | La idea tipo Letterboxd/Glynbox | El profe: "me parece correcto, mandale para adelante" | ✅ Aprobado |
 | DF05 | Prioridad: obligatorios → 6 opcionales → producto | Con todos los opcionales se llega al 10; el producto no suma puntos pero pesa en la defensa | ✅ |
@@ -48,8 +48,9 @@ Registro de decisiones. Formato: **ID · decisión · por qué · estado**. Las 
 
 | ID | Decisión | Por qué | Estado |
 |---|---|---|---|
-| DF21 | **Paleta B: negro y dorado**, con un único dorado `#D4A73C` (botones, estrellas, nivel y barra). Modo oscuro | Elegida por Nacho entre 3 opciones | ✅ |
-| DF22 | Logo nuevo: claqueta dorada + "Cinema 24" (Poppins, "24" en dorado) | Acompaña la paleta | ✅ |
+| DF21 | **Paleta B: negro y dorado**, con un único dorado (botones, estrellas, nivel y barra). Modo oscuro. El dorado pasa de `#D4A73C` a **`#E8AD33`** (hover `#CF9727`), muestreado del logo de CineBox | Elegida por Nacho entre 3 opciones; el ajuste hace que logo y botones sean el mismo dorado. Contraste AA verificado (texto negro sobre dorado 9,9:1) | ✅ (ajuste 27/11) |
+| DF22 | ~~Logo: claqueta dorada + "Cinema 24"~~ → reemplazado por el logo de CineBox (DF28) | Acompaña la paleta | 🔁 Reemplazada por DF28 |
 | DF23 | Login en tarjeta con pestañas, como Glynbox; sin favoritas fijadas en el perfil | Gusto de Nacho | ✅ |
-| DF24 | **Cron job** (cron-job.org) a `/health` cada 10 min para que el backend de Render no se duerma | Un solo servicio gratis entra en las 750 h/mes | ✅ |
+| DF24 | **Cron job** (cron-job.org, título `CineBox keep-alive`) a `/health` cada 10 min para que el backend de Render no se duerma | Un solo servicio gratis entra en las 750 h/mes | ✅ |
 | DF25 | `gh` (GitHub CLI) instalado y autenticado para abrir y mergear PRs desde Git Bash | Agiliza el flujo de PRs | ✅ |
+| DF28 | **Rebrand a CineBox.** Nombre de la app: CineBox (antes Cinema 24). Logo: claqueta dorada + "Cine**Box**" ("Box" en dorado), archivos en `frontend/public/brand/`; en el header, claqueta + texto HTML. Repo de GitHub renombrado a **`I-Carignano/CineBox`** (GitHub redirige el link viejo). **Las URLs de Render no cambian** (`tp2-peliculas.onrender.com` y `tp2-peliculas-api.onrender.com`): renombrar el servicio no cambia la URL y migrarla obligaría a rehacer callbacks de OAuth. Tampoco cambian identificadores técnicos (bases `peliculas-dev`/`peliculas-prod`, emails de prueba, variables de entorno, prefijos de cookies). `docs/tp2/` queda como historial con el nombre viejo. Se implementa en F2 · PR 1 | Nombre propio y más claro que "Cinema 24"; mantener URLs e identificadores evita romper login, sesiones y datos en producción | ✅ (27/11) |
