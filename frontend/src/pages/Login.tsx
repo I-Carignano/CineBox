@@ -8,6 +8,7 @@ import { authErrorMessage } from "../lib/auth-errors";
 import { SocialLogin } from "../components/SocialLogin";
 import { signIn, useSession } from "../lib/auth-client";
 import { loginSchema, type LoginFormValues } from "../schemas/auth.schema";
+import { Button } from "../components/ui/Button";
 
 // Códigos que Better Auth manda en /login?error=<código> cuando falla el login social.
 const OAUTH_ERRORS: Record<string, string> = {
@@ -83,13 +84,9 @@ export const Login = () => {
             {errors.root.server.message}
           </p>
         )}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
-        >
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? "Ingresando..." : "Ingresar"}
-        </button>
+        </Button>
       </form>
       {/* Google / GitHub: si falla, vuelve a /login?error=<código> (se muestra arriba, OAUTH_ERRORS). */}
       <SocialLogin callbackURL={from} />

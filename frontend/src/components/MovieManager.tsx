@@ -25,6 +25,7 @@ import { MovieDeleteDialog, type MovieDeleteMode } from "./MovieDeleteDialog";
 import { MovieFilters } from "./MovieFilters";
 import { MovieForm } from "./MovieForm";
 import { Pagination } from "./Pagination";
+import { Button } from "./ui/Button";
 
 const tabClass = (active: boolean) =>
   `rounded-t px-4 py-2 text-sm font-medium transition ${
@@ -136,13 +137,7 @@ export const MovieManager = () => {
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-2xl font-semibold">Administrar películas</h2>
-        <button
-          type="button"
-          onClick={() => openForm("new")}
-          className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover"
-        >
-          + Nueva película
-        </button>
+        <Button onClick={() => openForm("new")}>+ Nueva película</Button>
       </div>
 
       {/* Pestañas de baja lógica: cada una es un ?estado= distinto (una entrada propia en la caché). */}

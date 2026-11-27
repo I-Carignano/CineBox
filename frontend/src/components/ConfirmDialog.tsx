@@ -2,6 +2,7 @@
 // y dos botones. Reemplaza a todas las confirmaciones inline.
 import type { ReactNode } from "react";
 import { Modal } from "./Modal";
+import { Button } from "./ui/Button";
 
 interface ConfirmDialogProps {
   title: string;
@@ -46,23 +47,16 @@ export const ConfirmDialog = ({
     )}
 
     <div className="mt-6 flex justify-end gap-2">
-      <button
-        type="button"
-        onClick={onCancel}
-        disabled={busy}
-        className="rounded border border-border px-4 py-2 text-text transition hover:bg-surface-2 disabled:opacity-50"
-      >
+      <Button variant="secondary" onClick={onCancel} disabled={busy}>
         Cancelar
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant={danger ? "danger" : warning ? "warning" : "primary"}
         onClick={onConfirm}
-        disabled={busy}
-        // Cada variante lleva su color de texto: blanco sobre el rojo danger no llega a 4.5:1, el fondo oscuro sí.
-        className={`rounded px-4 py-2 font-medium transition disabled:opacity-50 ${danger ? "bg-danger text-bg hover:bg-red-400" : warning ? "bg-amber-700 text-white hover:bg-amber-800" : "bg-gold text-on-gold hover:bg-gold-hover"}`}
+        loading={busy}
       >
         {busy ? busyLabel : confirmLabel}
-      </button>
+      </Button>
     </div>
   </Modal>
 );

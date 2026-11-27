@@ -10,6 +10,7 @@ import { authClient, signOut, useSession } from "../lib/auth-client";
 import { authErrorMessage, isUsernameError } from "../lib/auth-errors";
 import { getFirstAndLastName } from "../lib/names";
 import { profileSchema, type ProfileFormValues } from "../schemas/auth.schema";
+import { Button } from "../components/ui/Button";
 
 export const CompleteProfile = () => {
   const { data: session, isPending } = useSession();
@@ -108,13 +109,9 @@ export const CompleteProfile = () => {
               {errors.root.server.message}
             </p>
           )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
-          >
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar y continuar"}
-          </button>
+          </Button>
         </form>
         <p className="mt-4 text-center text-sm">
           <button type="button" onClick={handleLogout} className="text-muted underline">
