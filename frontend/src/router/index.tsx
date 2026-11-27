@@ -9,13 +9,12 @@ import { ComingSoon } from "../pages/ComingSoon";
 import { CompleteProfile } from "../pages/CompleteProfile";
 import { AdminMovies } from "../pages/AdminMovies";
 import { AdminUsers } from "../pages/AdminUsers";
-import { Login } from "../pages/Login";
+import { Auth } from "../pages/Auth";
 import { MovieDetail } from "../pages/MovieDetail";
 import { MoviesList } from "../pages/MoviesList";
 import { NotFound } from "../pages/NotFound";
 import { Privacy } from "../pages/Privacy";
 import { Profile } from "../pages/Profile";
-import { Register } from "../pages/Register";
 
 export const router = createBrowserRouter([
   // Única ruta fuera del ProfileGate: ahí van los usuarios sociales sin username (si estuviera adentro,
@@ -30,9 +29,10 @@ export const router = createBrowserRouter([
     // ProfileGate: con sesión y sin username, TODAS las rutas de abajo redirigen a /completar-perfil.
     element: <ProfileGate />,
     children: [
-      // Fuera del Layout: pantalla completa, sin header
-      { path: "/login", element: <Login /> },
-      { path: "/register", element: <Register /> },
+      // Fuera del Layout: pantalla completa, sin header. La misma tarjeta con pestañas para las dos
+      // (mismo elemento: al cambiar de pestaña no se vuelve a montar).
+      { path: "/login", element: <Auth /> },
+      { path: "/register", element: <Auth /> },
 
       {
         path: "/",
