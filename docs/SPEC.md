@@ -1,4 +1,4 @@
-# SPEC — Cinema 24 (TP Final)
+# SPEC — CineBox (TP Final)
 
 > **Estado al cierre del TP2.** Evoluciona según [`docs/PLAN_FINAL.md`](PLAN_FINAL.md); cada fase actualiza las secciones que toca.
 
@@ -191,7 +191,7 @@ router.patch("/:id/restaurar", onlyAdmin, restoreMovie);
 | Ruta | Página | Acceso | Layout |
 |---|---|---|---|
 | `/` | redirect a `/peliculas` | — | — |
-| `/peliculas` | `MoviesList`: encabezado de marca ("Cinema 24" + bajada; botón "Crear cuenta" si no hay sesión), grilla, búsqueda, filtros, paginación | Pública | Sí |
+| `/peliculas` | `MoviesList`: encabezado de marca ("CineBox" + bajada; botón "Crear cuenta" si no hay sesión), grilla, búsqueda, filtros, paginación | Pública | Sí |
 | `/peliculas/:id` | `MovieDetail` (incluye "Cargada por @usuario"). Si la API responde 404 (no existe o está dada de baja) o 400 (id mal formado), muestra el `NotFound` de la app. Un admin sí ve el detalle de una inactiva, con el aviso "Inactiva: no aparece en el catálogo público" | Pública | Sí |
 | `/login` | `Login`: email + botones "Iniciar sesión con Google" (si `googleEnabled`) y "Iniciar sesión con GitHub" (`SocialLogin`) | Pública (si hay sesión, redirige) | No (`AuthCard`: logo + footer) |
 | `/register` | `Register`: nombre de usuario, nombre, apellido, email, contraseña + confirmación, y los mismos botones sociales (F12) | Pública | No (`AuthCard`) |
@@ -211,9 +211,10 @@ Columna **Autor** del ABM (quién la cargó, `createdBy`; no da permisos): `@use
 Ruta privada sin sesión → `/login` con `state.from`; después del login vuelve a esa ruta (`Login.tsx`).
 Errores de username en el registro (ya usado, inválido, corto/largo) se muestran en el campo "Nombre de usuario", traducidos en `lib/auth-errors.ts`.
 
-**Marca (F12).** La app se llama **Cinema 24**. Assets en `frontend/public/cinema24-brand/` (favicon.ico, favicon-32.png, apple-touch-icon.png, icon-512.png, logo-cinema24.png para fondo claro y logo-cinema24-dark-bg.png para fondo oscuro); `index.html` referencia favicon.ico, favicon-32.png y apple-touch-icon.png. Header oscuro con el logo para fondo oscuro (alto 36 px, link al catálogo); login y registro llevan el logo claro arriba de la tarjeta. Paleta en `@theme` de `index.css`: **primary** `brand-600` #C5162E (botones, links, acentos; hover `brand-700` #A11226; anillo de foco `brand-500` #E0364C), **ink** #211B1C (header y textos fuertes), **rose** `brand-50` #FBECEE (fondo de página; `brand-100` #F6D3D8 para fondos suaves) y blanco para las tarjetas. Contraste revisado (WCAG): blanco sobre primary 5.9:1, primary sobre rosa 5.2:1, blanco sobre ink 17:1; por eso los textos secundarios son `slate-600` (6.6:1 sobre el rosa) y los errores `red-700`.
+**Marca (F2, DF28).** La app se llama **CineBox**. Assets en `frontend/public/brand/` (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-clapper.png`, `logo-cinebox-dark-bg.png`, `logo-cinebox-light-bg.png`). `index.html`: título "CineBox", `lang="es"`, meta description, `theme-color` #0A0A0B, favicons y `site.webmanifest` (íconos 192 y 512, `display: standalone`). Header: `icon-clapper.png` (32 px, `alt=""`) + texto HTML "Cine**Box**" en Poppins 700 ("Box" en dorado), todo un link a `/` con `aria-label="CineBox, ir al inicio"`. Login y registro: `logo-cinebox-dark-bg.png` (64 px) arriba de la tarjeta.
+**Tema (F2).** Modo oscuro único, tokens de `docs/DISENO.md` §1 en el `@theme` de `index.css`: `bg` #0A0A0B, `surface` #16161A, `surface-2` #1E1E24, `border` #26262C, `text` #F5F5F7, `muted` #A1A1AA, `gold` #E8AD33 (hover `gold-hover` #CF9727, fondo suave `gold-soft`), `on-gold` #0A0A0B, `danger` #EF4444, `success` #22C55E. Botón primario `bg-gold text-on-gold hover:bg-gold-hover`; links y activos `text-gold`; foco visible dorado global (`:focus-visible`). Tarjetas, modales e inputs en `surface` con borde `border`; texto secundario `muted`. Modales de baja: lógica en ámbar (`bg-amber-700` + blanco), física en `bg-danger` con texto `text-bg` (blanco sobre danger da 3.8:1, no pasa AA). Avisos: caja `bg-danger/10` + borde y texto `red-300` (8.6:1); los errores de campo van en `text-danger` (4.8:1 sobre surface). Tipografías de Google Fonts con `preconnect`: **Poppins** 600/700 (`--font-display`, títulos y marca) e **Inter** 400/500/600 (`--font-sans`, texto).
 **Botones sociales (F12).** `SocialButton` (ícono SVG inline oficial de Google o GitHub + texto, ancho completo o compacto) y `SocialLogin` (separador "o" + botones, compartido por login y registro). En Perfil → Cuentas vinculadas, cada cuenta vinculada muestra su ícono y las que faltan son botones "Vincular Google" / "Vincular GitHub".
-**Footer (F12).** `Footer`: "© 2026 Cinema 24 · Privacidad", chico y centrado, con `mt-auto` en un contenedor `min-h-screen flex flex-col` (main `flex-1`): queda pegado al fondo de la ventana y separado de las tarjetas.
+**Footer (F12).** `Footer`: "© 2026 CineBox · Privacidad", chico y centrado, con `mt-auto` en un contenedor `min-h-screen flex flex-col` (main `flex-1`): queda pegado al fondo de la ventana y separado de las tarjetas.
 
 ### 6.2 Reglas
 

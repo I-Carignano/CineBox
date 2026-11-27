@@ -112,23 +112,23 @@ export const Register = () => {
           {...register("confirmPassword")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-danger">
             {errors.root.server.message}
           </p>
         )}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded bg-brand-600 py-2 font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
+          className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
         >
           {isSubmitting ? "Creando..." : "Crear cuenta"}
         </button>
       </form>
       {/* Registrarse con GitHub/Google es lo mismo que entrar: si la cuenta no existe, se crea. */}
       <SocialLogin callbackURL="/peliculas" />
-      <p className="mt-4 text-center text-sm text-slate-600">
+      <p className="mt-4 text-center text-sm text-muted">
         ¿Ya tenés cuenta?{" "}
-        <Link to="/login" className="font-medium text-brand-600 underline">
+        <Link to="/login" className="font-medium text-gold underline">
           Ingresar
         </Link>
       </p>

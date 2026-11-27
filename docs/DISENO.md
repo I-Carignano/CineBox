@@ -1,4 +1,4 @@
-# DISEÑO — Cinema 24 (TP Final)
+# DISEÑO — CineBox (TP Final)
 
 Guía visual y de interfaz. Referencia funcional: **Glynbox** (capturas en el proyecto de Claude de Nacho). La idea es tomar su estructura y resolverla mejor: con datos que cargan bien, estadísticas que se calculan de verdad y una versión de escritorio cuidada, no un celular estirado.
 
@@ -14,20 +14,41 @@ Modo oscuro único. **Un solo dorado** para todo lo destacado: botones principal
 | `--color-border` | `#26262C` | bordes y divisores |
 | `--color-text` | `#F5F5F7` | texto principal |
 | `--color-muted` | `#A1A1AA` | texto secundario |
-| `--color-gold` | `#D4A73C` | acento único: CTA, activo, estrellas, nivel, barra de puntos |
-| `--color-gold-hover` | `#C0952F` | hover y active del dorado |
-| `--color-gold-soft` | `rgba(212,167,60,.15)` | fondo de pills y pestaña activa |
+| `--color-gold` | `#E8AD33` | acento único: CTA, activo, estrellas, nivel, barra de puntos |
+| `--color-gold-hover` | `#CF9727` | hover y active del dorado |
+| `--color-gold-soft` | `rgba(232,173,51,.15)` | fondo de pills y pestaña activa |
 | `--color-on-gold` | `#0A0A0B` | texto sobre dorado |
 | `--color-danger` | `#EF4444` | eliminar, errores |
 | `--color-success` | `#22C55E` | confirmaciones, "disponible" |
 
-Reglas: el dorado no se usa en párrafos largos; los errores van en rojo con texto descriptivo; contraste AA mínimo (verificar `--color-muted` sobre `--color-surface`).
+Reglas: el dorado no se usa en párrafos largos; los errores van en rojo con texto descriptivo; contraste AA mínimo.
+
+El dorado sale del logo de CineBox (muestreado: `#E2AA36`–`#EBAE30`); reemplaza al `#D4A73C` original para que botones y logo sean el mismo color (DF21). Los rojos de la marca vieja (`brand-*`) desaparecen.
+
+Contraste verificado (WCAG): `on-gold` sobre `gold` 9,9:1 · `gold` sobre `surface` 9,0:1 · `on-gold` sobre `gold-hover` 7,6:1 · `muted` sobre `surface` 7,0:1 y sobre `surface-2` 6,5:1. Todo AA (y AAA en texto normal). El dorado sobre blanco da 2:1: no usarlo como texto sobre fondos claros.
 
 ## 2. Marca
 
-- Archivos en `frontend/public/brand-gold/`: `icon.svg` (claqueta dorada), `favicon.svg` / `favicon.ico` / `favicon-32.png`, `apple-touch-icon.png`, `icon-512.png`, `logo-cinema24-dark-bg.png` (wordmark blanco y "24" dorado) y `logo-cinema24-light-bg.png`.
-- En el header: `icon.svg` + texto HTML "Cinema **24**" (Poppins 700, "24" en dorado), para que se vea nítido a cualquier tamaño.
-- En F2 se activan estos archivos (index.html, header, login) y se borra la carpeta vieja `cinema24-brand/` de la marca roja.
+Nombre: **CineBox** (antes Cinema 24; ver DF28). Logo: claqueta dorada + wordmark "Cine**Box**" ("Cine" blanco, "Box" dorado).
+
+Archivos en `frontend/public/brand/` (reemplaza a `brand-gold/` y a `cinema24-brand/`, que se borran):
+
+| Archivo | Tamaño | Uso |
+|---|---|---|
+| `favicon.ico` | 16/32/48/64/256 | pestaña del navegador |
+| `favicon-32.png` | 32×32 | favicon PNG |
+| `apple-touch-icon.png` | 180×180, fondo `#0A0A0B` | iOS (acceso directo) |
+| `icon-192.png` · `icon-512.png` | transparentes | `site.webmanifest` (PWA) |
+| `icon-clapper.png` | 256 px de alto, transparente | claqueta sola: header |
+| `logo-cinebox-dark-bg.png` | 1195×297, transparente | logo completo sobre fondo oscuro: login, 404, README |
+| `logo-cinebox-light-bg.png` | 1195×297, transparente | logo sobre fondo claro (README en tema claro de GitHub) |
+
+Uso:
+
+- **Header:** `icon-clapper.png` (32 px de alto) + texto HTML "Cine**Box**" en Poppins 700, con "Box" en `--color-gold`. Es nítido a cualquier tamaño, accesible y evita un detalle del render (la "e" toca la "B" en el PNG).
+- **Login y pantallas vacías:** `logo-cinebox-dark-bg.png` (alto 56–72 px, `alt="CineBox"`).
+- **Favicon:** el ícono cuadrado (claqueta dentro del cuadro con borde dorado), que se lee en pestañas claras y oscuras.
+- El ícono cuadrado no se usa en el header: compite con el wordmark.
 
 ## 3. Tipografía
 
@@ -58,10 +79,10 @@ Contenedor máximo de 1280 px. Carruseles horizontales con scroll y snap en mobi
 
 Los números corresponden a `referencias/glynbox/NN.jpeg` del proyecto de Claude.
 
-| Pantalla Cinema 24 | Referencia | Qué tomamos | Qué mejoramos |
+| Pantalla CineBox | Referencia | Qué tomamos | Qué mejoramos |
 |---|---|---|---|
 | Login / registro | 00-login | Tarjeta con pestañas, "o continuá con" | Email + Google + GitHub; errores visibles por campo |
-| Inicio | 01, 03, 05, 07, 08 | Carrusel de destacadas, accesos a Deslizar y ¿Qué veo hoy?, secciones horizontales | Sin anuncios; "Tendencias" calculadas en Cinema 24 |
+| Inicio | 01, 03, 05, 07, 08 | Carrusel de destacadas, accesos a Deslizar y ¿Qué veo hoy?, secciones horizontales | Sin anuncios; "Tendencias" calculadas en CineBox |
 | ¿Qué veo hoy? | 02, 06 | 4 preguntas con chips | Resultados que se pueden ir pasando, con "por qué te lo recomendamos" |
 | Descubrir | 04 | Pestañas por tipo y filtros (plataforma, género, año, orden) | Paginación real (opcional de la consigna) |
 | Modo deslizar | 22 | Póster grande con La vi / Me gusta / ★ / Para ver | Agregar "Pasar" explícito y una ayuda corta sobre para qué sirve |

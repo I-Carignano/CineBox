@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
-/* Paleta de Cinema 24. Tokens propios: generan utilidades como bg-brand-600, bg-brand-50, bg-ink.
-   - brand-600 = rojo primario (botones, acentos, links). Blanco sobre él: contraste 5.9:1.
-   - brand-700 = hover / estado presionado del primario (8:1 con blanco).
-   - brand-500 = anillo de foco (más claro, pero > 3:1 sobre blanco y sobre el fondo rosa).
-   - brand-100 = rosa un poco más marcado para chips o fondos suaves.
-   - brand-50  = rosa de fondo de la página; las tarjetas van en blanco encima.
-   - ink       = casi negro cálido: header y textos fuertes. */
+/* Tema de CineBox (docs/DISENO.md §1): modo oscuro único y un solo dorado para lo destacado.
+   Cada token genera sus utilidades: bg-surface, text-muted, border-border, bg-gold, text-on-gold, ring-gold...
+   Contrastes (WCAG): text y muted pasan AA sobre bg, surface y surface-2; gold sobre bg 9.8:1; on-gold sobre
+   gold 9.8:1; danger sobre surface 4.8:1. Blanco sobre danger no llega (3.8:1): el botón rojo usa text-bg. */
 @theme {
+  --font-display: "Poppins", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
-  --color-ink: #211b1c;
-  --color-brand-50: #fbecee;
-  --color-brand-100: #f6d3d8;
-  --color-brand-500: #e0364c;
-  --color-brand-600: #c5162e;
-  --color-brand-700: #a11226;
+
+  --color-bg: #0a0a0b;
+  --color-surface: #16161a;
+  --color-surface-2: #1e1e24;
+  --color-border: #26262c;
+  --color-text: #f5f5f7;
+  --color-muted: #a1a1aa;
+  --color-gold: #e8ad33;
+  --color-gold-hover: #cf9727;
+  --color-gold-soft: rgba(232, 173, 51, 0.15);
+  --color-on-gold: #0a0a0b;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
 }
 
-/* Foco visible en todo lo interactivo (accesibilidad por teclado) */
 @layer base {
+  /* Controles nativos (scrollbars, selects, date pickers) en su versión oscura */
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-bg font-sans text-text antialiased;
+  }
+
+  /* Títulos con la tipografía de la marca */
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+
+  ::placeholder {
+    @apply text-muted;
+  }
+
+  /* Foco visible dorado en todo lo interactivo (accesibilidad por teclado) */
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-gold);
     outline-offset: 2px;
   }
 }

@@ -48,7 +48,7 @@ export const Modal = ({
       onClick={(event) => {
         if (event.target === event.currentTarget && dismissible) onClose();
       }}
-      className={`m-auto max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto rounded-xl bg-white p-0 text-slate-900 shadow-xl backdrop:bg-black/60 ${size === "lg" ? "max-w-2xl" : "max-w-md"}`}
+      className={`m-auto max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto rounded-xl border border-border bg-surface p-0 text-text shadow-xl backdrop:bg-black/70 ${size === "lg" ? "max-w-2xl" : "max-w-md"}`}
     >
       <div className="p-4 sm:p-6">
         <h2 id="modal-title" className="mb-4 text-lg font-semibold">

@@ -38,7 +38,7 @@ export const AddPasswordModal = ({ email, onClose, onDone }: AddPasswordModalPro
 
   return (
     <Modal title="Agregar email y contraseña" onClose={onClose}>
-      <p className="mb-3 text-sm text-slate-600">
+      <p className="mb-3 text-sm text-muted">
         Vas a poder entrar con <strong>{email}</strong> y esta contraseña.
       </p>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
@@ -57,7 +57,7 @@ export const AddPasswordModal = ({ email, onClose, onDone }: AddPasswordModalPro
           {...register("confirmPassword")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-danger">
             {errors.root.server.message}
           </p>
         )}
@@ -66,14 +66,14 @@ export const AddPasswordModal = ({ email, onClose, onDone }: AddPasswordModalPro
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded border border-slate-300 px-4 py-2 text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+            className="rounded border border-border px-4 py-2 text-text transition hover:bg-surface-2 disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
+            className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
           >
             {isSubmitting ? "Guardando..." : "Guardar contraseña"}
           </button>

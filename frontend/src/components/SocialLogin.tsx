@@ -13,8 +13,8 @@ export const SocialLogin = ({ callbackURL }: { callbackURL: string }) => {
 
   return (
     <>
-      <div className="my-4 flex items-center gap-3 text-xs text-slate-500">
-        <span className="h-px flex-1 bg-slate-200" />o<span className="h-px flex-1 bg-slate-200" />
+      <div className="my-4 flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-border" />o<span className="h-px flex-1 bg-border" />
       </div>
       <div className="flex flex-col gap-2">
         {providers?.googleEnabled && (

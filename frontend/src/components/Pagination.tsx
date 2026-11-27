@@ -6,7 +6,7 @@ interface PaginationProps {
 }
 
 const buttonClass =
-  "rounded border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40";
+  "rounded border border-border bg-surface px-3 py-1.5 text-sm font-medium transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40";
 
 export const Pagination = ({ page, totalPages, onChange }: PaginationProps) => {
   if (totalPages <= 1) return null;
@@ -21,7 +21,7 @@ export const Pagination = ({ page, totalPages, onChange }: PaginationProps) => {
       >
         ← Anterior
       </button>
-      <span className="text-sm text-slate-600" aria-current="page">
+      <span className="text-sm text-muted" aria-current="page">
         Página {page} de {totalPages}
       </span>
       <button

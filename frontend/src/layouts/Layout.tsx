@@ -1,4 +1,4 @@
-// Layout general: header con logo, navegación, usuario y logout, y footer. Se monta una sola vez;
+// Layout general: header con la marca CineBox, navegación, usuario y logout, y footer. Se monta una sola vez;
 // al navegar solo cambia lo que renderiza <Outlet />.
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
@@ -7,7 +7,7 @@ import { signOut, useSession } from "../lib/auth-client";
 import { isAdminRole } from "../lib/roles";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `rounded px-3 py-1.5 text-sm hover:bg-white/10 ${isActive ? "bg-white/15 font-semibold" : ""}`;
+  `rounded px-3 py-1.5 text-sm hover:bg-surface-2 ${isActive ? "bg-gold-soft font-semibold text-gold" : ""}`;
 
 export const Layout = () => {
   const { data: session, isPending } = useSession();
@@ -28,15 +28,16 @@ export const Layout = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-brand-50 font-sans text-slate-900">
-      <header className="border-b-2 border-brand-600 bg-ink px-4 py-3 text-white sm:px-6">
+    <div className="flex min-h-screen flex-col">
+      <header className="border-b border-border bg-surface px-4 py-3 sm:px-6">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2">
-          <Link to="/peliculas" className="flex items-center">
-            <img
-              src="/cinema24-brand/logo-cinema24-dark-bg.png"
-              alt="Cinema 24"
-              className="h-9 w-auto"
-            />
+          {/* Marca: claqueta (decorativa, alt vacío) + wordmark en texto HTML, nítido a cualquier tamaño.
+              El nombre accesible del link lo da aria-label. */}
+          <Link to="/" aria-label="CineBox, ir al inicio" className="flex items-center gap-2 rounded">
+            <img src="/brand/icon-clapper.png" alt="" width={34} height={32} className="h-8 w-auto" />
+            <span className="font-display text-xl font-bold">
+              Cine<span className="text-gold">Box</span>
+            </span>
           </Link>
           <nav aria-label="Principal" className="flex flex-wrap items-center gap-1">
             <NavLink to="/peliculas" className={navLinkClass}>
@@ -67,7 +68,7 @@ export const Layout = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded px-3 py-1.5 text-sm hover:bg-white/10"
+                className="rounded px-3 py-1.5 text-sm hover:bg-surface-2"
               >
                 Salir ({user.name})
               </button>
@@ -76,7 +77,7 @@ export const Layout = () => {
         </div>
       </header>
       {logoutError && (
-        <p role="alert" className="bg-red-100 px-4 py-2 text-center text-sm text-red-800">
+        <p role="alert" className="bg-danger/10 px-4 py-2 text-center text-sm text-red-300">
           {logoutError}
         </p>
       )}

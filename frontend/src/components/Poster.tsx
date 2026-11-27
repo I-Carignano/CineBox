@@ -16,10 +16,10 @@ export const Poster = ({ movie, className = "" }: PosterProps) => {
       <div
         role="img"
         aria-label={`Sin póster de ${movie.title}`}
-        className={`flex flex-col items-center justify-center gap-1 bg-ink p-2 text-center text-white ${className}`}
+        className={`flex flex-col items-center justify-center gap-1 bg-surface-2 p-2 text-center text-text ${className}`}
       >
         <span className="text-3xl">🎬</span>
-        <span className="text-xs text-white/70">{GENRE_LABELS[movie.genre]}</span>
+        <span className="text-xs text-muted">{GENRE_LABELS[movie.genre]}</span>
       </div>
     );
   }

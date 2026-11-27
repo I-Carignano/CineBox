@@ -1,5 +1,5 @@
 {
-  "name": "tp2-peliculas-backend",
+  "name": "cinebox-backend",
   "version": "1.0.0",
   "description": "API REST de películas (Express 5 + TypeScript + MongoDB) con Better Auth",
   "private": true,

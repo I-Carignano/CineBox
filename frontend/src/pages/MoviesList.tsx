@@ -28,16 +28,16 @@ export const MoviesList = () => {
       {/* Encabezado de la marca. "Crear cuenta" solo sin sesión (y no mientras se sabe si hay una: evita el parpadeo). */}
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="max-w-2xl">
-          <h1 className="text-3xl font-bold tracking-tight text-ink">Cinema 24</h1>
-          <p className="mt-1 text-slate-700">
-            El catálogo de películas de Cinema 24. Explorá sin cuenta, y registrate para tener tu
+          <h1 className="text-3xl font-bold tracking-tight text-text">CineBox</h1>
+          <p className="mt-1 text-text">
+            El catálogo de películas de CineBox. Explorá sin cuenta, y registrate para tener tu
             perfil.
           </p>
         </div>
         {!isPending && !session && (
           <Link
             to="/register"
-            className="rounded bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-700"
+            className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover"
           >
             Crear cuenta
           </Link>
@@ -52,7 +52,7 @@ export const MoviesList = () => {
       />
 
       {error && (
-        <div role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <div role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           No se pudieron cargar las películas: {getErrorMessage(error)}{" "}
           <button type="button" onClick={refetch} className="font-medium underline">
             Reintentar
@@ -61,20 +61,20 @@ export const MoviesList = () => {
       )}
 
       {isLoading && (
-        <p role="status" className="text-slate-600">
+        <p role="status" className="text-muted">
           Cargando películas...
         </p>
       )}
 
       {data && movies.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-          <p className="text-slate-600">
+        <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center">
+          <p className="text-muted">
             {hasActiveFilters || filters.page > 1
               ? "No hay películas que coincidan con tu búsqueda."
               : "Todavía no hay películas cargadas."}
           </p>
           {(hasActiveFilters || filters.page > 1) && (
-            <button type="button" onClick={clearFilters} className="mt-2 text-brand-600 underline">
+            <button type="button" onClick={clearFilters} className="mt-2 text-gold underline">
               Limpiar filtros
             </button>
           )}
@@ -83,7 +83,7 @@ export const MoviesList = () => {
 
       {data && movies.length > 0 && (
         <>
-          <p role="status" className="text-sm text-slate-600">
+          <p role="status" className="text-sm text-muted">
             {data.meta.total} {data.meta.total === 1 ? "película" : "películas"}
           </p>
           <ul

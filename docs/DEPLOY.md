@@ -1,6 +1,6 @@
 # DEPLOY.md — Cómo publicar la app en Render
 
-Dos servicios de Render conectados al mismo repo de GitHub (`I-Carignano/TP2-Peliculas`):
+Dos servicios de Render conectados al mismo repo de GitHub (`I-Carignano/CineBox`, antes `TP2-Peliculas`; las URLs de Render no cambian):
 
 | Servicio | Tipo | Carpeta (Root Directory) | Qué sirve |
 | --- | --- | --- | --- |

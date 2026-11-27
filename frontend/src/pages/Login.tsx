@@ -58,7 +58,7 @@ export const Login = () => {
   return (
     <AuthCard title="Iniciar sesión">
       {oauthError && (
-        <p role="alert" className="mb-4 rounded bg-amber-50 p-3 text-sm text-amber-800">
+        <p role="alert" className="mb-4 rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
           {OAUTH_ERRORS[oauthError] ??
             "No se pudo iniciar sesión con el proveedor. Probá de nuevo."}
         </p>
@@ -79,23 +79,23 @@ export const Login = () => {
           {...register("password")}
         />
         {errors.root?.server && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-danger">
             {errors.root.server.message}
           </p>
         )}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded bg-brand-600 py-2 font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
+          className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
         >
           {isSubmitting ? "Ingresando..." : "Ingresar"}
         </button>
       </form>
       {/* Google / GitHub: si falla, vuelve a /login?error=<código> (se muestra arriba, OAUTH_ERRORS). */}
       <SocialLogin callbackURL={from} />
-      <p className="mt-4 text-center text-sm text-slate-600">
+      <p className="mt-4 text-center text-sm text-muted">
         ¿No tenés cuenta?{" "}
-        <Link to="/register" className="font-medium text-brand-600 underline">
+        <Link to="/register" className="font-medium text-gold underline">
           Crear cuenta
         </Link>
       </p>
