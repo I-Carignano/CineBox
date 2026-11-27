@@ -6,16 +6,22 @@ import { Footer } from "./Footer";
 
 export const AuthCard = ({ title, children }: { title: string; children: ReactNode }) => {
   return (
-    <div className="flex min-h-screen flex-col bg-brand-50 font-sans">
+    <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center justify-center gap-5 p-4">
         <Link to="/peliculas">
-          <img src="/cinema24-brand/logo-cinema24.png" alt="Cinema 24" className="h-14 w-auto" />
+          <img
+            src="/brand/logo-cinebox-dark-bg.png"
+            alt="CineBox"
+            width={258}
+            height={64}
+            className="h-16 w-auto"
+          />
         </Link>
-        <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h1 className="mb-4 text-xl font-semibold text-slate-900">{title}</h1>
+        <section className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-sm">
+          <h1 className="mb-4 text-xl font-semibold text-text">{title}</h1>
           {children}
           <p className="mt-4 text-center text-sm">
-            <Link to="/peliculas" className="text-slate-600 underline">
+            <Link to="/peliculas" className="text-muted underline">
               Volver al catálogo
             </Link>
           </p>
