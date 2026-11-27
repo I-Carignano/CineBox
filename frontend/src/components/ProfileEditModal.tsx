@@ -33,14 +33,14 @@ const FormButtons = ({
       type="button"
       onClick={onCancel}
       disabled={isSubmitting}
-      className="rounded border border-slate-300 px-4 py-2 text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+      className="rounded border border-border px-4 py-2 text-text transition hover:bg-surface-2 disabled:opacity-50"
     >
       Cancelar
     </button>
     <button
       type="submit"
       disabled={isSubmitting}
-      className="rounded bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
+      className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
     >
       {isSubmitting ? "Guardando..." : "Guardar cambios"}
     </button>
@@ -85,7 +85,7 @@ const UsernameForm = ({ initial, onClose }: { initial: string; onClose: () => vo
         {...register("username")}
       />
       {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-danger">
           {errors.root.server.message}
         </p>
       )}
@@ -143,7 +143,7 @@ const NameForm = ({
         {...register("lastName")}
       />
       {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-danger">
           {errors.root.server.message}
         </p>
       )}

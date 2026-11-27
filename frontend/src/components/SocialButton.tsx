@@ -54,7 +54,7 @@ export const SocialButton = ({
     <button
       type="button"
       {...buttonProps}
-      className={`flex items-center gap-3 rounded border border-slate-300 bg-white font-medium text-slate-800 transition hover:bg-slate-50 disabled:opacity-50 ${
+      className={`flex items-center gap-3 rounded border border-border bg-surface font-medium text-text transition hover:bg-surface-2 disabled:opacity-50 ${
         compact ? "px-3 py-1.5 text-sm" : "w-full px-4 py-2"
       }`}
     >

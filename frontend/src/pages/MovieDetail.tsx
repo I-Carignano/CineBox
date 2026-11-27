@@ -15,7 +15,7 @@ export const MovieDetail = () => {
   // "Volver" conserva los filtros del listado si se venía desde ahí (los manda MovieCard en el state).
   const listSearch = (location.state as { listSearch?: string } | null)?.listSearch ?? "";
   const backLink = (
-    <Link to={`/peliculas${listSearch}`} className="text-sm text-slate-600 underline">
+    <Link to={`/peliculas${listSearch}`} className="text-sm text-muted underline">
       ← Volver al catálogo
     </Link>
   );
@@ -25,7 +25,7 @@ export const MovieDetail = () => {
 
   if (isLoading) {
     return (
-      <p role="status" className="text-slate-600">
+      <p role="status" className="text-muted">
         Cargando película...
       </p>
     );
@@ -41,7 +41,7 @@ export const MovieDetail = () => {
   if (error || !movie) {
     return (
       <section className="flex flex-col gap-2">
-        <p role="alert" className="text-red-700">
+        <p role="alert" className="text-danger">
           No se pudo cargar la película: {getErrorMessage(error)}
         </p>
         {backLink}
@@ -52,7 +52,7 @@ export const MovieDetail = () => {
   return (
     <section className="flex flex-col gap-4">
       {backLink}
-      <article className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <article className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-6">
         {/* Primera línea de la tarjeta, antes del póster y el título. */}
         <CopyId id={movie._id} />
         <div className="grid gap-6 md:grid-cols-[14rem_1fr]">
@@ -62,38 +62,38 @@ export const MovieDetail = () => {
             {!movie.active && (
               <p
                 role="status"
-                className="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-800"
+                className="mb-2 inline-block rounded bg-amber-500/15 px-2 py-0.5 text-sm font-medium text-amber-300"
               >
                 Inactiva: no aparece en el catálogo público
               </p>
             )}
             <h2 className="text-2xl font-semibold">{movie.title}</h2>
-            <p className="text-slate-600">Dirigida por {movie.director}</p>
+            <p className="text-muted">Dirigida por {movie.director}</p>
 
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded bg-brand-100 px-2 py-0.5 font-medium text-brand-700">
+              <span className="rounded bg-gold-soft px-2 py-0.5 font-medium text-gold">
                 {GENRE_LABELS[movie.genre]}
               </span>
-              <span className="font-semibold text-amber-600">
+              <span className="font-semibold text-gold">
                 <span aria-hidden="true">★</span> {movie.rating.toFixed(1)}
                 <span className="sr-only"> de 10</span>
               </span>
-              <span className={movie.available ? "text-green-700" : "text-slate-500"}>
+              <span className={movie.available ? "text-success" : "text-muted"}>
                 {movie.available ? "Disponible" : "No disponible"}
               </span>
             </p>
 
             <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-              <dt className="text-slate-600">Estreno</dt>
+              <dt className="text-muted">Estreno</dt>
               <dd>{formatDate(movie.releaseDate)}</dd>
-              <dt className="text-slate-600">Duración</dt>
+              <dt className="text-muted">Duración</dt>
               <dd>{formatDuration(movie.durationMinutes)}</dd>
-              <dt className="text-slate-600">Cargada por</dt>
+              <dt className="text-muted">Cargada por</dt>
               <dd>{formatAuthor(movie.author)}</dd>
             </dl>
 
-            <h3 className="mt-5 text-sm font-semibold text-slate-700">Sinopsis</h3>
-            <p className="mt-1 text-slate-700">
+            <h3 className="mt-5 text-sm font-semibold text-text">Sinopsis</h3>
+            <p className="mt-1 text-text">
               {movie.synopsis || "Esta película no tiene sinopsis."}
             </p>
           </div>

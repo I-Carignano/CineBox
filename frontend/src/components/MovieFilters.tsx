@@ -45,9 +45,9 @@ export const MovieFilters = ({
       role="search"
       aria-label="Filtros del catálogo"
       onSubmit={(event) => event.preventDefault()}
-      className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
     >
-      <div className="flex flex-col gap-1 text-sm text-slate-700 sm:col-span-2 lg:col-span-4">
+      <div className="flex flex-col gap-1 text-sm text-text sm:col-span-2 lg:col-span-4">
         <label htmlFor="movie-search">Buscar por título o director</label>
         <input
           id="movie-search"
@@ -56,7 +56,7 @@ export const MovieFilters = ({
           onChange={(event) => setText(event.target.value)}
           placeholder="Ej: Matrix, Kubrick..."
           maxLength={100}
-          className="rounded border border-slate-300 px-3 py-2"
+          className="rounded border border-border px-3 py-2"
         />
       </div>
 
@@ -127,7 +127,7 @@ export const MovieFilters = ({
 
       {hasActiveFilters && (
         <div className="sm:col-span-2 lg:col-span-4">
-          <button type="button" onClick={onClear} className="text-sm text-brand-600 underline">
+          <button type="button" onClick={onClear} className="text-sm text-gold underline">
             Limpiar filtros
           </button>
         </div>

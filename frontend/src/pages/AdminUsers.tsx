@@ -167,48 +167,48 @@ export const AdminUsers = () => {
       <h2 className="text-2xl font-semibold">Usuarios y roles</h2>
 
       {!isSuperadmin && session && (
-        <p className="rounded bg-slate-100 p-3 text-sm text-slate-600">
+        <p className="rounded bg-surface-2 p-3 text-sm text-muted">
           Sobre los usuarios con rol Usuario podés dar de baja, reactivar, eliminar y ascenderlos a
           Administrador. Una vez administradores, solo el superadmin puede gestionarlos.
         </p>
       )}
 
       {notice && (
-        <p role="status" className="rounded bg-green-50 p-3 text-sm text-green-800">
+        <p role="status" className="rounded border border-success/40 bg-success/10 p-3 text-sm text-green-300">
           {notice}
         </p>
       )}
       {actionError && (
-        <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           {actionError}
         </p>
       )}
       {loadError && (
-        <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           {loadError}
         </p>
       )}
       {users === null && !loadError && (
-        <p role="status" className="text-slate-600">
+        <p role="status" className="text-muted">
           Cargando usuarios...
         </p>
       )}
 
       {users && users.length === 0 && (
-        <p className="text-slate-600">No hay usuarios registrados.</p>
+        <p className="text-muted">No hay usuarios registrados.</p>
       )}
 
       {users && users.length > 0 && (
         <>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             {total > users.length
               ? `Mostrando los últimos ${users.length} de ${total} usuarios`
               : `${total} ${total === 1 ? "usuario" : "usuarios"}`}
           </p>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
             <table className="w-full min-w-3xl text-left text-sm">
               <caption className="sr-only">Usuarios registrados</caption>
-              <thead className="bg-slate-50 text-slate-600">
+              <thead className="bg-surface-2 text-muted">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">
                     Usuario
@@ -230,7 +230,7 @@ export const AdminUsers = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {users.map((user) => {
                   const isSelf = user.id === session?.user.id;
                   const busy = busyId === user.id;
@@ -242,7 +242,7 @@ export const AdminUsers = () => {
                       <td className="px-3 py-2 font-medium">
                         {user.name}
                         {isSelf && (
-                          <span className="ml-2 text-xs font-normal text-slate-600">(vos)</span>
+                          <span className="ml-2 text-xs font-normal text-muted">(vos)</span>
                         )}
                       </td>
                       <td className="px-3 py-2">{user.email}</td>
@@ -260,7 +260,7 @@ export const AdminUsers = () => {
                                 role: event.target.value as UserRole,
                               })
                             }
-                            className="rounded border border-slate-300 bg-white px-2 py-1 disabled:opacity-60"
+                            className="rounded border border-border bg-surface px-2 py-1 disabled:opacity-60"
                           >
                             {assignableRoles.map((value) => (
                               <option key={value} value={value}>
@@ -273,7 +273,7 @@ export const AdminUsers = () => {
                         )}
                       </td>
                       <td
-                        className={`px-3 py-2 ${user.banned ? "text-red-700" : "text-green-700"}`}
+                        className={`px-3 py-2 ${user.banned ? "text-danger" : "text-success"}`}
                       >
                         {user.banned ? "De baja" : "Activo"}
                       </td>
@@ -286,7 +286,7 @@ export const AdminUsers = () => {
                                 user.banned ? applyUnban(user) : setPending({ kind: "ban", user })
                               }
                               disabled={busy}
-                              className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100 disabled:opacity-50"
+                              className="rounded border border-border px-2 py-1 hover:bg-surface-2 disabled:opacity-50"
                             >
                               {user.banned ? "Reactivar" : "Dar de baja"}
                             </button>
@@ -295,14 +295,14 @@ export const AdminUsers = () => {
                               onClick={() => setPending({ kind: "remove", user })}
                               disabled={busy}
                               aria-label={`Eliminar a ${user.name}`}
-                              className="rounded border border-red-300 px-2 py-1 text-red-700 hover:bg-red-50 disabled:opacity-50"
+                              className="rounded border border-danger/60 px-2 py-1 text-red-400 hover:bg-danger/10 disabled:opacity-50"
                             >
                               Eliminar
                             </button>
                           </div>
                         ) : (
                           <span
-                            className="text-xs text-slate-500"
+                            className="text-xs text-muted"
                             title={
                               isSelf
                                 ? "No podés gestionarte a vos mismo"

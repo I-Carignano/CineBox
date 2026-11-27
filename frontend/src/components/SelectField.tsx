@@ -9,19 +9,19 @@ export const SelectField = ({ label, error, children, ...selectProps }: SelectFi
   const errorId = `${selectId}-error`;
 
   return (
-    <div className="flex flex-col gap-1 text-sm text-slate-700">
+    <div className="flex flex-col gap-1 text-sm text-text">
       <label htmlFor={selectId}>{label}</label>
       <select
         id={selectId}
         aria-invalid={!!error}
         aria-describedby={error ? errorId : undefined}
         {...selectProps}
-        className="rounded border border-slate-300 bg-white px-3 py-2 aria-invalid:border-red-500"
+        className="rounded border border-border bg-surface px-3 py-2 aria-invalid:border-danger"
       >
         {children}
       </select>
       {error && (
-        <span id={errorId} className="text-xs text-red-700">
+        <span id={errorId} className="text-xs text-danger">
           {error}
         </span>
       )}

@@ -11,7 +11,7 @@ export const PencilButton = ({ label, onClick }: PencilButtonProps) => (
     onClick={onClick}
     aria-label={label}
     title={label}
-    className="rounded p-1 text-slate-600 transition hover:bg-slate-100 hover:text-brand-600"
+    className="rounded p-1 text-muted transition hover:bg-surface-2 hover:text-gold"
   >
     <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
       <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />

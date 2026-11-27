@@ -29,8 +29,8 @@ import { Pagination } from "./Pagination";
 const tabClass = (active: boolean) =>
   `rounded-t px-4 py-2 text-sm font-medium transition ${
     active
-      ? "border-b-2 border-brand-600 text-brand-700"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+      ? "border-b-2 border-gold text-gold"
+      : "text-muted hover:bg-surface-2 hover:text-text"
   }`;
 
 export const MovieManager = () => {
@@ -139,14 +139,14 @@ export const MovieManager = () => {
         <button
           type="button"
           onClick={() => openForm("new")}
-          className="rounded bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-700"
+          className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover"
         >
           + Nueva película
         </button>
       </div>
 
       {/* Pestañas de baja lógica: cada una es un ?estado= distinto (una entrada propia en la caché). */}
-      <div role="tablist" aria-label="Estado de las películas" className="flex gap-1 border-b border-slate-200">
+      <div role="tablist" aria-label="Estado de las películas" className="flex gap-1 border-b border-border">
         <button
           type="button"
           role="tab"
@@ -168,14 +168,14 @@ export const MovieManager = () => {
       </div>
 
       {showingInactive && (
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Películas dadas de baja: no se ven en el catálogo público. Podés restaurarlas o eliminarlas
           definitivamente.
         </p>
       )}
 
       {notice && (
-        <p role="status" className="rounded bg-green-50 p-3 text-sm text-green-800">
+        <p role="status" className="rounded border border-success/40 bg-success/10 p-3 text-sm text-green-300">
           {notice}
         </p>
       )}
@@ -188,13 +188,13 @@ export const MovieManager = () => {
       />
 
       {actionError && (
-        <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           {actionError}
         </p>
       )}
 
       {error && (
-        <div role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <div role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           No se pudieron cargar las películas: {getErrorMessage(error)}{" "}
           <button type="button" onClick={refetch} className="font-medium underline">
             Reintentar
@@ -203,16 +203,16 @@ export const MovieManager = () => {
       )}
 
       {isLoading && (
-        <p role="status" className="text-slate-600">
+        <p role="status" className="text-muted">
           Cargando películas...
         </p>
       )}
 
       {data && movies.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-          <p className="text-slate-600">{emptyMessage}</p>
+        <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center">
+          <p className="text-muted">{emptyMessage}</p>
           {isFiltered ? (
-            <button type="button" onClick={clearFilters} className="mt-2 text-brand-600 underline">
+            <button type="button" onClick={clearFilters} className="mt-2 text-gold underline">
               Limpiar filtros
             </button>
           ) : (
@@ -220,7 +220,7 @@ export const MovieManager = () => {
               <button
                 type="button"
                 onClick={() => openForm("new")}
-                className="mt-2 text-brand-600 underline"
+                className="mt-2 text-gold underline"
               >
                 Crear la primera
               </button>
@@ -231,7 +231,7 @@ export const MovieManager = () => {
 
       {data && movies.length > 0 && (
         <>
-          <p role="status" className="text-sm text-slate-600">
+          <p role="status" className="text-sm text-muted">
             {data.meta.total} {data.meta.total === 1 ? "película" : "películas"}{" "}
             {showingInactive
               ? data.meta.total === 1
@@ -242,13 +242,13 @@ export const MovieManager = () => {
                 : "activas"}
           </p>
           <div
-            className={`overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm transition-opacity ${isFetching ? "opacity-50" : ""}`}
+            className={`overflow-x-auto rounded-xl border border-border bg-surface shadow-sm transition-opacity ${isFetching ? "opacity-50" : ""}`}
           >
             <table className="w-full min-w-xl text-left text-sm">
               <caption className="sr-only">
                 {showingInactive ? "Películas dadas de baja" : "Películas activas"}
               </caption>
-              <thead className="bg-slate-50 text-slate-600">
+              <thead className="bg-surface-2 text-muted">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">
                     Título
@@ -274,9 +274,9 @@ export const MovieManager = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {movies.map((movie) => (
-                  <tr key={movie._id} className={movie.active ? "" : "bg-amber-50/40"}>
+                  <tr key={movie._id} className={movie.active ? "" : "bg-amber-500/5"}>
                     <td className="px-3 py-2 font-medium">
                       <Link to={`/peliculas/${movie._id}`} className="hover:underline">
                         {movie.title}
@@ -287,16 +287,16 @@ export const MovieManager = () => {
                     <td className="px-3 py-2">{movie.rating.toFixed(1)}</td>
                     <td className="px-3 py-2">
                       {movie.active ? (
-                        <span className={movie.available ? "text-green-700" : "text-slate-500"}>
+                        <span className={movie.available ? "text-success" : "text-muted"}>
                           {movie.available ? "Disponible" : "No disponible"}
                         </span>
                       ) : (
                         <span className="flex flex-col items-start gap-0.5">
-                          <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                          <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-300">
                             Inactiva
                           </span>
                           {movie.deletedAt && (
-                            <span className="text-xs text-slate-600">
+                            <span className="text-xs text-muted">
                               desde {formatDateTime(movie.deletedAt)}
                             </span>
                           )}
@@ -311,7 +311,7 @@ export const MovieManager = () => {
                             type="button"
                             onClick={() => openForm(movie)}
                             aria-label={`Editar ${movie.title}`}
-                            className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100"
+                            className="rounded border border-border px-2 py-1 hover:bg-surface-2"
                           >
                             Editar
                           </button>
@@ -322,7 +322,7 @@ export const MovieManager = () => {
                               setDeleting({ movie, mode: "soft" });
                             }}
                             aria-label={`Dar de baja ${movie.title}`}
-                            className="rounded border border-amber-400 px-2 py-1 text-amber-800 hover:bg-amber-50"
+                            className="rounded border border-amber-500/60 px-2 py-1 text-amber-300 hover:bg-amber-500/10"
                           >
                             Dar de baja
                           </button>
@@ -334,7 +334,7 @@ export const MovieManager = () => {
                             onClick={() => handleRestore(movie)}
                             disabled={restoringId === movie._id}
                             aria-label={`Restaurar ${movie.title}`}
-                            className="rounded border border-green-600 px-2 py-1 text-green-800 hover:bg-green-50 disabled:opacity-50"
+                            className="rounded border border-success/60 px-2 py-1 text-green-300 hover:bg-success/10 disabled:opacity-50"
                           >
                             {restoringId === movie._id ? "Restaurando..." : "Restaurar"}
                           </button>
@@ -345,7 +345,7 @@ export const MovieManager = () => {
                               setDeleting({ movie, mode: "permanent" });
                             }}
                             aria-label={`Eliminar definitivamente ${movie.title}`}
-                            className="rounded border border-red-300 px-2 py-1 text-red-700 hover:bg-red-50"
+                            className="rounded border border-danger/60 px-2 py-1 text-red-400 hover:bg-danger/10"
                           >
                             Eliminar definitivamente
                           </button>

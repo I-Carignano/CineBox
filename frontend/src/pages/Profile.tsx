@@ -31,21 +31,21 @@ export const Profile = () => {
   return (
     <section className="flex flex-col gap-4">
       {forbidden && (
-        <p role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-800">
+        <p role="alert" className="rounded border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
           No tenés permisos para entrar a esa sección.
         </p>
       )}
       {linkError && (
-        <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
           {LINK_ERRORS[linkError] ?? "No se pudo vincular la cuenta. Probá de nuevo."}
         </p>
       )}
 
-      <div className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-6 rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div>
           <h2 className="text-xl font-semibold">Mi perfil</h2>
           <dl className="mt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
-            <dt className="text-slate-600">Usuario</dt>
+            <dt className="text-muted">Usuario</dt>
             <dd className="flex items-center gap-1">
               {user.username ? `@${user.username}` : "—"}
               <PencilButton
@@ -53,16 +53,16 @@ export const Profile = () => {
                 onClick={() => setEditing("username")}
               />
             </dd>
-            <dt className="text-slate-600">Nombre</dt>
+            <dt className="text-muted">Nombre</dt>
             <dd className="flex items-center gap-1">
               {`${firstName} ${lastName}`.trim() || user.name}
               <PencilButton label="Editar nombre" onClick={() => setEditing("name")} />
             </dd>
-            <dt className="text-slate-600">Email</dt>
+            <dt className="text-muted">Email</dt>
             <dd>{user.email}</dd>
-            <dt className="text-slate-600">Rol</dt>
+            <dt className="text-muted">Rol</dt>
             <dd>
-              <span className="inline-block rounded bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
+              <span className="inline-block rounded bg-gold-soft px-2 py-0.5 text-xs font-medium text-gold">
                 {roleLabel(user.role)}
               </span>
             </dd>

@@ -18,18 +18,18 @@ export const CopyId = ({ id }: { id: string }) => {
   };
 
   return (
-    <p className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+    <p className="flex flex-wrap items-center gap-2 text-xs text-muted">
       <span>
         ID: <span className="font-mono">#{id}</span>
       </span>
       <button
         type="button"
         onClick={handleCopy}
-        className="rounded border border-slate-300 px-2 py-0.5 hover:bg-slate-100"
+        className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
       >
         Copiar
       </button>
-      <span role="status" className={status === "error" ? "text-red-700" : "text-green-700"}>
+      <span role="status" className={status === "error" ? "text-danger" : "text-success"}>
         {status === "copied" && "¡Copiado!"}
         {status === "error" && "No se pudo copiar"}
       </span>

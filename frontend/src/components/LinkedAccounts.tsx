@@ -27,7 +27,7 @@ const EmailIcon = () => (
     fill="none"
     stroke="currentColor"
     strokeWidth="1.8"
-    className="h-5 w-5 shrink-0 text-slate-600"
+    className="h-5 w-5 shrink-0 text-muted"
   >
     <rect x="3" y="5" width="18" height="14" rx="2" />
     <path d="m3 7 9 6 9-6" />
@@ -62,12 +62,12 @@ export const LinkedAccounts = () => {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-slate-700">Cuentas vinculadas</h3>
+      <h3 className="text-sm font-semibold text-text">Cuentas vinculadas</h3>
       {linked === null ? (
-        <p className="text-sm text-slate-600">Cargando...</p>
+        <p className="text-sm text-muted">Cargando...</p>
       ) : (
         <>
-          <ul className="mt-2 flex flex-col gap-2 text-sm text-slate-700">
+          <ul className="mt-2 flex flex-col gap-2 text-sm text-text">
             {linked.map((id) => (
               <li key={id} className="flex items-center gap-2">
                 {isSocial(id) ? <ProviderIcon provider={id} /> : <EmailIcon />}
@@ -82,7 +82,7 @@ export const LinkedAccounts = () => {
                   <button
                     type="button"
                     onClick={() => setAddingPassword(true)}
-                    className="font-medium text-brand-600 underline"
+                    className="font-medium text-gold underline"
                   >
                     Agregar
                   </button>
@@ -106,7 +106,7 @@ export const LinkedAccounts = () => {
         </>
       )}
       {linkError && (
-        <p role="alert" className="mt-2 text-sm text-red-700">
+        <p role="alert" className="mt-2 text-sm text-danger">
           {linkError}
         </p>
       )}
