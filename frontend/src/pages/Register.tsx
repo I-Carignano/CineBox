@@ -8,6 +8,7 @@ import { SocialLogin } from "../components/SocialLogin";
 import { authErrorMessage, isUsernameError } from "../lib/auth-errors";
 import { signUp, useSession } from "../lib/auth-client";
 import { registerSchema, type RegisterFormValues } from "../schemas/auth.schema";
+import { Button } from "../components/ui/Button";
 
 export const Register = () => {
   const { data: session } = useSession();
@@ -116,13 +117,9 @@ export const Register = () => {
             {errors.root.server.message}
           </p>
         )}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded bg-gold py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
-        >
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? "Creando..." : "Crear cuenta"}
-        </button>
+        </Button>
       </form>
       {/* Registrarse con GitHub/Google es lo mismo que entrar: si la cuenta no existe, se crea. */}
       <SocialLogin callbackURL="/peliculas" />

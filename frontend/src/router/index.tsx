@@ -5,6 +5,7 @@ import { Layout } from "../layouts/Layout";
 import { ADMIN_ROLES } from "../lib/roles";
 import { ProfileGate } from "./ProfileGate";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { ComingSoon } from "../pages/ComingSoon";
 import { CompleteProfile } from "../pages/CompleteProfile";
 import { AdminMovies } from "../pages/AdminMovies";
 import { AdminUsers } from "../pages/AdminUsers";
@@ -43,6 +44,44 @@ export const router = createBrowserRouter([
           // Públicas
           { path: "peliculas", element: <MoviesList /> },
           { path: "peliculas/:id", element: <MovieDetail /> },
+
+          // Secciones del menú que todavía no existen: una sola página "Próximamente" (nada de links rotos).
+          {
+            path: "descubrir",
+            element: (
+              <ComingSoon
+                section="Descubrir"
+                description="Carruseles de destacadas, tendencias y populares para encontrar tu próxima película o serie."
+              />
+            ),
+          },
+          {
+            path: "que-veo-hoy",
+            element: (
+              <ComingSoon
+                section="¿Qué veo hoy?"
+                description="Contanos cuánto tiempo tenés y con qué ganas estás, y te sugerimos qué ver."
+              />
+            ),
+          },
+          {
+            path: "comunidad",
+            element: (
+              <ComingSoon
+                section="Comunidad"
+                description="Seguí a otros usuarios, mirá qué califican y compará gustos."
+              />
+            ),
+          },
+          {
+            path: "buscar",
+            element: (
+              <ComingSoon
+                section="Buscar"
+                description="Vas a poder buscar películas y series de todo el catálogo. Mientras tanto, usá la búsqueda del inicio."
+              />
+            ),
+          },
 
           // Privada: cualquier usuario logueado. (/mis-peliculas ya no existe desde F1: cae en el 404.)
           {

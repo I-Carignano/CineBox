@@ -10,7 +10,7 @@ export const Privacy = () => {
     <article className="mx-auto max-w-2xl rounded-xl border border-border bg-surface p-6 shadow-sm">
       <h1 className="text-2xl font-semibold">Política de privacidad</h1>
       <p className="mt-2 text-sm text-muted">
-        CineBox — trabajo práctico de Programación Web Full Stack (UAI).
+        CineBox — trabajo práctico final de Metodologías y Desarrollos Web (UAI).
       </p>
 
       <h2 className="mt-6 text-lg font-semibold">Qué datos guardamos</h2>

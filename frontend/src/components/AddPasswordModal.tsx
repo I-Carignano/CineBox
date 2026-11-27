@@ -7,6 +7,7 @@ import { addPasswordSchema, type AddPasswordFormValues } from "../schemas/auth.s
 import { useSetPasswordMutation } from "../store/moviesApi";
 import { FormField } from "./FormField";
 import { Modal } from "./Modal";
+import { Button } from "./ui/Button";
 
 interface AddPasswordModalProps {
   email: string;
@@ -62,21 +63,12 @@ export const AddPasswordModal = ({ email, onClose, onDone }: AddPasswordModalPro
           </p>
         )}
         <div className="mt-2 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="rounded border border-border px-4 py-2 text-text transition hover:bg-surface-2 disabled:opacity-50"
-          >
+          <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar contraseña"}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

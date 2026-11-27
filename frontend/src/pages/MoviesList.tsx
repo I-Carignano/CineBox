@@ -1,13 +1,20 @@
 // Page: ruta pública "/peliculas". Los filtros salen de la URL y los datos de la caché de RTK Query.
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { MovieCard } from "../components/MovieCard";
+import { MovieCard, MovieCardSkeleton } from "../components/MovieCard";
 import { MovieFilters } from "../components/MovieFilters";
 import { Pagination } from "../components/Pagination";
+import { Button } from "../components/ui/Button";
+import { buttonClasses } from "../components/ui/button-classes";
+import { EmptyState } from "../components/ui/EmptyState";
+import { ErrorState } from "../components/ui/ErrorState";
 import { useMovieFilters } from "../hooks/useMovieFilters";
 import { getErrorMessage } from "../lib/api";
 import { useSession } from "../lib/auth-client";
 import { useGetMoviesQuery } from "../store/moviesApi";
+
+// 12 por página: 2 filas de 6 en desktop, 3 de 4 en tablet y 6 de 2 en mobile.
+const GRID_CLASS = "grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6";
 
 export const MoviesList = () => {
   const { filters, setFilters, clearFilters, hasActiveFilters } = useMovieFilters();
@@ -35,10 +42,7 @@ export const MoviesList = () => {
           </p>
         </div>
         {!isPending && !session && (
-          <Link
-            to="/register"
-            className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover"
-          >
+          <Link to="/register" className={buttonClasses("primary")}>
             Crear cuenta
           </Link>
         )}
@@ -52,43 +56,55 @@ export const MoviesList = () => {
       />
 
       {error && (
-        <div role="alert" className="rounded border border-danger/40 bg-danger/10 p-3 text-sm text-red-300">
-          No se pudieron cargar las películas: {getErrorMessage(error)}{" "}
-          <button type="button" onClick={refetch} className="font-medium underline">
-            Reintentar
-          </button>
-        </div>
+        <ErrorState
+          title="No se pudieron cargar las películas"
+          message={getErrorMessage(error)}
+          onRetry={refetch}
+          retrying={isFetching}
+        />
       )}
 
+      {/* Mientras carga: la grilla con skeletons (el texto queda para lectores de pantalla). */}
       {isLoading && (
-        <p role="status" className="text-muted">
-          Cargando películas...
-        </p>
+        <>
+          <p role="status" className="sr-only">
+            Cargando películas...
+          </p>
+          <ul className={GRID_CLASS}>
+            {Array.from({ length: 12 }, (_, index) => (
+              <li key={index} className="flex">
+                <MovieCardSkeleton />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
-      {data && movies.length === 0 && (
-        <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center">
-          <p className="text-muted">
-            {hasActiveFilters || filters.page > 1
-              ? "No hay películas que coincidan con tu búsqueda."
-              : "Todavía no hay películas cargadas."}
-          </p>
-          {(hasActiveFilters || filters.page > 1) && (
-            <button type="button" onClick={clearFilters} className="mt-2 text-gold underline">
-              Limpiar filtros
-            </button>
-          )}
-        </div>
-      )}
+      {data &&
+        movies.length === 0 &&
+        (hasActiveFilters || filters.page > 1 ? (
+          <EmptyState
+            title="No hay películas que coincidan con tu búsqueda"
+            description="Probá con otras palabras o sacá algún filtro."
+            action={
+              <Button variant="secondary" size="sm" onClick={clearFilters}>
+                Limpiar filtros
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState
+            title="Todavía no hay películas cargadas"
+            description="Cuando un administrador cargue películas, van a aparecer acá."
+          />
+        ))}
 
       {data && movies.length > 0 && (
         <>
           <p role="status" className="text-sm text-muted">
             {data.meta.total} {data.meta.total === 1 ? "película" : "películas"}
           </p>
-          <ul
-            className={`grid grid-cols-2 gap-4 transition-opacity sm:grid-cols-3 lg:grid-cols-4 ${isFetching ? "opacity-50" : ""}`}
-          >
+          <ul className={`${GRID_CLASS} transition-opacity ${isFetching ? "opacity-50" : ""}`}>
             {movies.map((movie) => (
               <li key={movie._id} className="flex">
                 <MovieCard movie={movie} listSearch={location.search} />

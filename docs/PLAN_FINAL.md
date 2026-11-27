@@ -133,10 +133,10 @@ Lo que la auditoría encontró y no estaba explícito en el plan. Lo ya cubierto
 - **Al cerrar F1 (Nacho, en producción):** borrar la película de prueba "h" y la basura que hayan cargado users, con baja física desde el panel (DF26).
 
 ### F2 — Base de UI (paleta y layout) 🔄
-- Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; marca CineBox en `public/brand/` (DF28).
-- Layout responsive: barra superior en desktop, **barra inferior** en mobile (Inicio, Buscar, Qué veo, Comunidad, Perfil).
+- ✅ Paleta B (ver `DISENO.md`) en `@theme`, modo oscuro, tipografía; marca CineBox en `public/brand/` (DF28) (PR `feat/f2-marca-y-tema`).
+- ✅ Layout responsive: barra superior en desktop, **barra inferior** en mobile (Inicio, Buscar, Qué veo, Comunidad, Perfil); secciones futuras en una página "Próximamente" (PR `feat/f2-layout-responsive`).
 - Login/registro en **una tarjeta con pestañas** ("Iniciar sesión / Crear cuenta") y "o continuá con" Google y GitHub.
-- Componentes base: botón, chip, tarjeta, póster, estrellas con medias, modal, carrusel horizontal, skeletons.
+- ✅ Componentes base en `components/ui/`: botón, chip, tarjeta, póster, estrellas con medias, carrusel horizontal, skeletons, estados vacío y error (el modal ya existía y tomó el tema en el PR 1).
 - **PRs:** `feat/f2-marca-y-tema`, `feat/f2-layout-responsive`, `feat/f2-login-pestanas`.
 
 ### F3 — Títulos con TMDB ⏳ (modelo 1)

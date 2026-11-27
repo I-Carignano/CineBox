@@ -13,6 +13,7 @@ import {
 } from "../schemas/auth.schema";
 import { FormField } from "./FormField";
 import { Modal } from "./Modal";
+import { Button } from "./ui/Button";
 
 interface ProfileEditModalProps {
   field: "username" | "name";
@@ -29,21 +30,12 @@ const FormButtons = ({
   onCancel: () => void;
 }) => (
   <div className="mt-2 flex justify-end gap-2">
-    <button
-      type="button"
-      onClick={onCancel}
-      disabled={isSubmitting}
-      className="rounded border border-border px-4 py-2 text-text transition hover:bg-surface-2 disabled:opacity-50"
-    >
+    <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
       Cancelar
-    </button>
-    <button
-      type="submit"
-      disabled={isSubmitting}
-      className="rounded bg-gold px-4 py-2 font-medium text-on-gold transition hover:bg-gold-hover disabled:opacity-50"
-    >
+    </Button>
+    <Button type="submit" loading={isSubmitting}>
       {isSubmitting ? "Guardando..." : "Guardar cambios"}
-    </button>
+    </Button>
   </div>
 );
 
